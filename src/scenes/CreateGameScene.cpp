@@ -1,6 +1,8 @@
 #include "CreateGameScene.h"
 #include <iostream>
 
+#include <SceneTree.hpp>
+
 using namespace godot;
 
 void CreateGameScene::_register_methods()
@@ -16,4 +18,7 @@ void CreateGameScene::_init()
 void CreateGameScene::_on_StartGameButton_pressed(Variant body)
 {
 	std::cout << "Start game button pressed." << std::endl;
+    String playerName = "Player1";
+    get_node("/root/Network")->call("createServer", playerName);
+    get_tree()->change_scene("res://scenes/Game.tscn");
 }

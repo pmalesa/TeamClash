@@ -85,8 +85,8 @@
     <OutDir>$(SolutionDir)..\godot</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\Piotrek\Documents\Libraries\Godot\godot-cpp-master\godot_headers;C:\Users\Piotrek\Documents\Libraries\Godot\godot-cpp-master\include\gen;C:\Users\Piotrek\Documents\Libraries\Godot\godot-cpp-master\include\core;C:\Users\Piotrek\Documents\Libraries\Godot\godot-cpp-master\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Piotrek\Documents\Libraries\Godot\godot-cpp-master\bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\Programs\Godot\godot-cpp\godot_headers;D:\Programs\Godot\godot-cpp\include\gen;D:\Programs\Godot\godot-cpp\include\core;D:\Programs\Godot\godot-cpp\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\Programs\Godot\godot-cpp\bin;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\godot</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -146,12 +146,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CreateGameScene.cpp" />
     <ClCompile Include="GodotLibrary.cpp" />
+    <ClCompile Include="network\Network.cpp" />
+    <ClCompile Include="player\Player.cpp" />
+    <ClCompile Include="scenes\CreateGameScene.cpp" />
+    <ClCompile Include="scenes\Game.cpp" />
     <ClCompile Include="scenes\MainMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CreateGameScene.h" />
+    <ClInclude Include="network\Network.h" />
+    <ClInclude Include="player\Player.h" />
+    <ClInclude Include="scenes\CreateGameScene.h" />
+    <ClInclude Include="scenes\Game.h" />
     <ClInclude Include="scenes\MainMenu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

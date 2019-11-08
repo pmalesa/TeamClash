@@ -19,24 +19,54 @@
     <Filter Include="Header Files\scenes">
       <UniqueIdentifier>{b3d20e67-7ab9-4135-8a29-b14579e08f86}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\network">
+      <UniqueIdentifier>{d5323f0f-9041-42de-9232-8be39bd85af9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\player">
+      <UniqueIdentifier>{fb242edc-bd65-4ffc-aa28-3134d981def8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\player">
+      <UniqueIdentifier>{146e59aa-cbe0-4811-a78c-4c7a78ccde2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\network">
+      <UniqueIdentifier>{e7fe441e-51a3-42f2-b4a9-37001e23cb7c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
       <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="GodotLibrary.cpp">
+    <ClCompile Include="scenes\CreateGameScene.cpp">
       <Filter>Source Files\scenes</Filter>
     </ClCompile>
-    <ClCompile Include="CreateGameScene.cpp">
+    <ClCompile Include="GodotLibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="network\Network.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\Game.cpp">
       <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="player\Player.cpp">
+      <Filter>Source Files\player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
       <Filter>Header Files\scenes</Filter>
     </ClInclude>
-    <ClInclude Include="CreateGameScene.h">
+    <ClInclude Include="scenes\CreateGameScene.h">
       <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\Game.h">
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="network\Network.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="player\Player.h">
+      <Filter>Header Files\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
