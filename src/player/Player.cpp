@@ -65,7 +65,6 @@ void Player::_ready()
 void Player::_physics_process(float delta)
 {
     MoveDirection direction = MoveDirection::NONE;
-    Godot::print("TESTO");
     if (is_network_master())
     {
         Input* input = Input::get_singleton();

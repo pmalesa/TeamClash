@@ -6,9 +6,25 @@
 script = ExtResource( 1 )
 
 [node name="CreateGameButton" type="Button" parent="."]
-margin_left = 851.212
-margin_top = 521.566
-margin_right = 1030.21
-margin_bottom = 583.566
+margin_left = 814.148
+margin_top = 425.879
+margin_right = 1114.15
+margin_bottom = 525.879
 text = "Create game"
+
+[node name="JoinGameButton" type="Button" parent="."]
+margin_left = 816.516
+margin_top = 552.642
+margin_right = 1116.52
+margin_bottom = 652.642
+text = "Join game"
+
+[node name="ExitGameButton" type="Button" parent="."]
+margin_left = 818.419
+margin_top = 675.614
+margin_right = 1118.42
+margin_bottom = 775.614
+text = "Exit"
 [connection signal="pressed" from="CreateGameButton" to="." method="_on_CreateGameButton_pressed"]
+[connection signal="pressed" from="JoinGameButton" to="." method="_on_JoinGameButton_pressed"]
+[connection signal="pressed" from="ExitGameButton" to="." method="_on_ExitGameButton_pressed"]

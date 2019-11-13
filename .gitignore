@@ -2,4 +2,3 @@ src/x64/*
 src/.vs/*
 *.dll
 godot/.import/*
-

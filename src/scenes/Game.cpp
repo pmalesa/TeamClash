@@ -28,12 +28,7 @@ void Game::_ready()
 
     godot::Player* player = static_cast<godot::Player*>(playerScene_->instance());
 
-    Godot::print("TEST");
-    get_tree();
-    Godot::print("TEST");
-
     player->set_name(String(get_tree()->get_network_unique_id()));
-    Godot::print("TEST");
     player->set("nodeName", get_tree()->get_network_unique_id());
     player->set_network_master(get_tree()->get_network_unique_id());
     add_child(player);
@@ -45,10 +40,10 @@ void Game::_ready()
 void Game::_on_player_disconnected(int64_t id)
 {
     Godot::print("Player disconnected.");
-    //if (get_node(String(id)))
-    //{
-    //    get_node(String(id))->queue_free();
-    //}
+    if (get_node(godot::NodePath(String(id))))
+    {
+        get_node(godot::NodePath(String(id)))->queue_free();
+    }
 }
 
 void Game::_on_server_disconnected(int64_t id)

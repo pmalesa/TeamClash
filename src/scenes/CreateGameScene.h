@@ -19,7 +19,7 @@ namespace godot
 		static void _register_methods();
 		void _init();
 		void _on_StartGameButton_pressed(Variant body);
-
+        void _on_BackButton_pressed(Variant body);
 
 	};
 }

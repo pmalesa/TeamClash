@@ -6,9 +6,17 @@
 script = ExtResource( 1 )
 
 [node name="StartGameButton" type="Button" parent="."]
-margin_left = 905.109
-margin_top = 543.907
-margin_right = 985.109
-margin_bottom = 563.907
+margin_left = 814.0
+margin_top = 537.366
+margin_right = 1114.0
+margin_bottom = 637.366
 text = "Start game"
+
+[node name="BackButton" type="Button" parent="."]
+margin_left = 814.0
+margin_top = 655.46
+margin_right = 1114.0
+margin_bottom = 755.46
+text = "Back"
 [connection signal="pressed" from="StartGameButton" to="." method="_on_StartGameButton_pressed"]
+[connection signal="pressed" from="BackButton" to="." method="_on_BackButton_pressed"]
