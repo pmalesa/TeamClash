@@ -85,8 +85,8 @@
     <OutDir>$(SolutionDir)..\godot</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\Programs\Godot\godot-cpp\godot_headers;D:\Programs\Godot\godot-cpp\include\gen;D:\Programs\Godot\godot-cpp\include\core;D:\Programs\Godot\godot-cpp\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Programs\Godot\godot-cpp\bin;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(GodotPath)\godot_headers;$(GodotPath)\include\gen;$(GodotPath)\include\core;$(GodotPath)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(GodotPath)\bin;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)..\godot</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -151,6 +151,7 @@
     <ClCompile Include="player\Player.cpp" />
     <ClCompile Include="scenes\CreateGameScene.cpp" />
     <ClCompile Include="scenes\Game.cpp" />
+    <ClCompile Include="scenes\JoinGameScene.cpp" />
     <ClCompile Include="scenes\MainMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -158,6 +159,7 @@
     <ClInclude Include="player\Player.h" />
     <ClInclude Include="scenes\CreateGameScene.h" />
     <ClInclude Include="scenes\Game.h" />
+    <ClInclude Include="scenes\JoinGameScene.h" />
     <ClInclude Include="scenes\MainMenu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
