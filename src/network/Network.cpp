@@ -17,9 +17,14 @@ void Network::_register_methods()
     register_method("joinServer", &Network::joinServer, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_player_disconnected", &Network::_on_player_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_player_connected", &Network::_on_player_connected, GODOT_METHOD_RPC_MODE_DISABLED);
-
+	register_method("_connected_to_server", &Network::_connected_to_server, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_request_player_info", &Network::_request_player_info, GODOT_METHOD_RPC_MODE_REMOTE);
+	//register_method("_request_players", &Network::_request_players, GODOT_METHOD_RPC_MODE_REMOTE);
     register_method("_send_player_info", &Network::_send_player_info, GODOT_METHOD_RPC_MODE_REMOTE);
     register_method("update_position", &Network::update_position, GODOT_METHOD_RPC_MODE_DISABLED);
+
+	register_property<Network, Dictionary>("selfData", &Network::selfData_, Dictionary(), GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<Network, Dictionary>("players", &Network::players_, Dictionary(), GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void Network::_init()
@@ -40,18 +45,18 @@ void Network::createServer(String playerName)
     selfData_["name"] = playerName;
     players_[1] = selfData_;
     NetworkedMultiplayerENet* peer = NetworkedMultiplayerENet::_new();
-    peer->create_server(12345, 128);
+    peer->create_server(SERVER_PORT, 128);
     get_tree()->set_network_peer(peer);
     std::cout << "Server created successfully." << std::endl;
 }
 
-void Network::joinServer(String playerName)
+void Network::joinServer(String playerName, String ip)
 {
     std::cout << "Joining server." << std::endl;
     selfData_["name"] = "Client";
     get_tree()->connect("connected_to_server", this, "_connected_to_server");
     NetworkedMultiplayerENet* peer = NetworkedMultiplayerENet::_new();
-    peer->create_client("127.0.0.1", 12345);
+    peer->create_client(ip, SERVER_PORT);
     get_tree()->set_network_peer(peer);
     std::cout << "Server joined successfully." << std::endl;
 }
@@ -76,6 +81,14 @@ void Network::_on_player_connected(int64_t connectedPlayerId)
     {
         rpc_id(1, "_request_player_info", localPlayerId, connectedPlayerId);
     }
+}
+
+void Network::_request_player_info(int64_t requestFromId, int64_t playerId)
+{
+	if (get_tree()->is_network_server())
+	{
+		rpc_id(requestFromId, "_send_player_info", playerId, players_[playerId]);
+	}
 }
 
 void Network::_send_player_info(int64_t id, Dictionary info)

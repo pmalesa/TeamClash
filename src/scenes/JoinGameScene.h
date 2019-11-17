@@ -20,6 +20,10 @@ namespace godot
 		void _init();
 		void _on_JoinGameButton_pressed(Variant body);
         void _on_BackButton_pressed(Variant body);
+		void _on_IpAddress_text_changed(String new_text);
+		void _on_PlayerName_text_changed(String new_text);
 
+		String playerName;
+		String serverIp;
 	};
 }

@@ -14,9 +14,9 @@ rect_pivot_offset = Vector2( 370, 79 )
 text = "Join"
 
 [node name="IpAddress" type="LineEdit" parent="."]
-margin_left = 656.0
+margin_left = 657.292
 margin_top = 417.0
-margin_right = 1291.0
+margin_right = 1292.29
 margin_bottom = 527.0
 
 [node name="PlayerName" type="LineEdit" parent="."]
@@ -47,4 +47,6 @@ margin_right = 647.52
 margin_bottom = 531.28
 text = "Ip address"
 [connection signal="pressed" from="JoinGameButton" to="." method="_on_JoinGameButton_pressed"]
+[connection signal="text_changed" from="IpAddress" to="." method="_on_IpAddress_text_changed"]
+[connection signal="text_changed" from="PlayerName" to="." method="_on_PlayerName_text_changed"]
 [connection signal="pressed" from="BackButton" to="." method="_on_BackButton_pressed"]
