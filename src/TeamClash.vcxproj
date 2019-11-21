@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="camera\Camera.cpp" />
     <ClCompile Include="GodotLibrary.cpp" />
     <ClCompile Include="network\Network.cpp" />
     <ClCompile Include="player\Player.cpp" />
@@ -155,6 +156,7 @@
     <ClCompile Include="scenes\MainMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera\Camera.h" />
     <ClInclude Include="network\Network.h" />
     <ClInclude Include="player\Player.h" />
     <ClInclude Include="scenes\CreateGameScene.h" />

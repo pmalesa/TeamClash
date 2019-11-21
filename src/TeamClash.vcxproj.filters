@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -31,6 +31,12 @@
     <Filter Include="Header Files\network">
       <UniqueIdentifier>{e7fe441e-51a3-42f2-b4a9-37001e23cb7c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\camera">
+      <UniqueIdentifier>{a60b6c6c-52d0-4ab3-baad-02e8cf4be049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\camera">
+      <UniqueIdentifier>{16a570b2-fa9e-4da8-94bd-501c877e885e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
@@ -54,6 +60,9 @@
     <ClCompile Include="scenes\JoinGameScene.cpp">
       <Filter>Source Files\scenes</Filter>
     </ClCompile>
+    <ClCompile Include="camera\Camera.cpp">
+      <Filter>Source Files\camera</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -73,6 +82,9 @@
     </ClInclude>
     <ClInclude Include="scenes\JoinGameScene.h">
       <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="camera\Camera.h">
+      <Filter>Header Files\camera</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

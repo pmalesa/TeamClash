@@ -3,6 +3,7 @@
 #include "scenes/JoinGameScene.h"
 #include "scenes/Game.h"
 #include "player/Player.h"
+#include "camera/Camera.h"
 
 #include "network/Network.h"
 
@@ -28,4 +29,5 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
     godot::register_class<godot::Game>();
 	godot::register_class<godot::Player>();
     godot::register_class<godot::Network>();
+    godot::register_class<godot::Camera>();
 }

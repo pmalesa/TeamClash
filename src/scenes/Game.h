@@ -4,6 +4,9 @@
 
 #include <PackedScene.hpp>
 
+#include "../player/Player.h"
+#include "../camera/Camera.h"
+
 namespace godot
 {
 	class Game : public Node
@@ -16,11 +19,12 @@ namespace godot
 		static void _register_methods();
         void _init();
         void _ready();
+        void _process(float delta);
         void _on_player_disconnected(int64_t id);
         void _on_server_disconnected(int64_t id);
 
     private:
         Ref<PackedScene> playerScene_;
-
+        godot::Player* player_;
 	};
 }
