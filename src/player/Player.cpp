@@ -15,11 +15,13 @@ using namespace godot;
 void Player::_register_methods()
 {
     register_method("_physics_process", &Player::_physics_process, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_process", &Player::_process, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_ready", &Player::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_init", &Player::_init, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("damage", &Player::damage, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("updateKeyboardInput", &Player::updateKeyboardInput, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
     register_method("init", &Player::init, GODOT_METHOD_RPC_MODE_DISABLED);
 
@@ -52,9 +54,13 @@ Player::~Player()
 
 void Player::_init()
 {
+	velocity_ = Vector2(0, 0);
+	moveDirection_ = MoveDirection::NONE;
+	movementState_ = MovementState::NONE;
     slavePosition = Vector2();
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName = 0;
+	Godot::print("Player initialized.");
 }
 
 void Player::_ready()
@@ -64,93 +70,70 @@ void Player::_ready()
 
 void Player::_physics_process(float delta)
 {
-    MoveDirection direction = MoveDirection::NONE;
-    if (is_network_master())
-    {
-        Input* input = Input::get_singleton();
-        if (input->is_action_pressed("left"))
-        {
-            direction = MoveDirection::LEFT;
-        }
-        else if (input->is_action_pressed("right"))
-        {
-            direction = MoveDirection::RIGHT;
-        }
-        else if (input->is_action_pressed("up"))
-        {
-            direction = MoveDirection::UP;
-        }
-        else if (input->is_action_pressed("down"))
-        {
-            direction = MoveDirection::DOWN;
-        }
+	//if (is_on_ceiling())
+	//	move_and_slide(Vector2(0, 0), Vector2(0, -1));
 
-        rset_unreliable("slavePosition", get_position());
-        rset("slaveMovement", static_cast<int64_t>(direction));
-        _move(static_cast<int64_t>(direction));
-    }
-    else
-    {
-        _move(slaveMovement);
-        set_position(slavePosition);
-    }
+	if (is_on_floor())
+		setVelocity(Vector2(getVelocity().x, 0.0f));
+	else
+		addVelocity(Vector2(0.0f, 10.0f));
 
-    if (get_tree()->is_network_server())
-    {
-        get_node("/root/Network")->call("update_position", get_name().to_int(), get_position());
-    }
+	if (is_network_master())
+	{
+		rset_unreliable("slavePosition", get_position());
+		rset("slaveMovement", static_cast<int64_t>(moveDirection_));
+		_move(static_cast<int64_t>(moveDirection_));
+	}
+	else
+	{
+		_move(slaveMovement);
+		set_position(slavePosition);
+	}
+
+	if (get_tree()->is_network_server())
+	{
+		get_node("/root/Network")->call("update_position", get_name().to_int(), get_position());
+	}
+
 }
 
-// NOTE : Bundle homogeneous data -> send data for all players in a single packet (400-450 bytes)
-// NOTE : Optimize your state data -> compress flags and the like into smaller data formats
-// NOTE : Use prediction -> instead of interpolating recv_pos and recv_vel,
-//                          interpolate to recv_pos + recv_vel * tick
-
-/*
-void Player::update_state(int64_t time, float tick, Dictionary state)
-{ // NOTE : This would be set as RPC_PUPPET
-    if(lastTime >= time)
-    {
-        return;
-    }
-
-    lastTime = time;
-
-    get_node("Tween")->stop_all();
-    get_node("Tween")->interpolate_method(this, "set_pos",
-                                         get_pos(), state["position"], tick,
-                                         Tween.TRANS_LINEAR, Tween.EASE_IN);
-    get_node("Tween")->interpolate_method(this, "set_linear_velocity",
-                                         get_linear_velocity(), state["velocity"], tick,
-                                         Tween.TRANS_LINEAR, Tween.EASE_IN);
-    get_node("Tween")->start();
+void Player::_process(float delta)
+{
+	updateKeyboardInput();
 }
-*/
 
 void Player::_move(int64_t direction)
 {
     MoveDirection moveDirection = static_cast<MoveDirection>(direction);
-    switch (moveDirection)
-    {
-    case MoveDirection::NONE:
-        return;
 
-    case MoveDirection::UP:
-        move_and_collide(Vector2(0, -MOVE_SPEED));
-        break;
+	if (is_on_ceiling())
+	{
+		velocity_.y = 0.0f;
+		set_position(Vector2(get_position().x, get_position().y + 1));
+	}
 
-    case MoveDirection::DOWN:
-        move_and_collide(Vector2(0, MOVE_SPEED));
-        break;
+	if (movementState_ == MovementState::JUMPED)
+	{
+		velocity_.y = -JUMP_POWER;
+		movementState_ = MovementState::NONE;
+	}
 
-    case MoveDirection::LEFT:
-        move_and_collide(Vector2(-MOVE_SPEED, 0));
-        break;
+	switch (moveDirection)
+	{
+	case MoveDirection::NONE:
+		velocity_.x = 0.0f;
+		break;
 
-    case MoveDirection::RIGHT:
-        move_and_collide(Vector2(MOVE_SPEED, 0));
-        break;
-    }
+	case MoveDirection::LEFT:
+		velocity_.x = -MOVE_SPEED;
+		break;
+
+	case MoveDirection::RIGHT:
+		velocity_.x = MOVE_SPEED;
+		break;
+	}
+
+	move_and_slide(velocity_, Vector2(0, -1));
 }
 
 void Player::damage(int64_t value)
@@ -162,6 +145,24 @@ void Player::damage(int64_t value)
         healthPoints = 0;
         rpc("_die");
     }
+}
+
+void Player::updateKeyboardInput()
+{
+	moveDirection_ = MoveDirection::NONE;
+	Input* input = Input::get_singleton();
+	if (input->is_action_pressed("left"))
+	{
+		moveDirection_ = MoveDirection::LEFT;
+	}
+	else if (input->is_action_pressed("right"))
+	{
+		moveDirection_ = MoveDirection::RIGHT;
+	}
+	if (input->is_action_just_pressed("space"))
+	{
+		if (is_on_floor()) movementState_ = MovementState::JUMPED;
+	}
 }
 
 void Player::_die()

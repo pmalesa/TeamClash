@@ -36,6 +36,7 @@ void Game::_ready()
 
     // Dictionary selfData = Dictionary(get_node("/root/Network")->get("selfData"));
     player_->init("Admin", Vector2(360, 180), false);
+	Godot::print("Game is ready.");
 }
 
 void Game::_process(float delta)

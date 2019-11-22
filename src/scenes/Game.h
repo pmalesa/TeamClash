@@ -13,18 +13,18 @@ namespace godot
 	{
 		GODOT_CLASS(Game, Node)
 	public:
-        Game() = default;
+		Game() = default;
 		~Game() = default;
 
 		static void _register_methods();
-        void _init();
-        void _ready();
-        void _process(float delta);
-        void _on_player_disconnected(int64_t id);
-        void _on_server_disconnected(int64_t id);
+		void _init();
+		void _ready();
+		void _process(float delta);
+		void _on_player_disconnected(int64_t id);
+		void _on_server_disconnected(int64_t id);
 
-    private:
-        Ref<PackedScene> playerScene_;
-        godot::Player* player_;
+	private:
+		Ref<PackedScene> playerScene_;
+		godot::Player* player_;
 	};
 }

@@ -15,6 +15,12 @@ namespace godot
         NONE
     };
 
+	enum class MovementState : int64_t
+	{
+		NONE,
+		JUMPED
+	};
+
     class Player : public KinematicBody2D
     {
         GODOT_CLASS(Player, KinematicBody2D)
@@ -29,15 +35,25 @@ namespace godot
         void _ready();
 
         void _physics_process(float delta);
+		void _process(float delta);
         void _move(int64_t direction);
         void damage(int64_t damage);
+		void updateKeyboardInput();
         void _die();
         void _on_RespawnTimer_timeout();
         void init(String nickname, Vector2 startPosition, bool isSlave);
 
+		Vector2 getVelocity() const { return velocity_; };
+		void setVelocity(Vector2 velocity) { velocity_ = velocity; }
+		void addVelocity(Vector2 velocity) { velocity_ += velocity; }
+
     private:
-        const float MOVE_SPEED = 10.0f;
+        const float MOVE_SPEED = 300.0f;
         const int64_t MAX_HP = 100;
+		const float JUMP_POWER = 600.0f;
+		Vector2 velocity_;
+		MoveDirection moveDirection_;
+		MovementState movementState_;
 
         Vector2 slavePosition;
         int64_t slaveMovement;
