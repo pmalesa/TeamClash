@@ -70,14 +70,6 @@ void Player::_ready()
 
 void Player::_physics_process(float delta)
 {
-	//if (is_on_ceiling())
-	//	move_and_slide(Vector2(0, 0), Vector2(0, -1));
-
-	if (is_on_floor())
-		setVelocity(Vector2(getVelocity().x, 0.0f));
-	else
-		addVelocity(Vector2(0.0f, 10.0f));
-
 	if (is_network_master())
 	{
 		rset_unreliable("slavePosition", get_position());
@@ -112,10 +104,25 @@ void Player::_move(int64_t direction)
 		set_position(Vector2(get_position().x, get_position().y + 1));
 	}
 
+	if (movementState_ == MovementState::NONE)
+	{
+		if (is_on_floor())
+			velocity_.y = 10.0f;
+		else
+			movementState_ = MovementState::FALLING;
+	}
 	if (movementState_ == MovementState::JUMPED)
 	{
+		//velocity_.y = 0.0f;
 		velocity_.y = -JUMP_POWER;
-		movementState_ = MovementState::NONE;
+		movementState_ = MovementState::FALLING;
+	}
+	if (movementState_ == MovementState::FALLING)
+	{
+		setVelocity(Vector2(getVelocity().x, getVelocity().y + GRAVITY_PULL));
+
+		if (is_on_floor())
+			movementState_ = MovementState::NONE;
 	}
 
 	switch (moveDirection)
@@ -126,6 +133,7 @@ void Player::_move(int64_t direction)
 
 	case MoveDirection::LEFT:
 		velocity_.x = -MOVE_SPEED;
+
 		break;
 
 	case MoveDirection::RIGHT:

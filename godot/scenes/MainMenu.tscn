@@ -7,9 +7,9 @@ script = ExtResource( 1 )
 
 [node name="CreateGameButton" type="Button" parent="."]
 margin_left = 814.148
-margin_top = 427.045
+margin_top = 425.879
 margin_right = 1114.15
-margin_bottom = 527.045
+margin_bottom = 525.879
 text = "Create game"
 
 [node name="JoinGameButton" type="Button" parent="."]

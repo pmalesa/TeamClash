@@ -8,8 +8,6 @@ namespace godot
 
     enum class MoveDirection : int64_t
     {
-        UP,
-        DOWN,
         LEFT,
         RIGHT,
         NONE
@@ -18,7 +16,8 @@ namespace godot
 	enum class MovementState : int64_t
 	{
 		NONE,
-		JUMPED
+		JUMPED,
+		FALLING
 	};
 
     class Player : public KinematicBody2D
@@ -51,6 +50,7 @@ namespace godot
         const float MOVE_SPEED = 300.0f;
         const int64_t MAX_HP = 100;
 		const float JUMP_POWER = 600.0f;
+		const float GRAVITY_PULL = 20.0f;
 		Vector2 velocity_;
 		MoveDirection moveDirection_;
 		MovementState movementState_;

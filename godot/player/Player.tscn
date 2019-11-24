@@ -8,11 +8,12 @@ extents = Vector2( 31.4736, 73.2105 )
 
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 1 )
+slavePosition = null
+slaveMovement = null
+nodeName = null
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2( -0.60136, -0.717163 )
 shape = SubResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]
-position = Vector2( 0.0498428, 0.0030632 )
 texture = ExtResource( 2 )
