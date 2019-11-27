@@ -10,6 +10,7 @@
 #include <Input.hpp>
 #include <SceneTree.hpp>
 
+
 using namespace godot;
 
 void Player::_register_methods()
@@ -20,6 +21,7 @@ void Player::_register_methods()
     register_method("_init", &Player::_init, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_HealthBar_value_changed", &Player::_on_HealthBar_value_changed, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("damage", &Player::damage, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateKeyboardInput", &Player::updateKeyboardInput, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
@@ -54,6 +56,16 @@ Player::~Player()
 
 void Player::_init()
 {
+	//nickname_ = "NewPlayer";
+
+	//ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
+	//playerScene_ = resourceLoader->load("res://player/Player.tscn");
+
+
+	//Label* nicknameLabel = static_cast<Label*>(get_node("/root/Player"));
+	//nicknameLabel->set_text(nickname_);
+	
+
 	velocity_ = Vector2(0, 0);
 	moveDirection_ = MoveDirection::NONE;
 	movementState_ = MovementState::NONE;
@@ -113,7 +125,6 @@ void Player::_move(int64_t direction)
 	}
 	if (movementState_ == MovementState::JUMPED)
 	{
-		//velocity_.y = 0.0f;
 		velocity_.y = -JUMP_POWER;
 		movementState_ = MovementState::FALLING;
 	}
@@ -142,6 +153,11 @@ void Player::_move(int64_t direction)
 	}
 
 	move_and_slide(velocity_, Vector2(0, -1));
+}
+
+void Player::_on_HealthBar_value_changed(float value)
+{
+	
 }
 
 void Player::damage(int64_t value)
@@ -206,9 +222,11 @@ void Player::_on_RespawnTimer_timeout()
 void Player::init(String nickname, Vector2 startPosition, bool isSlave)
 {
     set_global_position(startPosition);
+	//nickname_ = nickname;
+	//get_node("/root/Game")->call("setPlayerNickname", nickname_);
+
     //if (isSlave)
     //{
-    //    ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
-    //    static_cast<Sprite*>(get_node("Sprite"))->set_texture(resourceLoader->load("res://player/player-alt.png"));
+
     //}
 }

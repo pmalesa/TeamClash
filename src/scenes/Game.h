@@ -22,6 +22,7 @@ namespace godot
 		void _process(float delta);
 		void _on_player_disconnected(int64_t id);
 		void _on_server_disconnected(int64_t id);
+		void setPlayerNickname(String newNickname);
 
 	private:
 		Ref<PackedScene> playerScene_;
