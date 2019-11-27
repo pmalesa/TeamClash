@@ -3,6 +3,7 @@
 #include <Node.hpp>
 #include <PackedScene.hpp>
 
+
 namespace godot
 {
 	class Network : public Node

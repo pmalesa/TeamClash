@@ -3,6 +3,8 @@
 #include <SceneTree.hpp>
 #include <ResourceLoader.hpp>
 #include <iostream>
+#include <Label.hpp>
+
 
 #include <Ref.hpp>
 
@@ -15,6 +17,7 @@ void Game::_register_methods()
     register_method("_process", &Game::_process, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_player_disconnected", &Game::_on_player_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_server_disconnected", &Game::_on_server_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setPlayerNickname", &Game::setPlayerNickname, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 void Game::_init()
 {
@@ -26,7 +29,6 @@ void Game::_ready()
 {
     get_tree()->connect("network_peer_disconnected", this, "_on_player_disconnected");
     get_tree()->connect("server_disconnected", this, "_on_server_disconnected");
-
     player_ = static_cast<godot::Player*>(playerScene_->instance());
 
     player_->set_name(String(get_tree()->get_network_unique_id()));
@@ -34,7 +36,12 @@ void Game::_ready()
     player_->set_network_master(get_tree()->get_network_unique_id());
     add_child(player_);
 
-    // Dictionary selfData = Dictionary(get_node("/root/Network")->get("selfData"));
+   //Dictionary selfData = Dictionary(get_node("/root/Network")->get("selfData"));
+   //if (get_tree()->is_network_server())
+   //	player_->init(selfData["name"], Vector2(360, 180), false);
+   //else
+   //	player_->init(selfData["name"], Vector2(360, 180), true);
+
     player_->init("Admin", Vector2(360, 180), false);
 	Godot::print("Game is ready.");
 }
@@ -57,4 +64,9 @@ void Game::_on_player_disconnected(int64_t id)
 void Game::_on_server_disconnected(int64_t id)
 {
     get_tree()->change_scene("res://scenes/MainMenu.tscn");
+}
+
+void Game::setPlayerNickname(String newNickname)
+{
+	//static_cast<Label*>(player_->get_node("NicknameBar/Nickname"))->set_text(newNickname);
 }

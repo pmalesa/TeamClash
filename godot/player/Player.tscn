@@ -1,10 +1,13 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
-[ext_resource path="res://sprites/player.png" type="Texture" id=2]
+[ext_resource path="res://sprites/player(32x64).png" type="Texture" id=2]
+[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=3]
+[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=4]
+[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=5]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 31.4736, 73.2105 )
+extents = Vector2( 14.8044, 30.9015 )
 
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 1 )
@@ -17,3 +20,26 @@ shape = SubResource( 1 )
 
 [node name="Sprite" type="Sprite" parent="."]
 texture = ExtResource( 2 )
+
+[node name="HealthBar" type="Node2D" parent="."]
+
+[node name="HealthBar" type="TextureProgress" parent="HealthBar"]
+margin_left = -24.5984
+margin_top = -47.7307
+margin_right = 25.4016
+margin_bottom = -7.73066
+value = 100.0
+texture_under = ExtResource( 3 )
+texture_over = ExtResource( 4 )
+texture_progress = ExtResource( 5 )
+tint_progress = Color( 0.0117647, 0.870588, 0.203922, 1 )
+
+[node name="NicknameBar" type="Node2D" parent="."]
+
+[node name="Nickname" type="Label" parent="NicknameBar"]
+margin_left = -68.5865
+margin_top = -64.4144
+margin_right = 68.4135
+margin_bottom = -49.4144
+text = "Player"
+align = 1

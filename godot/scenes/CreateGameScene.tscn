@@ -18,5 +18,19 @@ margin_top = 655.46
 margin_right = 1114.0
 margin_bottom = 755.46
 text = "Back"
+
+[node name="PlayerName" type="LineEdit" parent="."]
+margin_left = 812.0
+margin_top = 409.0
+margin_right = 1115.0
+margin_bottom = 496.0
+
+[node name="PlayerNameLabel" type="Label" parent="PlayerName"]
+margin_left = -97.1765
+margin_top = 35.7562
+margin_right = -5.17651
+margin_bottom = 75.7562
+text = "Player name"
 [connection signal="pressed" from="StartGameButton" to="." method="_on_StartGameButton_pressed"]
 [connection signal="pressed" from="BackButton" to="." method="_on_BackButton_pressed"]
+[connection signal="text_changed" from="PlayerName" to="." method="_on_PlayerName_text_changed"]
