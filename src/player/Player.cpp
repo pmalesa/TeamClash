@@ -9,7 +9,7 @@
 #include <Array.hpp>
 #include <Input.hpp>
 #include <SceneTree.hpp>
-
+#include <AnimatedSprite.hpp>
 
 using namespace godot;
 
@@ -175,14 +175,23 @@ void Player::updateKeyboardInput()
 {
 	moveDirection_ = MoveDirection::NONE;
 	Input* input = Input::get_singleton();
+    AnimatedSprite* animatedSprite = static_cast<AnimatedSprite*>(get_node("AnimatedSprite"));
 	if (input->is_action_pressed("left"))
 	{
 		moveDirection_ = MoveDirection::LEFT;
+        animatedSprite->play("walk");
+        animatedSprite->set_flip_h(true);
 	}
 	else if (input->is_action_pressed("right"))
 	{
 		moveDirection_ = MoveDirection::RIGHT;
+        animatedSprite->play("walk");
+        animatedSprite->set_flip_h(false);
 	}
+    else
+    {
+        animatedSprite->play("stand");
+    }
 	if (input->is_action_just_pressed("space"))
 	{
 		if (is_on_floor()) movementState_ = MovementState::JUMPED;

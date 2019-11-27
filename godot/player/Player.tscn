@@ -1,13 +1,28 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
-[ext_resource path="res://sprites/player(32x64).png" type="Texture" id=2]
-[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=3]
-[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=4]
-[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=5]
+[ext_resource path="res://sprites/walk1.png" type="Texture" id=2]
+[ext_resource path="res://sprites/base.png" type="Texture" id=3]
+[ext_resource path="res://sprites/walk2.png" type="Texture" id=4]
+[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=5]
+[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=6]
+[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=7]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 14.8044, 30.9015 )
+
+[sub_resource type="SpriteFrames" id=2]
+animations = [ {
+"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 3 ) ],
+"loop": true,
+"name": "walk",
+"speed": 10.0
+}, {
+"frames": [ ExtResource( 3 ) ],
+"loop": false,
+"name": "stand",
+"speed": 5.0
+} ]
 
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 1 )
@@ -18,8 +33,10 @@ nodeName = null
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
 
-[node name="Sprite" type="Sprite" parent="."]
-texture = ExtResource( 2 )
+[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+frames = SubResource( 2 )
+animation = "stand"
+playing = true
 
 [node name="HealthBar" type="Node2D" parent="."]
 
@@ -29,9 +46,9 @@ margin_top = -47.7307
 margin_right = 25.4016
 margin_bottom = -7.73066
 value = 100.0
-texture_under = ExtResource( 3 )
-texture_over = ExtResource( 4 )
-texture_progress = ExtResource( 5 )
+texture_under = ExtResource( 5 )
+texture_over = ExtResource( 6 )
+texture_progress = ExtResource( 7 )
 tint_progress = Color( 0.0117647, 0.870588, 0.203922, 1 )
 
 [node name="NicknameBar" type="Node2D" parent="."]

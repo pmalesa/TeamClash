@@ -8,9 +8,10 @@
 position = Vector2( 16.2981, 16.6204 )
 texture = ExtResource( 1 )
 region_enabled = true
-region_rect = Rect2( 64, 128, 32, 32 )
+region_rect = Rect2( 128, 128, 32, 32 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Sprite"]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Sprite/StaticBody2D"]
-polygon = PoolVector2Array( -16.243, -16.7105, 16.1457, -16.7105, 16.1457, 16.0461, -16.611, 16.0461 )
+position = Vector2( -0.157784, -0.15778 )
+polygon = PoolVector2Array( -16.243, -16.7105, 16.1457, -16.7105, 16.156, 15.8491, -16.1887, 15.8491 )
