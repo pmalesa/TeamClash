@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/TeamClash_short .ogg-e3e36c53388399f7b7ada79f1d650ae1.oggstr"
+
+[deps]
+
+source_file="res://soundtracks/TeamClash_short .ogg"
+dest_files=[ "res://.import/TeamClash_short .ogg-e3e36c53388399f7b7ada79f1d650ae1.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

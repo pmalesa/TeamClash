@@ -7,3 +7,5 @@ godot/.import/*
 *.ipdb
 *.pdb
 *.TMP
+*.png.import
+

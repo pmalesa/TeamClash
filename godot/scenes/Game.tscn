@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=5 format=2]
 
 [ext_resource path="res://scenes/Game.gdns" type="Script" id=1]
 [ext_resource path="res://sprites/TileSet.tres" type="TileSet" id=2]
 [ext_resource path="res://scenes/Camera2D.gdns" type="Script" id=3]
+[ext_resource path="res://soundtracks/TeamClash_short .ogg" type="AudioStream" id=4]
 
 [node name="Game" type="Node"]
 script = ExtResource( 1 )
@@ -20,3 +21,7 @@ drag_margin_top = 0.0
 drag_margin_right = 0.0
 drag_margin_bottom = 0.0
 script = ExtResource( 3 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 4 )
+autoplay = true
