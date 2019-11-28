@@ -1,26 +1,26 @@
 [gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
-[ext_resource path="res://sprites/walk1.png" type="Texture" id=2]
-[ext_resource path="res://sprites/base.png" type="Texture" id=3]
+[ext_resource path="res://sprites/stand.png" type="Texture" id=2]
+[ext_resource path="res://sprites/walk1.png" type="Texture" id=3]
 [ext_resource path="res://sprites/walk2.png" type="Texture" id=4]
 [ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=5]
 [ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=6]
 [ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=7]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 14.8044, 30.9015 )
+extents = Vector2( 12.9671, 30.8344 )
 
 [sub_resource type="SpriteFrames" id=2]
 animations = [ {
-"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 3 ) ],
+"frames": [ ExtResource( 2 ) ],
+"loop": true,
+"name": "stand",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 3 ), ExtResource( 2 ), ExtResource( 4 ), ExtResource( 2 ) ],
 "loop": true,
 "name": "walk",
-"speed": 10.0
-}, {
-"frames": [ ExtResource( 3 ) ],
-"loop": false,
-"name": "stand",
 "speed": 5.0
 } ]
 
@@ -34,17 +34,20 @@ nodeName = null
 shape = SubResource( 1 )
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+position = Vector2( 15.8933, -3.50792 )
+scale = Vector2( 2.0013, 1.99891 )
 frames = SubResource( 2 )
 animation = "stand"
 playing = true
+offset = Vector2( -7.9301, 1.75198 )
 
 [node name="HealthBar" type="Node2D" parent="."]
 
 [node name="HealthBar" type="TextureProgress" parent="HealthBar"]
-margin_left = -24.5984
-margin_top = -47.7307
-margin_right = 25.4016
-margin_bottom = -7.73066
+margin_left = -15.9328
+margin_top = -46.1842
+margin_right = 16.0672
+margin_bottom = -37.1842
 value = 100.0
 texture_under = ExtResource( 5 )
 texture_over = ExtResource( 6 )
@@ -54,9 +57,9 @@ tint_progress = Color( 0.0117647, 0.870588, 0.203922, 1 )
 [node name="NicknameBar" type="Node2D" parent="."]
 
 [node name="Nickname" type="Label" parent="NicknameBar"]
-margin_left = -68.5865
-margin_top = -64.4144
-margin_right = 68.4135
-margin_bottom = -49.4144
+margin_left = -69.1245
+margin_top = -60.7875
+margin_right = 68.8755
+margin_bottom = -45.7875
 text = "Player"
 align = 1
