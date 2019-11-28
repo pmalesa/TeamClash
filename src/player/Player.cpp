@@ -1,4 +1,6 @@
 #include "Player.h"
+#include <SceneTree.hpp>
+#include <ResourceLoader.hpp>
 #include <KinematicCollision2D.hpp>
 #include <CollisionShape2D.hpp>
 #include <TextureProgress.hpp>
@@ -10,6 +12,9 @@
 #include <Input.hpp>
 #include <SceneTree.hpp>
 #include <AnimatedSprite.hpp>
+#include <Sprite.hpp>
+#include <AnimationPlayer.hpp>
+#include <array>
 
 using namespace godot;
 
@@ -24,6 +29,7 @@ void Player::_register_methods()
 	register_method("_on_HealthBar_value_changed", &Player::_on_HealthBar_value_changed, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("damage", &Player::damage, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateKeyboardInput", &Player::updateKeyboardInput, GODOT_METHOD_RPC_MODE_DISABLED);
+    register_method("updateSprite", &Player::updateSprite, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
     register_method("init", &Player::init, GODOT_METHOD_RPC_MODE_DISABLED);
 
@@ -44,16 +50,6 @@ void Player::_register_methods()
     register_property<Player, int64_t>("nodeName", &Player::nodeName, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
-Player::Player()
-{
-
-}
-
-Player::~Player()
-{
-
-}
-
 void Player::_init()
 {
 	//nickname_ = "NewPlayer";
@@ -72,12 +68,19 @@ void Player::_init()
     slavePosition = Vector2();
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName = 0;
+
+    //ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
+    //weaponScene_ = resourceLoader->load("res://equipment/Weapon.tscn");
+
+
 	Godot::print("Player initialized.");
 }
 
 void Player::_ready()
 {
-
+    initialWeaponPosition_ = (static_cast<godot::Weapon*>(get_node("Weapon")))->get_position();
+    //weapon_ = static_cast<godot::Weapon*>(weaponScene_->instance());
+    //add_child(weapon_);
 }
 
 void Player::_physics_process(float delta)
@@ -96,14 +99,18 @@ void Player::_physics_process(float delta)
 
 	if (get_tree()->is_network_server())
 	{
-		get_node("/root/Network")->call("update_position", get_name().to_int(), get_position());
+		//get_node("/root/Network")->call("update_position", get_name().to_int(), get_position());
 	}
 
 }
 
 void Player::_process(float delta)
 {
-	updateKeyboardInput();
+    if (is_network_master())
+    {
+        updateKeyboardInput();
+    }
+    updateSprite();
 }
 
 void Player::_move(int64_t direction)
@@ -175,27 +182,65 @@ void Player::updateKeyboardInput()
 {
 	moveDirection_ = MoveDirection::NONE;
 	Input* input = Input::get_singleton();
-    AnimatedSprite* animatedSprite = static_cast<AnimatedSprite*>(get_node("AnimatedSprite"));
 	if (input->is_action_pressed("left"))
 	{
 		moveDirection_ = MoveDirection::LEFT;
-        animatedSprite->play("walk");
-        animatedSprite->set_flip_h(true);
 	}
 	else if (input->is_action_pressed("right"))
 	{
 		moveDirection_ = MoveDirection::RIGHT;
-        animatedSprite->play("walk");
-        animatedSprite->set_flip_h(false);
 	}
-    else
-    {
-        animatedSprite->play("stand");
-    }
+
 	if (input->is_action_just_pressed("space"))
 	{
 		if (is_on_floor()) movementState_ = MovementState::JUMPED;
 	}
+}
+
+void Player::updateSprite()
+{
+    std::array<AnimatedSprite*, 3> animatedSprites;
+    CollisionShape2D* collisionShape = static_cast<CollisionShape2D*>(get_node("CollisionShape2d"));
+    AnimatedSprite* bodySprite = animatedSprites[0] = static_cast<AnimatedSprite*>(get_node("body_sprite"));
+    AnimatedSprite* backHandSprite = animatedSprites[1] = static_cast<AnimatedSprite*>(get_node("back_hand_sprite"));
+    AnimatedSprite* frontHandSprite = animatedSprites[2] = static_cast<AnimatedSprite*>(get_node("front_hand_sprite"));
+    Sprite* weaponSprite = static_cast<Sprite*>(get_node("Weapon/weapon_sprite"));
+    godot::Weapon* weapon = static_cast<godot::Weapon*>(get_node("Weapon"));
+
+    if (!is_network_master()) moveDirection_ = MoveDirection(slaveMovement);
+
+    if (moveDirection_ == MoveDirection::LEFT)
+    {
+        for (auto sprite : animatedSprites)
+        {
+            sprite->play("walk");
+            sprite->set_flip_h(true);
+        }
+        backHandSprite->play("idle");
+        weaponSprite->set_flip_h(true);
+        weaponSprite->set_z_index(-2);
+
+        weapon->set_position(Vector2(-initialWeaponPosition_.x + -bodySprite->get_position().x/2, initialWeaponPosition_.y));
+    }
+    else if (moveDirection_ == MoveDirection::RIGHT)
+    {
+        for (auto sprite : animatedSprites)
+        {
+            sprite->play("walk");
+            sprite->set_flip_h(false);
+        }
+        frontHandSprite->play("idle");
+        weaponSprite->set_flip_h(false);
+        weaponSprite->set_z_index(-1);
+        weapon->set_position(initialWeaponPosition_);
+    }
+    else
+    {
+        for (auto sprite : animatedSprites)
+        {
+            sprite->play("idle");
+        }
+    }
 }
 
 void Player::_die()

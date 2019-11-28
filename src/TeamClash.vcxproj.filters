@@ -37,6 +37,12 @@
     <Filter Include="Source Files\camera">
       <UniqueIdentifier>{16a570b2-fa9e-4da8-94bd-501c877e885e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\equipment">
+      <UniqueIdentifier>{179d90f2-9228-4942-8df8-400e371839a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\equipment">
+      <UniqueIdentifier>{e8f45038-069d-468f-8bf2-7ca1b7710346}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
@@ -63,6 +69,9 @@
     <ClCompile Include="camera\Camera.cpp">
       <Filter>Source Files\camera</Filter>
     </ClCompile>
+    <ClCompile Include="equipment\Weapon.cpp">
+      <Filter>Source Files\equipment</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -85,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="camera\Camera.h">
       <Filter>Header Files\camera</Filter>
+    </ClInclude>
+    <ClInclude Include="equipment\Weapon.h">
+      <Filter>Header Files\equipment</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

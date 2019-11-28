@@ -1,12 +1,19 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
-[ext_resource path="res://sprites/stand.png" type="Texture" id=2]
-[ext_resource path="res://sprites/walk1.png" type="Texture" id=3]
-[ext_resource path="res://sprites/walk2.png" type="Texture" id=4]
-[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=5]
-[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=6]
-[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=7]
+[ext_resource path="res://sprites/human_basic/back_hand_idle.png" type="Texture" id=2]
+[ext_resource path="res://sprites/human_basic/back_hand_walk1.png" type="Texture" id=3]
+[ext_resource path="res://sprites/human_basic/back_hand_walk2.png" type="Texture" id=4]
+[ext_resource path="res://sprites/human_basic/idle.png" type="Texture" id=5]
+[ext_resource path="res://sprites/human_basic/walk1.png" type="Texture" id=6]
+[ext_resource path="res://sprites/human_basic/walk2.png" type="Texture" id=7]
+[ext_resource path="res://equipment/Weapon.tscn" type="PackedScene" id=8]
+[ext_resource path="res://sprites/human_basic/front_hand_idle.png" type="Texture" id=9]
+[ext_resource path="res://sprites/human_basic/front_hand_walk1.png" type="Texture" id=10]
+[ext_resource path="res://sprites/human_basic/front_hand_walk2.png" type="Texture" id=11]
+[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=12]
+[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=13]
+[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=14]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 12.9671, 30.8344 )
@@ -15,7 +22,7 @@ extents = Vector2( 12.9671, 30.8344 )
 animations = [ {
 "frames": [ ExtResource( 2 ) ],
 "loop": true,
-"name": "stand",
+"name": "idle",
 "speed": 5.0
 }, {
 "frames": [ ExtResource( 3 ), ExtResource( 2 ), ExtResource( 4 ), ExtResource( 2 ) ],
@@ -24,22 +31,71 @@ animations = [ {
 "speed": 5.0
 } ]
 
+[sub_resource type="SpriteFrames" id=3]
+animations = [ {
+"frames": [ ExtResource( 5 ) ],
+"loop": true,
+"name": "idle",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 7 ), ExtResource( 5 ) ],
+"loop": true,
+"name": "walk",
+"speed": 5.0
+} ]
+
+[sub_resource type="SpriteFrames" id=4]
+animations = [ {
+"frames": [ ExtResource( 9 ) ],
+"loop": true,
+"name": "idle",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 10 ), ExtResource( 9 ), ExtResource( 11 ), ExtResource( 9 ) ],
+"loop": true,
+"name": "walk",
+"speed": 5.0
+} ]
+
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 1 )
-slavePosition = null
-slaveMovement = null
-nodeName = null
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
+__meta__ = {
+"_edit_lock_": true
+}
 
-[node name="AnimatedSprite" type="AnimatedSprite" parent="."]
+[node name="back_hand_sprite" type="AnimatedSprite" parent="."]
+position = Vector2( 0, -2.38419e-007 )
+scale = Vector2( 2.0013, 1.99891 )
+z_index = 1
+frames = SubResource( 2 )
+animation = "idle"
+
+[node name="body_sprite" type="AnimatedSprite" parent="."]
 position = Vector2( 15.8933, -3.50792 )
 scale = Vector2( 2.0013, 1.99891 )
-frames = SubResource( 2 )
-animation = "stand"
+z_index = 2
+frames = SubResource( 3 )
+animation = "idle"
 playing = true
 offset = Vector2( -7.9301, 1.75198 )
+
+[node name="Weapon" parent="." instance=ExtResource( 8 )]
+position = Vector2( 10.6851, 11.8925 )
+z_index = 3
+
+[node name="front_hand_sprite" type="AnimatedSprite" parent="."]
+position = Vector2( 0.18766, -2.0642 )
+scale = Vector2( 2.0013, 1.99891 )
+z_index = 4
+frames = SubResource( 4 )
+animation = "idle"
+playing = true
+__meta__ = {
+"_edit_lock_": true
+}
 
 [node name="HealthBar" type="Node2D" parent="."]
 
@@ -49,9 +105,9 @@ margin_top = -46.1842
 margin_right = 16.0672
 margin_bottom = -37.1842
 value = 100.0
-texture_under = ExtResource( 5 )
-texture_over = ExtResource( 6 )
-texture_progress = ExtResource( 7 )
+texture_under = ExtResource( 12 )
+texture_over = ExtResource( 13 )
+texture_progress = ExtResource( 14 )
 tint_progress = Color( 0.0117647, 0.870588, 0.203922, 1 )
 
 [node name="NicknameBar" type="Node2D" parent="."]

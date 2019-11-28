@@ -2,6 +2,8 @@
 
 #include <Godot.hpp>
 #include <KinematicBody2D.hpp>
+#include <PackedScene.hpp>
+#include "../equipment/Weapon.h"
 
 namespace godot
 {
@@ -27,8 +29,8 @@ namespace godot
     public:
         static void _register_methods();
 
-        Player();
-        ~Player();
+        Player() = default;
+        ~Player() = default;
 
         void _init();
         void _ready();
@@ -39,6 +41,7 @@ namespace godot
 		void _on_HealthBar_value_changed(float value);
         void damage(int64_t damage);
 		void updateKeyboardInput();
+        void updateSprite();
         void _die();
         void _on_RespawnTimer_timeout();
         void init(String nickname, Vector2 startPosition, bool isSlave);
@@ -62,6 +65,11 @@ namespace godot
         int64_t slaveMovement;
         int64_t healthPoints = MAX_HP;
         int64_t nodeName;
+
+        Vector2 initialWeaponPosition_;
+
+        //Ref<PackedScene> weaponScene_;
+        //godot::Weapon* weapon_;
     };
 
 }
