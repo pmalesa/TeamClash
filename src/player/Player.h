@@ -54,13 +54,10 @@ namespace godot
 
         Vector2 slavePosition;
         int64_t slaveMovement;
+        int64_t slaveWeaponState;
+
         int64_t healthPoints = MAX_HP;
         int64_t nodeName;
-
-        Vector2 initialWeaponPosition_;
-
-        //Ref<PackedScene> weaponScene_;
-        //godot::Weapon* weapon_;
     };
 
 }
