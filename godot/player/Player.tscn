@@ -1,19 +1,23 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=26 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
 [ext_resource path="res://sprites/human_basic/back_hand_idle.png" type="Texture" id=2]
-[ext_resource path="res://sprites/human_basic/back_hand_walk1.png" type="Texture" id=3]
-[ext_resource path="res://sprites/human_basic/back_hand_walk2.png" type="Texture" id=4]
-[ext_resource path="res://sprites/human_basic/idle.png" type="Texture" id=5]
-[ext_resource path="res://sprites/human_basic/walk1.png" type="Texture" id=6]
-[ext_resource path="res://sprites/human_basic/walk2.png" type="Texture" id=7]
-[ext_resource path="res://equipment/Weapon.tscn" type="PackedScene" id=8]
-[ext_resource path="res://sprites/human_basic/front_hand_idle.png" type="Texture" id=9]
-[ext_resource path="res://sprites/human_basic/front_hand_walk1.png" type="Texture" id=10]
-[ext_resource path="res://sprites/human_basic/front_hand_walk2.png" type="Texture" id=11]
-[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=12]
-[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=13]
-[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=14]
+[ext_resource path="res://sprites/human_basic/back_hand_attack1.png" type="Texture" id=3]
+[ext_resource path="res://sprites/human_basic/back_hand_attack2.png" type="Texture" id=4]
+[ext_resource path="res://sprites/human_basic/back_hand_walk1.png" type="Texture" id=5]
+[ext_resource path="res://sprites/human_basic/back_hand_walk2.png" type="Texture" id=6]
+[ext_resource path="res://sprites/human_basic/idle.png" type="Texture" id=7]
+[ext_resource path="res://sprites/human_basic/walk1.png" type="Texture" id=8]
+[ext_resource path="res://sprites/human_basic/walk2.png" type="Texture" id=9]
+[ext_resource path="res://equipment/Weapon.tscn" type="PackedScene" id=10]
+[ext_resource path="res://sprites/human_basic/front_hand_idle.png" type="Texture" id=11]
+[ext_resource path="res://sprites/human_basic/front_hand_attack1.png" type="Texture" id=12]
+[ext_resource path="res://sprites/human_basic/front_hand_attack2.png" type="Texture" id=13]
+[ext_resource path="res://sprites/human_basic/front_hand_walk1.png" type="Texture" id=14]
+[ext_resource path="res://sprites/human_basic/front_hand_walk2.png" type="Texture" id=15]
+[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=16]
+[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=17]
+[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=18]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 12.9671, 30.8344 )
@@ -25,7 +29,12 @@ animations = [ {
 "name": "idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 3 ), ExtResource( 2 ), ExtResource( 4 ), ExtResource( 2 ) ],
+"frames": [ ExtResource( 3 ), ExtResource( 4 ), ExtResource( 2 ) ],
+"loop": true,
+"name": "attack",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 5 ), ExtResource( 2 ), ExtResource( 6 ), ExtResource( 2 ) ],
 "loop": true,
 "name": "walk",
 "speed": 5.0
@@ -33,12 +42,12 @@ animations = [ {
 
 [sub_resource type="SpriteFrames" id=3]
 animations = [ {
-"frames": [ ExtResource( 5 ) ],
+"frames": [ ExtResource( 7 ) ],
 "loop": true,
 "name": "idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 7 ), ExtResource( 5 ) ],
+"frames": [ ExtResource( 8 ), ExtResource( 7 ), ExtResource( 9 ), ExtResource( 7 ) ],
 "loop": true,
 "name": "walk",
 "speed": 5.0
@@ -46,25 +55,123 @@ animations = [ {
 
 [sub_resource type="SpriteFrames" id=4]
 animations = [ {
-"frames": [ ExtResource( 9 ) ],
+"frames": [ ExtResource( 11 ) ],
 "loop": true,
 "name": "idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 10 ), ExtResource( 9 ), ExtResource( 11 ), ExtResource( 9 ) ],
+"frames": [ ExtResource( 12 ), ExtResource( 13 ), ExtResource( 11 ) ],
+"loop": false,
+"name": "attack",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 14 ), ExtResource( 11 ), ExtResource( 15 ), ExtResource( 11 ) ],
 "loop": true,
 "name": "walk",
 "speed": 5.0
 } ]
+
+[sub_resource type="Animation" id=5]
+resource_name = "SETUP"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("weapon_node/Weapon:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 10.6851, 11.8925 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("weapon_node/Weapon:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 0.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("weapon_node/Weapon:scale")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "attack"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/path = NodePath("weapon_node/Weapon:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( -4.55707, -35.189 ), Vector2( 30.9092, -10.9356 ), Vector2( 10.6851, 11.8925 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("weapon_node/Weapon:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.2, 0.4 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 1,
+"values": [ -120.461, -8.88657, 0.0 ]
+}
+
+[sub_resource type="Animation" id=7]
+resource_name = "idle"
+length = 0.001
+tracks/0/type = "value"
+tracks/0/path = NodePath("weapon_node/Weapon:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 10.6851, 11.8925 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("weapon_node/Weapon:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 0.0 ]
+}
 
 [node name="Player" type="KinematicBody2D"]
 script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="back_hand_sprite" type="AnimatedSprite" parent="."]
 position = Vector2( 0, -2.38419e-007 )
@@ -82,20 +189,19 @@ animation = "idle"
 playing = true
 offset = Vector2( -7.9301, 1.75198 )
 
-[node name="Weapon" parent="." instance=ExtResource( 8 )]
+[node name="weapon_node" type="Node2D" parent="."]
+
+[node name="Weapon" parent="weapon_node" instance=ExtResource( 10 )]
 position = Vector2( 10.6851, 11.8925 )
 z_index = 3
 
 [node name="front_hand_sprite" type="AnimatedSprite" parent="."]
-position = Vector2( 0.18766, -2.0642 )
+position = Vector2( 2.02642, -2.05984 )
 scale = Vector2( 2.0013, 1.99891 )
 z_index = 4
 frames = SubResource( 4 )
 animation = "idle"
 playing = true
-__meta__ = {
-"_edit_lock_": true
-}
 
 [node name="HealthBar" type="Node2D" parent="."]
 
@@ -105,9 +211,9 @@ margin_top = -46.1842
 margin_right = 16.0672
 margin_bottom = -37.1842
 value = 100.0
-texture_under = ExtResource( 12 )
-texture_over = ExtResource( 13 )
-texture_progress = ExtResource( 14 )
+texture_under = ExtResource( 16 )
+texture_over = ExtResource( 17 )
+texture_progress = ExtResource( 18 )
 tint_progress = Color( 0.0117647, 0.870588, 0.203922, 1 )
 
 [node name="NicknameBar" type="Node2D" parent="."]
@@ -119,3 +225,8 @@ margin_right = 68.8755
 margin_bottom = -45.7875
 text = "Player"
 align = 1
+
+[node name="weapon_animation" type="AnimationPlayer" parent="."]
+anims/SETUP = SubResource( 5 )
+anims/attack = SubResource( 6 )
+anims/idle = SubResource( 7 )

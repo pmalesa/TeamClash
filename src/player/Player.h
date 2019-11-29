@@ -8,19 +8,9 @@
 namespace godot
 {
 
-    enum class MoveDirection : int64_t
-    {
-        LEFT,
-        RIGHT,
-        NONE
-    };
-
-	enum class MovementState : int64_t
-	{
-		NONE,
-		JUMPED,
-		FALLING
-	};
+    enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
+	enum class MovementState : int64_t { NONE, JUMPED, FALLING };
+    enum class WeaponState : int64_t { IDLE, ATTACKING };
 
     class Player : public KinematicBody2D
     {
@@ -40,7 +30,7 @@ namespace godot
         void _move(int64_t direction);
 		void _on_HealthBar_value_changed(float value);
         void damage(int64_t damage);
-		void updateKeyboardInput();
+		void updateInput();
         void updateSprite();
         void _die();
         void _on_RespawnTimer_timeout();
@@ -60,6 +50,7 @@ namespace godot
 		Vector2 velocity_;
 		MoveDirection moveDirection_;
 		MovementState movementState_;
+        WeaponState weaponState_;
 
         Vector2 slavePosition;
         int64_t slaveMovement;

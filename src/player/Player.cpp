@@ -28,7 +28,7 @@ void Player::_register_methods()
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_HealthBar_value_changed", &Player::_on_HealthBar_value_changed, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("damage", &Player::damage, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("updateKeyboardInput", &Player::updateKeyboardInput, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("updateInput", &Player::updateInput, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("updateSprite", &Player::updateSprite, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
     register_method("init", &Player::init, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -78,7 +78,7 @@ void Player::_init()
 
 void Player::_ready()
 {
-    initialWeaponPosition_ = (static_cast<godot::Weapon*>(get_node("Weapon")))->get_position();
+    //initialWeaponPosition_ = (static_cast<godot::Weapon*>(get_node("Weapon")))->get_position();
     //weapon_ = static_cast<godot::Weapon*>(weaponScene_->instance());
     //add_child(weapon_);
 }
@@ -108,7 +108,7 @@ void Player::_process(float delta)
 {
     if (is_network_master())
     {
-        updateKeyboardInput();
+        updateInput();
     }
     updateSprite();
 }
@@ -178,7 +178,7 @@ void Player::damage(int64_t value)
     }
 }
 
-void Player::updateKeyboardInput()
+void Player::updateInput()
 {
 	moveDirection_ = MoveDirection::NONE;
 	Input* input = Input::get_singleton();
@@ -195,50 +195,81 @@ void Player::updateKeyboardInput()
 	{
 		if (is_on_floor()) movementState_ = MovementState::JUMPED;
 	}
+
+    AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_animation"));
+    if (input->is_action_just_pressed("basic_attack"))
+    {
+        if (!weaponAnimation->is_playing()) weaponState_ = WeaponState::ATTACKING;
+    }
+    else
+    {
+        if (!weaponAnimation->is_playing()) weaponState_ = WeaponState::IDLE;
+    }
 }
 
 void Player::updateSprite()
 {
     std::array<AnimatedSprite*, 3> animatedSprites;
-    CollisionShape2D* collisionShape = static_cast<CollisionShape2D*>(get_node("CollisionShape2d"));
     AnimatedSprite* bodySprite = animatedSprites[0] = static_cast<AnimatedSprite*>(get_node("body_sprite"));
     AnimatedSprite* backHandSprite = animatedSprites[1] = static_cast<AnimatedSprite*>(get_node("back_hand_sprite"));
     AnimatedSprite* frontHandSprite = animatedSprites[2] = static_cast<AnimatedSprite*>(get_node("front_hand_sprite"));
-    Sprite* weaponSprite = static_cast<Sprite*>(get_node("Weapon/weapon_sprite"));
-    godot::Weapon* weapon = static_cast<godot::Weapon*>(get_node("Weapon"));
+    AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_animation"));
+    //Sprite* weaponSprite = static_cast<Sprite*>(get_node("Weapon/weapon_sprite"));
+    godot::Weapon* weapon = static_cast<godot::Weapon*>(get_node("weapon_node"));
 
     if (!is_network_master()) moveDirection_ = MoveDirection(slaveMovement);
 
     if (moveDirection_ == MoveDirection::LEFT)
     {
-        for (auto sprite : animatedSprites)
-        {
-            sprite->play("walk");
-            sprite->set_flip_h(true);
-        }
-        backHandSprite->play("idle");
-        weaponSprite->set_flip_h(true);
-        weaponSprite->set_z_index(-2);
-
-        weapon->set_position(Vector2(-initialWeaponPosition_.x + -bodySprite->get_position().x/2, initialWeaponPosition_.y));
+        bodySprite->play("walk");
+        bodySprite->set_flip_h(true);
+        if (weaponState_ != WeaponState::ATTACKING) backHandSprite->play("idle");
+        backHandSprite->set_flip_h(true);
+        frontHandSprite->play("walk");
+        frontHandSprite->set_flip_h(true);
+        weapon->set_z_index(-2);
+        weapon->set_scale(Vector2(-1, weapon->get_scale().y));
+        //weapon->set_position(Vector2(-initialWeaponPosition_.x + -bodySprite->get_position().x/2, weapon->get_position().y));
     }
     else if (moveDirection_ == MoveDirection::RIGHT)
     {
-        for (auto sprite : animatedSprites)
-        {
-            sprite->play("walk");
-            sprite->set_flip_h(false);
-        }
-        frontHandSprite->play("idle");
-        weaponSprite->set_flip_h(false);
-        weaponSprite->set_z_index(-1);
-        weapon->set_position(initialWeaponPosition_);
+        bodySprite->play("walk");
+        bodySprite->set_flip_h(false);
+        backHandSprite->play("walk");
+        backHandSprite->set_flip_h(false);
+        if (weaponState_ != WeaponState::ATTACKING) frontHandSprite->play("idle");
+        frontHandSprite->set_flip_h(false);
+        weapon->set_z_index(-1);
+        weapon->set_scale(Vector2(1, weapon->get_scale().y));
+        //weapon->set_position(Vector2(initialWeaponPosition_.x, weapon->get_position().y));
     }
     else
     {
-        for (auto sprite : animatedSprites)
+        bodySprite->play("idle");
+        if (bodySprite->is_flipped_h())
         {
-            sprite->play("idle");
+            if (weaponState_ != WeaponState::ATTACKING) backHandSprite->play("idle");
+            frontHandSprite->play("idle");
+        }
+        else
+        {
+            if (weaponState_ != WeaponState::ATTACKING) frontHandSprite->play("idle");
+            backHandSprite->play("idle");
+        }
+    }
+
+    if (!weaponAnimation->is_playing() && weaponState_ == WeaponState::ATTACKING)
+    {
+        weaponAnimation->play("attack");
+        if (bodySprite->is_flipped_h())
+        {
+            backHandSprite->set_frame(0);
+            backHandSprite->play("attack");
+        }
+        else
+        {
+            frontHandSprite->set_frame(0);
+            frontHandSprite->play("attack");
         }
     }
 }
