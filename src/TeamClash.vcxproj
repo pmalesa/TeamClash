@@ -155,6 +155,9 @@
     <ClCompile Include="scenes\Game.cpp" />
     <ClCompile Include="scenes\JoinGameScene.cpp" />
     <ClCompile Include="scenes\MainMenu.cpp" />
+    <ClCompile Include="world\Biome.cpp" />
+    <ClCompile Include="world\Block.cpp" />
+    <ClCompile Include="world\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera\Camera.h" />
@@ -165,6 +168,9 @@
     <ClInclude Include="scenes\Game.h" />
     <ClInclude Include="scenes\JoinGameScene.h" />
     <ClInclude Include="scenes\MainMenu.h" />
+    <ClInclude Include="world\Biome.h" />
+    <ClInclude Include="world\Block.h" />
+    <ClInclude Include="world\World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

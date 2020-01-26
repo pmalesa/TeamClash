@@ -43,6 +43,12 @@
     <Filter Include="Header Files\equipment">
       <UniqueIdentifier>{e8f45038-069d-468f-8bf2-7ca1b7710346}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\world">
+      <UniqueIdentifier>{f13f6dcc-b7a0-4ada-980f-19fe7ccf74a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\world">
+      <UniqueIdentifier>{e3006f1b-902b-4bf9-84b9-b5110da91a67}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
@@ -72,6 +78,15 @@
     <ClCompile Include="equipment\Weapon.cpp">
       <Filter>Source Files\equipment</Filter>
     </ClCompile>
+    <ClCompile Include="world\Block.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="world\World.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
+    <ClCompile Include="world\Biome.cpp">
+      <Filter>Source Files\world</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -97,6 +112,15 @@
     </ClInclude>
     <ClInclude Include="equipment\Weapon.h">
       <Filter>Header Files\equipment</Filter>
+    </ClInclude>
+    <ClInclude Include="world\World.h">
+      <Filter>Header Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="world\Block.h">
+      <Filter>Header Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="world\Biome.h">
+      <Filter>Header Files\world</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

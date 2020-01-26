@@ -6,6 +6,10 @@
 #include "camera/Camera.h"
 #include "equipment/Weapon.h"
 
+#include "world/Block.h"
+#include "world/Biome.h"
+#include "world/World.h"
+
 #include "network/Network.h"
 
 #include <gdnative_api_struct.gen.h>
@@ -26,10 +30,13 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
 	godot::Godot::nativescript_init(handle);
 	godot::register_class<godot::MainMenu>();
 	godot::register_class<godot::CreateGameScene>();
-    godot::register_class<godot::JoinGameScene>();
-    godot::register_class<godot::Game>();
+	godot::register_class<godot::JoinGameScene>();
+	godot::register_class<godot::Game>();
 	godot::register_class<godot::Player>();
-    godot::register_class<godot::Network>();
-    godot::register_class<godot::Camera>();
-    godot::register_class<godot::Weapon>();
+	godot::register_class<godot::Network>();
+	godot::register_class<godot::Camera>();
+	godot::register_class<godot::Weapon>();
+	godot::register_class<godot::Block>();
+	godot::register_class<godot::World>();
+	godot::register_class<godot::Biome>();
 }

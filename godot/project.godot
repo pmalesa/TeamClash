@@ -86,6 +86,11 @@ basic_attack={
  ]
 }
 
+[memory]
+
+limits/message_queue/max_size_kb=10240
+
 [rendering]
 
+environment/default_clear_color=Color( 0.360784, 0.654902, 1, 1 )
 environment/default_environment="res://default_env.tres"

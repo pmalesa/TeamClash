@@ -5,6 +5,7 @@
 #include <PackedScene.hpp>
 
 #include "../player/Player.h"
+#include "../world/World.h"
 #include "../camera/Camera.h"
 
 namespace godot
@@ -26,6 +27,8 @@ namespace godot
 
 	private:
 		Ref<PackedScene> playerScene_;
+		Ref<PackedScene> worldScene_;
 		godot::Player* player_;
+		godot::World* world_;
 	};
 }

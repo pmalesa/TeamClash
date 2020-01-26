@@ -5,6 +5,12 @@
 #include <iostream>
 #include <Label.hpp>
 
+#include <Sprite.hpp>
+#include <Texture.hpp>
+#include <Shape.hpp>
+#include <CollisionShape2D.hpp>
+#include <RectangleShape2D.hpp>
+#include "../world/Block.h"
 
 #include <Ref.hpp>
 
@@ -22,15 +28,18 @@ void Game::_register_methods()
 void Game::_init()
 {
     ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
-    playerScene_ = resourceLoader->load("res://player/Player.tscn");
+	worldScene_ = resourceLoader->load("res://world/World.tscn");
+	playerScene_ = resourceLoader->load("res://player/Player.tscn");
 }
 
 void Game::_ready()
 {
     get_tree()->connect("network_peer_disconnected", this, "_on_player_disconnected");
     get_tree()->connect("server_disconnected", this, "_on_server_disconnected");
-    player_ = static_cast<godot::Player*>(playerScene_->instance());
+	world_ = static_cast<godot::World*>(worldScene_->instance());
+	add_child(world_);
 
+    player_ = static_cast<godot::Player*>(playerScene_->instance());
     player_->set_name(String(get_tree()->get_network_unique_id()));
     player_->set("nodeName", get_tree()->get_network_unique_id());
     player_->set_network_master(get_tree()->get_network_unique_id());
