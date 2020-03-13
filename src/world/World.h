@@ -32,11 +32,11 @@ namespace godot
 		std::map<Vector2, std::unique_ptr<godot::Block>> blocks_;
 
 		const int blockSize_ = 32;
-		const int amplitude_ = 4;
+		const int amplitude_ =8;
 		const int stretch_ = 10;
-		const int worldLengthInBlocks_ = 1000;
+		const int worldLengthInBlocks_ = 500;
 		const double degToRadCoefficient = Math_PI / 180;
-		const int worldDepth_ = 50;
+		const int worldDepth_ = 30;
 		ResourceLoader* resourceLoader_;
 	};
 }

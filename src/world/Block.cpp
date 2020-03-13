@@ -24,7 +24,7 @@ void Block::init(BlockType blockType, Vector2 position)
 	
 	blockType_ = blockType;
 
-	/* THIS CRASHES THE GAME */
+	/* THIS CRASHES THE GAME, fixing this may speed up map generation */
 	//position_ = position;
 
 	if (blockType == BlockType::GRASS)

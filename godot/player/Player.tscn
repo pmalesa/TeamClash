@@ -5,10 +5,10 @@
 [ext_resource path="res://sprites/human_basic/walk1.png" type="Texture" id=3]
 [ext_resource path="res://sprites/human_basic/walk2.png" type="Texture" id=4]
 [ext_resource path="res://sprites/human_basic/hand_idle.png" type="Texture" id=5]
-[ext_resource path="res://sprites/human_basic/hand_attack1.png" type="Texture" id=6]
-[ext_resource path="res://sprites/human_basic/hand_attack2.png" type="Texture" id=7]
-[ext_resource path="res://sprites/human_basic/hand_walk1.png" type="Texture" id=8]
-[ext_resource path="res://sprites/human_basic/hand_walk2.png" type="Texture" id=9]
+[ext_resource path="res://sprites/human_basic/hand_walk1.png" type="Texture" id=6]
+[ext_resource path="res://sprites/human_basic/hand_walk2.png" type="Texture" id=7]
+[ext_resource path="res://sprites/human_basic/hand_attack1.png" type="Texture" id=8]
+[ext_resource path="res://sprites/human_basic/hand_attack2.png" type="Texture" id=9]
 [ext_resource path="res://equipment/Weapon.tscn" type="PackedScene" id=10]
 [ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=11]
 [ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=12]
@@ -37,14 +37,14 @@ animations = [ {
 "name": "idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 6 ), ExtResource( 7 ), ExtResource( 5 ) ],
-"loop": false,
-"name": "attack",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 8 ), ExtResource( 5 ), ExtResource( 9 ), ExtResource( 5 ) ],
+"frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 7 ), ExtResource( 5 ) ],
 "loop": true,
 "name": "walk",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 8 ), ExtResource( 9 ), ExtResource( 5 ) ],
+"loop": false,
+"name": "attack",
 "speed": 5.0
 } ]
 

@@ -3,7 +3,6 @@
 
 #include <cmath>
 
-#include <ResourceLoader.hpp>
 #include <PackedScene.hpp>
 
 #include <Sprite.hpp>

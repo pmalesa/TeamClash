@@ -1,8 +1,11 @@
 #pragma once
+#include <memory>
+
 #include <core/Godot.hpp>
 #include <Node.hpp>
-#include <PackedScene.hpp>
+#include <NetworkedMultiplayerENet.hpp>
 
+using std::unique_ptr;
 
 namespace godot
 {
@@ -18,22 +21,26 @@ namespace godot
 		void _init();
         void _ready();
 
-        void createServer(String playerName);
-        void joinServer(String playerName, String ip);
+		void createServer();
+		void joinServer(String ip);
+		void closeServer();
 
-        void _connected_to_server();
-        void _on_player_disconnected(int64_t id);
-        void _on_player_connected(int64_t connectedPlayerId);
-		void _request_player_info(int64_t requestFromId, int64_t playerId);
-        void _send_player_info(int64_t id, Dictionary info);
-        void update_position(int64_t id, Vector2 position);
+		void _player_connected(int64_t connectedPlayerId);
+		void _player_disconnected(int64_t disconnectedPlayerId);
+		void _connection_successful();
+		void _connection_failed();
+		void _server_disconnected();
+
+		void setPlayerInfo(int64_t newNetworkId, String newNickname) { networkId_ = newNetworkId; nickname_ = newNickname; }
+
 
     private:
-        Ref<PackedScene> playerScene_;
+		unique_ptr<NetworkedMultiplayerENet> peer_;
 
-        Dictionary selfData_;
-        Dictionary players_;
+		int64_t networkId_;
+		String nickname_;
 
 		const int64_t SERVER_PORT = 12345;
+		const int64_t MAX_PLAYERS = 128;
 	};
 }

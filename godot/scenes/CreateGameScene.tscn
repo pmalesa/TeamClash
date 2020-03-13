@@ -34,3 +34,4 @@ text = "Player name"
 [connection signal="pressed" from="StartGameButton" to="." method="_on_StartGameButton_pressed"]
 [connection signal="pressed" from="BackButton" to="." method="_on_BackButton_pressed"]
 [connection signal="text_changed" from="PlayerName" to="." method="_on_PlayerName_text_changed"]
+[connection signal="text_entered" from="PlayerName" to="." method="_on_PlayerName_text_entered"]

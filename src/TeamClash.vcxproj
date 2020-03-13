@@ -150,10 +150,12 @@
     <ClCompile Include="equipment\Weapon.cpp" />
     <ClCompile Include="GodotLibrary.cpp" />
     <ClCompile Include="network\Network.cpp" />
+    <ClCompile Include="network\NetworkOld.cpp" />
     <ClCompile Include="player\Player.cpp" />
     <ClCompile Include="scenes\CreateGameScene.cpp" />
     <ClCompile Include="scenes\Game.cpp" />
     <ClCompile Include="scenes\JoinGameScene.cpp" />
+    <ClCompile Include="scenes\Lobby.cpp" />
     <ClCompile Include="scenes\MainMenu.cpp" />
     <ClCompile Include="world\Biome.cpp" />
     <ClCompile Include="world\Block.cpp" />
@@ -163,10 +165,12 @@
     <ClInclude Include="camera\Camera.h" />
     <ClInclude Include="equipment\Weapon.h" />
     <ClInclude Include="network\Network.h" />
+    <ClInclude Include="network\NetworkOld.h" />
     <ClInclude Include="player\Player.h" />
     <ClInclude Include="scenes\CreateGameScene.h" />
     <ClInclude Include="scenes\Game.h" />
     <ClInclude Include="scenes\JoinGameScene.h" />
+    <ClInclude Include="scenes\Lobby.h" />
     <ClInclude Include="scenes\MainMenu.h" />
     <ClInclude Include="world\Biome.h" />
     <ClInclude Include="world\Block.h" />

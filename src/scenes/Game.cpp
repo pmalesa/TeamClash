@@ -45,12 +45,6 @@ void Game::_ready()
     player_->set_network_master(get_tree()->get_network_unique_id());
     add_child(player_);
 
-   //Dictionary selfData = Dictionary(get_node("/root/Network")->get("selfData"));
-   //if (get_tree()->is_network_server())
-   //	player_->init(selfData["name"], Vector2(360, 180), false);
-   //else
-   //	player_->init(selfData["name"], Vector2(360, 180), true);
-
     player_->init("Admin", Vector2(360, 180), false);
 	Godot::print("Game is ready.");
 }

@@ -1,11 +1,9 @@
 #include "Player.h"
 #include <SceneTree.hpp>
-#include <ResourceLoader.hpp>
 #include <KinematicCollision2D.hpp>
 #include <CollisionShape2D.hpp>
 #include <TextureProgress.hpp>
 #include <Label.hpp>
-#include <ResourceLoader.hpp>
 #include <Texture.hpp>
 #include <Timer.hpp>
 #include <Array.hpp>
@@ -53,16 +51,7 @@ void Player::_register_methods()
 
 void Player::_init()
 {
-	//nickname_ = "NewPlayer";
-
-	//ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
-	//playerScene_ = resourceLoader->load("res://player/Player.tscn");
-
-
-	//Label* nicknameLabel = static_cast<Label*>(get_node("/root/Player"));
-	//nicknameLabel->set_text(nickname_);
-	
-
+	resourceLoader_ = ResourceLoader::get_singleton();
 	velocity_ = Vector2(0, 0);
 	moveDirection_ = MoveDirection::NONE;
 	movementState_ = MovementState::NONE;
@@ -70,12 +59,14 @@ void Player::_init()
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName = 0;
 
+
 	Godot::print("Player initialized.");
 }
 
 void Player::_ready()
 {
-
+	currentWeapon_ = static_cast<godot::Weapon*>(get_node("weapon_node/Weapon"));
+	setWeapon(WeaponType::SWORD);
 }
 
 void Player::_physics_process(float delta)
@@ -92,12 +83,6 @@ void Player::_physics_process(float delta)
 		_move(slaveMovement);
 		set_position(slavePosition);
 	}
-
-	if (get_tree()->is_network_server())
-	{
-		//get_node("/root/Network")->call("update_position", get_name().to_int(), get_position());
-	}
-
 }
 
 void Player::_process(float delta)
@@ -105,6 +90,7 @@ void Player::_process(float delta)
     if (is_network_master())
     {
         updateInput();
+		processAttack();
     }
     else
     {
@@ -175,8 +161,30 @@ void Player::damage(int64_t value)
     if (healthPoints <= 0)
     {
         healthPoints = 0;
-        rpc("_die");
+        //rpc("_die");
     }
+}
+
+void Player::processAttack()
+{
+	if (weaponState_ == WeaponState::ATTACKING)
+	{
+		godot::Array overlapingBodies = currentWeapon_->get_overlapping_bodies();
+		if (overlapingBodies.empty())
+			return;
+		
+		currentWeapon_->set_physics_process(true);
+		for (unsigned int i = 0; i < overlapingBodies.size(); ++i)
+		{
+			godot::Player* attackedPlayer = static_cast<godot::Player*>(overlapingBodies[i]);
+			if (attackedPlayer != this)
+				attackedPlayer->damage(currentWeapon_->getDamage());
+		}
+
+		currentWeapon_->set_physics_process(false);
+	}
+	else
+		return;
 }
 
 void Player::updateInput()
@@ -291,4 +299,9 @@ void Player::init(String nickname, Vector2 startPosition, bool isSlave)
     //{
 
     //}
+}
+
+void Player::setWeapon(WeaponType weaponType)
+{
+	currentWeapon_->init(weaponType);
 }
