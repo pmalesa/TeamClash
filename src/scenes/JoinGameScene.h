@@ -9,9 +9,6 @@ namespace godot
 	{
         GODOT_CLASS(JoinGameScene, Node2D)
 
-    private:
-        std::unique_ptr<NetworkedMultiplayerENet> networkPeer_;
-
 	public:
         JoinGameScene() = default;
 		~JoinGameScene() = default;
@@ -22,8 +19,15 @@ namespace godot
         void _on_BackButton_pressed(Variant body);
 		void _on_IpAddress_text_changed(String new_text);
 		void _on_PlayerName_text_changed(String new_text);
+		void _on_IpAddress_text_entered(String new_text);
+		void _on_PlayerName_text_entered(String new_text);
 
-		String playerName;
-		String serverIp;
+
+	private:
+		std::unique_ptr<NetworkedMultiplayerENet> networkPeer_;
+
+		String playerName_;
+		String serverIp_;
+
 	};
 }

@@ -35,7 +35,7 @@ void CreateGameScene::_on_StartGameButton_pressed(Variant body)
 	std::cout << "Start game button pressed." << std::endl;
 	if (playerName_ == "")
 		playerName_ = "Unnamed";
-	get_node("/root/Network")->call("createServer");
+	get_node("/root/Network")->call("createServer", playerName_);
 	get_tree()->change_scene("res://scenes/Lobby.tscn");
 }
 

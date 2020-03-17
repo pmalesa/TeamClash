@@ -1,11 +1,14 @@
 #pragma once
 #include <memory>
+#include <map>
 
+#include <core/CoreTypes.hpp>
 #include <core/Godot.hpp>
 #include <Node.hpp>
 #include <NetworkedMultiplayerENet.hpp>
 
 using std::unique_ptr;
+using std::map;
 
 namespace godot
 {
@@ -21,9 +24,9 @@ namespace godot
 		void _init();
         void _ready();
 
-		void createServer();
-		void joinServer(String ip);
-		void closeServer();
+		void createServer(String nickname);
+		void joinServer(String nickname, String ip);
+		void closeNetwork();
 
 		void _player_connected(int64_t connectedPlayerId);
 		void _player_disconnected(int64_t disconnectedPlayerId);
@@ -31,11 +34,18 @@ namespace godot
 		void _connection_failed();
 		void _server_disconnected();
 
-		void setPlayerInfo(int64_t newNetworkId, String newNickname) { networkId_ = newNetworkId; nickname_ = newNickname; }
+		void setPlayerNickname(String newNickname) { nickname_ = newNickname; }
+		String getPlayerNickname() const { return nickname_;  }
+		int64_t getPlayerNetworkId() const { return networkId_; }
+		Dictionary getConnectedPlayers() const { return connectedPlayers_; }
 
+		void addPlayer(int64_t id, String nickname);
+		void removePlayer(int64_t id);
 
     private:
 		unique_ptr<NetworkedMultiplayerENet> peer_;
+
+		Dictionary connectedPlayers_;
 
 		int64_t networkId_;
 		String nickname_;

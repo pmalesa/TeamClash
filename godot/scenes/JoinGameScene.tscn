@@ -48,5 +48,7 @@ margin_bottom = 531.28
 text = "Ip address"
 [connection signal="pressed" from="JoinGameButton" to="." method="_on_JoinGameButton_pressed"]
 [connection signal="text_changed" from="IpAddress" to="." method="_on_IpAddress_text_changed"]
+[connection signal="text_entered" from="IpAddress" to="." method="_on_IpAddress_text_entered"]
 [connection signal="text_changed" from="PlayerName" to="." method="_on_PlayerName_text_changed"]
+[connection signal="text_entered" from="PlayerName" to="." method="_on_PlayerName_text_entered"]
 [connection signal="pressed" from="BackButton" to="." method="_on_BackButton_pressed"]

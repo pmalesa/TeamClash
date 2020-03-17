@@ -5,10 +5,10 @@
 #include <Node2D.hpp>
 
 #include <memory>
-#include <vector>
+#include <map>
 
 using std::unique_ptr;
-using std::vector;
+using std::map;
 
 namespace godot
 {
@@ -29,24 +29,30 @@ namespace godot
 		void _init();
 		void _ready();
 		void _process(float delta);
+		void _player_connected(int64_t connectedPlayerId);
+		void _player_disconnected(int64_t disconnectedPlayerId);
 
 		void _on_ChatPanelLineEdit_focus_entered();
 		void _on_ChatPanelLineEdit_focus_exited();
 		void _on_BackButton_pressed();
 		void _on_SendButton_pressed();
 
-		void registerPlayer(Player* player);
-		void setNickname(String newNickname) { player_->setNickname(newNickname); }
-
+		void updateConnectedPlayersWindow(Dictionary connectedPlayers);
 		void sendMessage(String message);
 
 	private:
-		vector<Player*> connectedPlayers_;
-
 		Input* keyboardInput_;
+		TextEdit* connectedPlayersWindowText_;
 		TextEdit* chatWindowText_;
 		LineEdit* lineEdit_;
 		BaseButton* sendButton_;
-		godot::Player* player_;
+
+		Dictionary connectedPlayers_;
+		String lobbyNickname_;
+		int64_t id_;
+
+		bool connectedPlayersOutdated_;
+		bool playerConnected_;
+		int64_t lastConnectedPlayerId_;
 	};
 }
