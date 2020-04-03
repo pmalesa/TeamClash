@@ -29,7 +29,7 @@ namespace godot
 	private:
 		void placeBlock(BlockType blockType, Vector2 position);
 
-		std::map<Vector2, std::unique_ptr<godot::Block>> blocks_;
+		std::map<Vector2, std::unique_ptr<godot::Block>> blocks_; // TODO - change the type from std::map to godot::Dictionary
 
 		const int blockSize_ = 32;
 		const int amplitude_ = 8;

@@ -101,6 +101,7 @@ margin_right = 850.0
 text = "Connected players"
 valign = 1
 [connection signal="pressed" from="LobbyPanel/BackButton" to="." method="_on_BackButton_pressed"]
+[connection signal="pressed" from="LobbyPanel/EnterGameButton" to="." method="_on_EnterGameButton_pressed"]
 [connection signal="focus_entered" from="LobbyPanel/ChatPanel/ChatPanelLineEdit" to="." method="_on_ChatPanelLineEdit_focus_entered"]
 [connection signal="focus_exited" from="LobbyPanel/ChatPanel/ChatPanelLineEdit" to="." method="_on_ChatPanelLineEdit_focus_exited"]
 [connection signal="pressed" from="LobbyPanel/ChatPanel/SendButton" to="." method="_on_SendButton_pressed"]

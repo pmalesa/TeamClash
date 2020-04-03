@@ -36,9 +36,11 @@ namespace godot
 		void _on_ChatPanelLineEdit_focus_exited();
 		void _on_BackButton_pressed();
 		void _on_SendButton_pressed();
+		void _on_EnterGameButton_pressed();
 
-		void updateConnectedPlayersWindow(Dictionary connectedPlayers);
+		void updateConnectedPlayersWindow();
 		void sendMessage(String message);
+		void startGame();
 
 	private:
 		Input* keyboardInput_;
@@ -47,12 +49,11 @@ namespace godot
 		LineEdit* lineEdit_;
 		BaseButton* sendButton_;
 
-		Dictionary connectedPlayers_;
 		String lobbyNickname_;
 		int64_t id_;
 
 		bool connectedPlayersOutdated_;
-		bool playerConnected_;
+		bool playerJustConnected_;
 		int64_t lastConnectedPlayerId_;
 	};
 }

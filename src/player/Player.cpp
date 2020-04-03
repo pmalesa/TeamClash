@@ -59,14 +59,14 @@ void Player::_init()
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName = 0;
 
-
-	Godot::print("Player initialized.");
+	Godot::print("[PLAYER] Player initialized.");
 }
 
 void Player::_ready()
 {
 	currentWeapon_ = static_cast<godot::Weapon*>(get_node("weapon_node/Weapon"));
 	setWeapon(WeaponType::SWORD);
+	Godot::print("[PLAYER] Player ready.");
 }
 
 void Player::_physics_process(float delta)
@@ -90,7 +90,6 @@ void Player::_process(float delta)
     if (is_network_master())
     {
         updateInput();
-		processAttack();
     }
     else
     {
@@ -292,9 +291,8 @@ void Player::_on_RespawnTimer_timeout()
 void Player::init(String nickname, Vector2 startPosition, bool isSlave)
 {
     set_global_position(startPosition);
-	//nickname_ = nickname;
-	//get_node("/root/Game")->call("setPlayerNickname", nickname_);
-
+	Godot::print("Player " + nickname + " initialized.");
+	//nickname_ = nickname; This line generates some unknown error and the program crashes
     //if (isSlave)
     //{
 

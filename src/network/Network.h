@@ -34,19 +34,19 @@ namespace godot
 		void _connection_failed();
 		void _server_disconnected();
 
-		void setPlayerNickname(String newNickname) { nickname_ = newNickname; }
 		String getPlayerNickname() const { return nickname_;  }
 		int64_t getPlayerNetworkId() const { return networkId_; }
 		Dictionary getConnectedPlayers() const { return connectedPlayers_; }
 
 		void addPlayer(int64_t id, String nickname);
 		void removePlayer(int64_t id);
+		void sendConnectedPlayersInfo();
 
     private:
-		unique_ptr<NetworkedMultiplayerENet> peer_;
-
+		void updateConnectedPlayers(Dictionary players) { connectedPlayers_ = players; }
+		
 		Dictionary connectedPlayers_;
-
+		unique_ptr<NetworkedMultiplayerENet> peer_;
 		int64_t networkId_;
 		String nickname_;
 

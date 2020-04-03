@@ -13,13 +13,14 @@ void Network::_register_methods()
     register_method("_ready", &Network::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("createServer", &Network::createServer, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("joinServer", &Network::joinServer, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("setPlayerNickname", &Network::setPlayerNickname, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("getPlayerNickname", &Network::getPlayerNickname, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getPlayerNickname", &Network::getPlayerNickname, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("getPlayerNetworkId", &Network::getPlayerNetworkId, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("addPlayer", &Network::addPlayer, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("removePlayer", &Network::removePlayer, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("closeNetwork", &Network::closeNetwork, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getConnectedPlayers", &Network::getConnectedPlayers, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("sendConnectedPlayersInfo", &Network::sendConnectedPlayersInfo, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("updateConnectedPlayers", &Network::updateConnectedPlayers, GODOT_METHOD_RPC_MODE_REMOTE);
 
 	register_method("_player_connected", &Network::_player_connected, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_player_disconnected", &Network::_player_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -107,10 +108,21 @@ void Network::addPlayer(int64_t id, String nickname)
 {
 	connectedPlayers_[id] = nickname;
 	Godot::print("[NETWORK] Added player " + nickname);
+	sendConnectedPlayersInfo();
 }
 
 void Network::removePlayer(int64_t id)
 {
 	Godot::print("[NETWORK] Removing player " + String(connectedPlayers_[id]));
 	connectedPlayers_.erase(id);
+	sendConnectedPlayersInfo();
+}
+
+void Network::sendConnectedPlayersInfo()
+{
+	if (get_tree()->is_network_server())
+	{
+		rpc("updateConnectedPlayers", connectedPlayers_);
+		Godot::print("[NETWORK] Updated connected players from the server.");
+	}
 }
