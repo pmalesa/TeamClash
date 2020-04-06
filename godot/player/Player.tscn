@@ -144,7 +144,9 @@ tracks/1/keys = {
 "values": [ 0.0 ]
 }
 
-[node name="Player" type="KinematicBody2D"]
+[node name="Player" type="KinematicBody2D" groups=[
+"Player",
+]]
 script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -170,7 +172,7 @@ animation = "idle"
 position = Vector2( -6.12346, -10.0741 )
 
 [node name="Weapon" parent="weapon_node" instance=ExtResource( 10 )]
-position = Vector2( 22.1083, 22.0286 )
+position = Vector2( 22, 22 )
 z_index = 3
 
 [node name="right_hand_sprite" type="AnimatedSprite" parent="."]

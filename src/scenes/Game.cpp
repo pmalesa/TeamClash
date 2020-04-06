@@ -28,6 +28,7 @@ void Game::_register_methods()
 	register_method("postconfigureGame", &Game::postconfigureGame, GODOT_METHOD_RPC_MODE_REMOTESYNC);
     register_method("_on_player_disconnected", &Game::_on_player_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_server_disconnected", &Game::_on_server_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 void Game::_init()
 {

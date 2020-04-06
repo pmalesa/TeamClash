@@ -34,19 +34,22 @@ namespace godot
 		void _die();
 		void _on_RespawnTimer_timeout();
 
-        void damage(int64_t damage);
+        void inflictDamage(int64_t damage);
 		void processAttack();
 		void updateInput();
         void updateSprite();
         void init(String nickname, Vector2 startPosition, bool isSlave);
 		void setWeapon(WeaponType weaponType);
 
-		Vector2 getVelocity() const { return velocity_; }
-		int64_t getHealthPoints() const { return healthPoints; }
 		String getNickname() const { return nickname_; }
+		Vector2 getVelocity() const { return velocity_; }
+		int64_t getHealthPoints() const { return healthPoints_; }
+		int64_t getNodeName() const { return nodeName_; }
+
 		void setNickname(String newNickname) { nickname_ = newNickname; }
 		void setVelocity(Vector2 velocity) { velocity_ = velocity; }
 		void addVelocity(Vector2 velocity) { velocity_ += velocity; }
+		void updateHealthPoints(int64_t newHealthPoints);
 
     private:
         const float MOVE_SPEED = 300.0f;
@@ -56,7 +59,7 @@ namespace godot
 
 		String nickname_;
 		Vector2 velocity_;
-		godot::Weapon* currentWeapon_;
+		Weapon* currentWeapon_;
 
 		MoveDirection moveDirection_;
 		MovementState movementState_;
@@ -66,8 +69,8 @@ namespace godot
         int64_t slaveMovement;
         int64_t slaveWeaponState;
 
-        int64_t healthPoints = MAX_HP;
-        int64_t nodeName;
+        int64_t healthPoints_;
+        int64_t nodeName_;
 
 		Ref<PackedScene> weaponScene_;
 		ResourceLoader* resourceLoader_;

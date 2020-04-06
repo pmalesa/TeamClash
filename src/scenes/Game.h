@@ -27,6 +27,8 @@ namespace godot
 		void _on_player_disconnected(int64_t id);
 		void _on_server_disconnected(int64_t id);
 
+		Player* getPlayer(int64_t id) const { return static_cast<Player*>(players_[id]); }
+
 	private:
 		void printAllConnectedPeers();
 		void printAllConnectedPeersNodeNames();
