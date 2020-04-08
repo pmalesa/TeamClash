@@ -87,6 +87,15 @@
     <ClCompile Include="world\Biome.cpp">
       <Filter>Source Files\world</Filter>
     </ClCompile>
+    <ClCompile Include="scenes\Lobby.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="network\NetworkOld.cpp">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
+    <ClCompile Include="player\HealthBar.cpp">
+      <Filter>Source Files\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -121,6 +130,15 @@
     </ClInclude>
     <ClInclude Include="world\Biome.h">
       <Filter>Header Files\world</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\Lobby.h">
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="network\NetworkOld.h">
+      <Filter>Header Files\network</Filter>
+    </ClInclude>
+    <ClInclude Include="player\HealthBar.h">
+      <Filter>Header Files\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -3,7 +3,6 @@
 
 #include <cmath>
 
-#include <ResourceLoader.hpp>
 #include <PackedScene.hpp>
 
 #include <Sprite.hpp>
@@ -38,18 +37,6 @@ void World::_ready()
 	Godot::print("World is ready.");
 }
 
-void World::placeBlock(BlockType blockType, Vector2 position)
-{
-	if (blocks_.find(position) == blocks_.end())
-	{
-		Ref<PackedScene> blockScene_ = resourceLoader_->load("res://world/Block.tscn");
-		godot::Block* newBlock = static_cast<godot::Block*>(blockScene_->instance());
-		newBlock->init(blockType, position);
-		blocks_.insert(std::pair<Vector2, std::unique_ptr<godot::Block>>(position, newBlock));
-		add_child(newBlock);
-	}
-}
-
 void World::generateMap()
 {
 	for (unsigned int i = 0; i < worldLengthInBlocks_; ++i)
@@ -74,5 +61,17 @@ void World::generateMap()
 			placeBlock(BlockType::DIRT, Vector2(x_coordinate, j * 32 + y_coordinate));
 		}
 		placeBlock(BlockType::BEDROCK, Vector2(x_coordinate, worldDepth_ * blockSize_));
+	}
+}
+
+void World::placeBlock(BlockType blockType, Vector2 position)
+{
+	if (blocks_.find(position) == blocks_.end())
+	{
+		Ref<PackedScene> blockScene_ = resourceLoader_->load("res://world/Block.tscn");
+		godot::Block* newBlock = static_cast<godot::Block*>(blockScene_->instance());
+		newBlock->init(blockType, position);
+		blocks_.insert(std::pair<Vector2, std::unique_ptr<godot::Block>>(position, newBlock));
+		add_child(newBlock);
 	}
 }

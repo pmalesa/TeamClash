@@ -1,0 +1,107 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://scenes/Lobby.gdns" type="Script" id=1]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="LobbyPanel" type="Panel" parent="."]
+margin_right = 1920.0
+margin_bottom = 1080.0
+
+[node name="ColorRect" type="ColorRect" parent="LobbyPanel"]
+margin_left = 121.641
+margin_top = 100.0
+margin_right = 1801.64
+margin_bottom = 980.0
+color = Color( 0.45098, 0.2, 0.270588, 1 )
+
+[node name="BackButton" type="Button" parent="LobbyPanel"]
+margin_left = 1400.0
+margin_top = 820.0
+margin_right = 1700.0
+margin_bottom = 900.0
+
+[node name="BackButtonLabel" type="Label" parent="LobbyPanel/BackButton"]
+margin_right = 300.0
+margin_bottom = 80.0
+size_flags_stretch_ratio = 0.0
+text = "Back"
+align = 1
+valign = 1
+
+[node name="EnterGameButton" type="Button" parent="LobbyPanel"]
+margin_left = 1398.05
+margin_top = 200.0
+margin_right = 1698.05
+margin_bottom = 280.0
+
+[node name="EnterGameButtonLabel" type="Label" parent="LobbyPanel/EnterGameButton"]
+margin_right = 300.0
+margin_bottom = 80.0
+size_flags_stretch_ratio = 0.0
+text = "Enter game"
+align = 1
+valign = 1
+
+[node name="ChatPanel" type="Panel" parent="LobbyPanel"]
+margin_left = 250.0
+margin_top = 438.96
+margin_right = 1100.0
+margin_bottom = 838.96
+
+[node name="ChatPanelLineEdit" type="LineEdit" parent="LobbyPanel/ChatPanel"]
+margin_top = 405.0
+margin_right = 700.0
+margin_bottom = 450.0
+
+[node name="SendButton" type="Button" parent="LobbyPanel/ChatPanel"]
+margin_left = 700.0
+margin_top = 405.0
+margin_right = 850.0
+margin_bottom = 450.0
+
+[node name="SendButtonLabel" type="Label" parent="LobbyPanel/ChatPanel/SendButton"]
+margin_right = 150.0
+margin_bottom = 50.0
+size_flags_stretch_ratio = 0.0
+text = "Send"
+align = 1
+valign = 1
+
+[node name="ChatDisplay" type="TextEdit" parent="LobbyPanel/ChatPanel"]
+margin_top = -1.58667
+margin_right = 850.0
+margin_bottom = 398.413
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+readonly = true
+
+[node name="ChatPanelLabel" type="Label" parent="LobbyPanel/ChatPanel"]
+margin_top = -30.0
+margin_right = 850.0
+text = "Chat"
+valign = 1
+
+[node name="ConnectedPlayersPanel" type="Panel" parent="LobbyPanel"]
+margin_left = 250.0
+margin_top = 150.0
+margin_right = 1100.0
+margin_bottom = 400.0
+
+[node name="ConnectedPlayersDisplay" type="TextEdit" parent="LobbyPanel/ConnectedPlayersPanel"]
+margin_left = 6.15161
+margin_top = 2.05054
+margin_right = 856.152
+margin_bottom = 252.051
+readonly = true
+
+[node name="ConnectedPlayersLabel" type="Label" parent="LobbyPanel/ConnectedPlayersPanel"]
+margin_top = -30.0
+margin_right = 850.0
+text = "Connected players"
+valign = 1
+[connection signal="pressed" from="LobbyPanel/BackButton" to="." method="_on_BackButton_pressed"]
+[connection signal="pressed" from="LobbyPanel/EnterGameButton" to="." method="_on_EnterGameButton_pressed"]
+[connection signal="focus_entered" from="LobbyPanel/ChatPanel/ChatPanelLineEdit" to="." method="_on_ChatPanelLineEdit_focus_entered"]
+[connection signal="focus_exited" from="LobbyPanel/ChatPanel/ChatPanelLineEdit" to="." method="_on_ChatPanelLineEdit_focus_exited"]
+[connection signal="pressed" from="LobbyPanel/ChatPanel/SendButton" to="." method="_on_SendButton_pressed"]

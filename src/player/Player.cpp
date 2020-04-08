@@ -1,11 +1,8 @@
 #include "Player.h"
 #include <SceneTree.hpp>
-#include <ResourceLoader.hpp>
 #include <KinematicCollision2D.hpp>
 #include <CollisionShape2D.hpp>
-#include <TextureProgress.hpp>
 #include <Label.hpp>
-#include <ResourceLoader.hpp>
 #include <Texture.hpp>
 #include <Timer.hpp>
 #include <Array.hpp>
@@ -27,15 +24,19 @@ void Player::_register_methods()
     register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_HealthBar_value_changed", &Player::_on_HealthBar_value_changed, GODOT_METHOD_RPC_MODE_DISABLED);
-    register_method("damage", &Player::damage, GODOT_METHOD_RPC_MODE_DISABLED);
+    register_method("inflictDamage", &Player::inflictDamage, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("updateInput", &Player::updateInput, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("updateSprite", &Player::updateSprite, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
     register_method("init", &Player::init, GODOT_METHOD_RPC_MODE_DISABLED);
-
+	register_method("updateHealthPoints", &Player::updateHealthPoints, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("updateHealthBar", &Player::updateHealthBar, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	
+	register_property<Player, int64_t>("healthPoints_", &Player::healthPoints_, 0, GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, Vector2>("slavePosition", &Player::slavePosition, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, int64_t>("slaveMovement", &Player::slaveMovement, static_cast<int64_t>(MoveDirection::NONE), GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, int64_t>("slaveWeaponState", &Player::slaveWeaponState, static_cast<int64_t>(WeaponState::IDLE), GODOT_METHOD_RPC_MODE_PUPPET);
+	register_property<Player, int64_t>("nodeName", &Player::nodeName_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 
     /*
     GODOT_METHOD_RPC_MODE_DISABLED,
@@ -48,34 +49,32 @@ void Player::_register_methods()
     GODOT_METHOD_RPC_MODE_MASTERSYNC,
     GODOT_METHOD_RPC_MODE_PUPPETSYNC,
     */
-    register_property<Player, int64_t>("nodeName", &Player::nodeName, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void Player::_init()
 {
-	//nickname_ = "NewPlayer";
-
-	//ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
-	//playerScene_ = resourceLoader->load("res://player/Player.tscn");
-
-
-	//Label* nicknameLabel = static_cast<Label*>(get_node("/root/Player"));
-	//nicknameLabel->set_text(nickname_);
-	
-
+	resourceLoader_ = ResourceLoader::get_singleton();
+	healthPoints_ = MAX_HP;
 	velocity_ = Vector2(0, 0);
 	moveDirection_ = MoveDirection::NONE;
 	movementState_ = MovementState::NONE;
     slavePosition = Vector2();
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
-    nodeName = 0;
+    nodeName_ = 0;
 
-	Godot::print("Player initialized.");
+	Godot::print("[PLAYER] Player initialized.");
 }
 
 void Player::_ready()
 {
+	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
+	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
+	currentWeapon_ = static_cast<Weapon*>(get_node("weapon_node/Weapon"));
 
+	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
+	updateHealthBar();
+	setWeapon(WeaponType::SWORD);
+	Godot::print("[PLAYER] Player ready.");
 }
 
 void Player::_physics_process(float delta)
@@ -86,18 +85,13 @@ void Player::_physics_process(float delta)
 		rset("slaveMovement", static_cast<int64_t>(moveDirection_));
         rset("slaveWeaponState", static_cast<int64_t>(weaponState_));
 		_move(static_cast<int64_t>(moveDirection_));
+		processAttack();
 	}
 	else
 	{
 		_move(slaveMovement);
 		set_position(slavePosition);
 	}
-
-	if (get_tree()->is_network_server())
-	{
-		//get_node("/root/Network")->call("update_position", get_name().to_int(), get_position());
-	}
-
 }
 
 void Player::_process(float delta)
@@ -168,15 +162,42 @@ void Player::_on_HealthBar_value_changed(float value)
 	
 }
 
-void Player::damage(int64_t value)
+void Player::inflictDamage(int64_t value)
 {
-    healthPoints -= value;
-    std::cout << "Damage, new health: " << healthPoints << std::endl;
-    if (healthPoints <= 0)
-    {
-        healthPoints = 0;
-        rpc("_die");
-    }
+	healthPoints_ -= value;
+	if (healthPoints_ < 0)
+		healthPoints_ = 0;
+	rpc("updateHealthPoints", healthPoints_);
+	rpc("updateHealthBar");
+	if (healthPoints_ == 0)
+		rpc("_die");
+}
+
+void Player::processAttack()
+{
+	if (weaponState_ == WeaponState::ATTACKING)
+	{
+		currentWeapon_->set_physics_process(true);
+		godot::Array overlapingBodies = currentWeapon_->get_overlapping_bodies();
+		if (overlapingBodies.empty())
+			return;
+		
+		for (unsigned int i = 0; i < overlapingBodies.size(); ++i)
+		{
+			Node* overlappedNode = static_cast<Node*>(overlapingBodies[i]);
+			if (!overlappedNode->is_in_group("Player"))
+				return;
+			else
+			{
+				Player* attackedPlayer = static_cast<Player*>(overlapingBodies[i]);
+				if (!(attackedPlayer == this))
+					attackedPlayer->inflictDamage(currentWeapon_->getDamage());
+			}
+		}
+		currentWeapon_->set_physics_process(false);
+	}
+	else
+		return;
 }
 
 void Player::updateInput()
@@ -253,6 +274,9 @@ void Player::updateSprite()
 
 void Player::_die()
 {
+	if (is_network_master())
+		get_node("/root/Game")->call("showRespawnWindow");
+
     static_cast<Timer*>(get_node("RespawnTimer"))->start();
     set_physics_process(false);
 
@@ -268,6 +292,10 @@ void Player::_die()
 
 void Player::_on_RespawnTimer_timeout()
 {
+	if(is_network_master())
+		get_node("/root/Game")->call("hideRespawnWindow");
+	
+	static_cast<Timer*>(get_node("RespawnTimer"))->stop();
     set_physics_process(true);
 
     for (unsigned int i = 0; i < get_child_count(); i++)
@@ -278,17 +306,32 @@ void Player::_on_RespawnTimer_timeout()
         }
     }
     static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(false);
-    healthPoints = MAX_HP;
+    healthPoints_ = MAX_HP;
+	updateHealthBar();
 }
 
 void Player::init(String nickname, Vector2 startPosition, bool isSlave)
 {
     set_global_position(startPosition);
-	//nickname_ = nickname;
-	//get_node("/root/Game")->call("setPlayerNickname", nickname_);
+	Godot::print("Player " + nickname + " initialized.");
+	//nickname_ = nickname; This line generates some unknown error and the program crashes
+}
 
-    //if (isSlave)
-    //{
+void Player::setWeapon(WeaponType weaponType)
+{
+	currentWeapon_->init(weaponType);
+}
 
-    //}
+void Player::updateHealthPoints(int64_t newHealthPoints)
+{
+	if (healthPoints_ != newHealthPoints)
+	{
+		healthPoints_ = newHealthPoints;
+		std::cout << "Player(" << getNodeName() << ") took some damage! His new health is: " << healthPoints_ << std::endl;
+	}
+}
+
+void Player::updateHealthBar()
+{
+	healthBar_->setValue(healthPoints_);
 }

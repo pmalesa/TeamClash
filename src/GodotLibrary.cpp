@@ -2,7 +2,9 @@
 #include "scenes/CreateGameScene.h"
 #include "scenes/JoinGameScene.h"
 #include "scenes/Game.h"
+#include "scenes/Lobby.h"
 #include "player/Player.h"
+#include "player/HealthBar.h"
 #include "camera/Camera.h"
 #include "equipment/Weapon.h"
 
@@ -31,8 +33,10 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
 	godot::register_class<godot::MainMenu>();
 	godot::register_class<godot::CreateGameScene>();
 	godot::register_class<godot::JoinGameScene>();
+	godot::register_class<godot::Lobby>();
 	godot::register_class<godot::Game>();
 	godot::register_class<godot::Player>();
+	godot::register_class<godot::HealthBar>();
 	godot::register_class<godot::Network>();
 	godot::register_class<godot::Camera>();
 	godot::register_class<godot::Weapon>();

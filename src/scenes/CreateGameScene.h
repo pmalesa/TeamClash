@@ -9,9 +9,6 @@ namespace godot
 	{
         GODOT_CLASS(CreateGameScene, Node2D)
 
-    private:
-        std::unique_ptr<NetworkedMultiplayerENet> networkPeer_;
-
 	public:
 		CreateGameScene() = default;
 		~CreateGameScene() = default;
@@ -19,9 +16,11 @@ namespace godot
 		static void _register_methods();
 		void _init();
 		void _on_PlayerName_text_changed(String new_text);
+		void _on_PlayerName_text_entered(String new_text);
 		void _on_StartGameButton_pressed(Variant body);
         void _on_BackButton_pressed(Variant body);
 
-		String playerName;
+	private:
+		String playerName_;
 	};
 }
