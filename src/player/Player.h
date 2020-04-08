@@ -8,10 +8,10 @@
 #include <ResourceLoader.hpp>
 
 #include "../equipment/Weapon.h"
+#include "HealthBar.h"
 
 namespace godot
 {
-
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
 	enum class MovementState : int64_t { NONE, JUMPED, FALLING };
 
@@ -50,6 +50,7 @@ namespace godot
 		void setVelocity(Vector2 velocity) { velocity_ = velocity; }
 		void addVelocity(Vector2 velocity) { velocity_ += velocity; }
 		void updateHealthPoints(int64_t newHealthPoints);
+		void updateHealthBar();
 
     private:
         const float MOVE_SPEED = 300.0f;
@@ -70,6 +71,7 @@ namespace godot
         int64_t slaveWeaponState;
 
         int64_t healthPoints_;
+		HealthBar* healthBar_;
         int64_t nodeName_;
 
 		Ref<PackedScene> weaponScene_;

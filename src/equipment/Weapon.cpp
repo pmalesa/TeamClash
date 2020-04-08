@@ -25,14 +25,14 @@ void Weapon::init(WeaponType weaponType)
 	godot::CollisionPolygon2D* collisionPolygon = static_cast<godot::CollisionPolygon2D*>(get_node("CollisionPolygon2D"));
 	if (weaponType == WeaponType::FISTS)
 	{
-		damage_ = 5;
+		damage_ = 1;
 	}
 	else if (weaponType == WeaponType::SWORD)
 	{
 		weaponSprite->set_texture(resourceLoader_->load("res://sprites/warrior_basic_weapon.png"));
 		weaponSprite->set_position(Vector2(weaponSprite->get_position().x + 14, weaponSprite->get_position().y));
 		collisionPolygon->set_position(Vector2(weaponSprite->get_position().x + 14, weaponSprite->get_position().y));
-		damage_ = 26;
+		damage_ = 4;
 	}
 	else if (weaponType == WeaponType::AXE)
 	{

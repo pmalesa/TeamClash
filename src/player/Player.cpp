@@ -2,7 +2,6 @@
 #include <SceneTree.hpp>
 #include <KinematicCollision2D.hpp>
 #include <CollisionShape2D.hpp>
-#include <TextureProgress.hpp>
 #include <Label.hpp>
 #include <Texture.hpp>
 #include <Timer.hpp>
@@ -31,12 +30,14 @@ void Player::_register_methods()
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
     register_method("init", &Player::init, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateHealthPoints", &Player::updateHealthPoints, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("updateHealthBar", &Player::updateHealthBar, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	
 	register_property<Player, int64_t>("healthPoints_", &Player::healthPoints_, 0, GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, Vector2>("slavePosition", &Player::slavePosition, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, int64_t>("slaveMovement", &Player::slaveMovement, static_cast<int64_t>(MoveDirection::NONE), GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, int64_t>("slaveWeaponState", &Player::slaveWeaponState, static_cast<int64_t>(WeaponState::IDLE), GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<Player, int64_t>("nodeName", &Player::nodeName_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
+
     /*
     GODOT_METHOD_RPC_MODE_DISABLED,
     GODOT_METHOD_RPC_MODE_REMOTE,
@@ -66,7 +67,9 @@ void Player::_init()
 
 void Player::_ready()
 {
-	currentWeapon_ = static_cast<godot::Weapon*>(get_node("weapon_node/Weapon"));
+	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
+	currentWeapon_ = static_cast<Weapon*>(get_node("weapon_node/Weapon"));
+	updateHealthBar();
 	setWeapon(WeaponType::SWORD);
 	Godot::print("[PLAYER] Player ready.");
 }
@@ -93,7 +96,6 @@ void Player::_process(float delta)
     if (is_network_master())
     {
         updateInput();
-		//rpc("updatePuppetsHealthPoints", healthPoints_);
     }
     else
     {
@@ -163,6 +165,7 @@ void Player::inflictDamage(int64_t value)
 	if (healthPoints_ < 0)
 		healthPoints_ = 0;
 	rpc("updateHealthPoints", healthPoints_);
+	rpc("updateHealthBar");
 }
 
 void Player::processAttack()
@@ -313,4 +316,9 @@ void Player::updateHealthPoints(int64_t newHealthPoints)
 		healthPoints_ = newHealthPoints;
 		std::cout << "Player(" << getNodeName() << ") took some damage! His new health is: " << healthPoints_ << std::endl;
 	}
+}
+
+void Player::updateHealthBar()
+{
+	healthBar_->setValue(healthPoints_);
 }

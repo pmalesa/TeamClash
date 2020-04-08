@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
 [ext_resource path="res://sprites/human_basic/idle.png" type="Texture" id=2]
@@ -10,9 +10,7 @@
 [ext_resource path="res://sprites/human_basic/hand_attack1.png" type="Texture" id=8]
 [ext_resource path="res://sprites/human_basic/hand_attack2.png" type="Texture" id=9]
 [ext_resource path="res://equipment/Weapon.tscn" type="PackedScene" id=10]
-[ext_resource path="res://sprites/HealthBarUnder.png" type="Texture" id=11]
-[ext_resource path="res://sprites/HealthBarOver.png" type="Texture" id=12]
-[ext_resource path="res://sprites/HealthBarProgress.png" type="Texture" id=13]
+[ext_resource path="res://player/HealthBar.tscn" type="PackedScene" id=11]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 12.9671, 30.8344 )
@@ -185,16 +183,11 @@ frame = 2
 
 [node name="HealthBar" type="Node2D" parent="."]
 
-[node name="HealthBar" type="TextureProgress" parent="HealthBar"]
-margin_left = -15.9328
-margin_top = -46.1842
-margin_right = 16.0672
-margin_bottom = -37.1842
-value = 100.0
-texture_under = ExtResource( 11 )
-texture_over = ExtResource( 12 )
-texture_progress = ExtResource( 13 )
-tint_progress = Color( 0.0117647, 0.870588, 0.203922, 1 )
+[node name="HealthBar" parent="HealthBar" instance=ExtResource( 11 )]
+margin_left = -16.4632
+margin_top = -45.1386
+margin_right = 23.5368
+margin_bottom = -5.13861
 
 [node name="NicknameBar" type="Node2D" parent="."]
 

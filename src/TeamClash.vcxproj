@@ -151,6 +151,7 @@
     <ClCompile Include="GodotLibrary.cpp" />
     <ClCompile Include="network\Network.cpp" />
     <ClCompile Include="network\NetworkOld.cpp" />
+    <ClCompile Include="player\HealthBar.cpp" />
     <ClCompile Include="player\Player.cpp" />
     <ClCompile Include="scenes\CreateGameScene.cpp" />
     <ClCompile Include="scenes\Game.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="equipment\Weapon.h" />
     <ClInclude Include="network\Network.h" />
     <ClInclude Include="network\NetworkOld.h" />
+    <ClInclude Include="player\HealthBar.h" />
     <ClInclude Include="player\Player.h" />
     <ClInclude Include="scenes\CreateGameScene.h" />
     <ClInclude Include="scenes\Game.h" />
