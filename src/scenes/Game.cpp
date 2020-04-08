@@ -2,15 +2,19 @@
 
 #include <SceneTree.hpp>
 #include <ResourceLoader.hpp>
+#include <Node2D.hpp>
+#include <Control.hpp>
 #include <Label.hpp>
+#include <AudioStreamPlayer.hpp>
+#include <Timer.hpp>
 
 #include <Sprite.hpp>
 #include <Texture.hpp>
 #include <Shape.hpp>
 #include <CollisionShape2D.hpp>
 #include <RectangleShape2D.hpp>
-
 #include <Ref.hpp>
+#include <Variant.hpp>
 
 #include <iostream>
 using std::cout;
@@ -28,8 +32,10 @@ void Game::_register_methods()
 	register_method("postconfigureGame", &Game::postconfigureGame, GODOT_METHOD_RPC_MODE_REMOTESYNC);
     register_method("_on_player_disconnected", &Game::_on_player_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_server_disconnected", &Game::_on_server_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("hideRespawnWindow", &Game::hideRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 }
+
 void Game::_init()
 {
 	ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
@@ -42,6 +48,8 @@ void Game::_ready()
 {
     get_tree()->connect("network_peer_disconnected", this, "_on_player_disconnected");
     get_tree()->connect("server_disconnected", this, "_on_server_disconnected");
+	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindow"));
+	hideRespawnWindow();
 	preconfigureGame();
 	Godot::print("Game is ready.");
 }
@@ -69,7 +77,7 @@ void Game::preconfigureGame()
 			players_[playerNetworkIds[i]] = player;
 		}
 	}
-	player_ = players_[selfPeerId_];
+	player_ = static_cast<Player*>(players_[selfPeerId_]);
 	if (!get_tree()->is_network_server())
 		rpc_id(1, "donePreconfiguring", selfPeerId_);
 	else
@@ -96,12 +104,19 @@ void Game::postconfigureGame()
 {
 	get_tree()->set_pause(false);
 	Godot::print("Every player has been preconfigured.\nThe game has started.");
+	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
 }
 
 void Game::_process(float delta)
 {
     Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
     camera->set_position(Vector2(player_->get_position().x, player_->get_position().y));
+
+	if (respawnWindow_->is_visible())
+	{
+		Variant timeLeft = int(static_cast<Timer*>(player_->get_node("RespawnTimer"))->get_time_left());
+		static_cast<Label*>(get_node("RespawnWindow/RespawnWindowBox/CountdownLabel"))->set_text(String(timeLeft));
+	}
 }
 
 void Game::_on_player_disconnected(int64_t id)
@@ -116,6 +131,18 @@ void Game::_on_player_disconnected(int64_t id)
 void Game::_on_server_disconnected(int64_t id)
 {
     get_tree()->change_scene("res://scenes/MainMenu.tscn");
+}
+
+void Game::showRespawnWindow()
+{
+	Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
+	respawnWindow_->set_position(Vector2(camera->get_position().x - 960, camera->get_position().y - 540));
+	respawnWindow_->set_visible(true);
+}
+
+void Game::hideRespawnWindow()
+{
+	respawnWindow_->set_visible(false);
 }
 
 void Game::printAllConnectedPeers()

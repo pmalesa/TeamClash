@@ -274,6 +274,9 @@ void Player::updateSprite()
 
 void Player::_die()
 {
+	if (is_network_master())
+		get_node("/root/Game")->call("showRespawnWindow");
+
     static_cast<Timer*>(get_node("RespawnTimer"))->start();
     set_physics_process(false);
 
@@ -289,6 +292,9 @@ void Player::_die()
 
 void Player::_on_RespawnTimer_timeout()
 {
+	if(is_network_master())
+		get_node("/root/Game")->call("hideRespawnWindow");
+	
 	static_cast<Timer*>(get_node("RespawnTimer"))->stop();
     set_physics_process(true);
 

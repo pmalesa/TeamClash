@@ -1,7 +1,5 @@
 #pragma once
 #include <core/Godot.hpp>
-#include <Node2D.hpp>
-
 #include <PackedScene.hpp>
 
 #include "../player/Player.h"
@@ -10,6 +8,8 @@
 
 namespace godot
 {
+	class Node2D;
+
 	class Game : public Node
 	{
 		GODOT_CLASS(Game, Node)
@@ -27,7 +27,8 @@ namespace godot
 		void _on_player_disconnected(int64_t id);
 		void _on_server_disconnected(int64_t id);
 
-		Player* getPlayer(int64_t id) const { return static_cast<Player*>(players_[id]); }
+		void showRespawnWindow();
+		void hideRespawnWindow();
 
 	private:
 		void printAllConnectedPeers();
@@ -42,5 +43,7 @@ namespace godot
 		Dictionary playersDoneConfiguring_;
 		Dictionary players_;
 		int64_t selfPeerId_;
+
+		Node2D* respawnWindow_;
 	};
 }
