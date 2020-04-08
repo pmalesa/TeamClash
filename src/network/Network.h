@@ -35,6 +35,7 @@ namespace godot
 		void _server_disconnected();
 
 		String getPlayerNickname() const { return nickname_;  }
+		String getConnectedPlayerNickname(int64_t playerId);
 		int64_t getPlayerNetworkId() const { return networkId_; }
 		Dictionary getConnectedPlayers() const { return connectedPlayers_; }
 

@@ -203,3 +203,7 @@ align = 1
 anims/SETUP = SubResource( 4 )
 anims/attack = SubResource( 5 )
 anims/idle = SubResource( 6 )
+
+[node name="RespawnTimer" type="Timer" parent="."]
+wait_time = 5.0
+[connection signal="timeout" from="RespawnTimer" to="." method="_on_RespawnTimer_timeout"]

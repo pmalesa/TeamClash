@@ -67,8 +67,11 @@ void Player::_init()
 
 void Player::_ready()
 {
+	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
 	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
 	currentWeapon_ = static_cast<Weapon*>(get_node("weapon_node/Weapon"));
+
+	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
 	setWeapon(WeaponType::SWORD);
 	Godot::print("[PLAYER] Player ready.");
@@ -166,6 +169,8 @@ void Player::inflictDamage(int64_t value)
 		healthPoints_ = 0;
 	rpc("updateHealthPoints", healthPoints_);
 	rpc("updateHealthBar");
+	if (healthPoints_ == 0)
+		rpc("_die");
 }
 
 void Player::processAttack()
@@ -284,6 +289,7 @@ void Player::_die()
 
 void Player::_on_RespawnTimer_timeout()
 {
+	static_cast<Timer*>(get_node("RespawnTimer"))->stop();
     set_physics_process(true);
 
     for (unsigned int i = 0; i < get_child_count(); i++)
@@ -295,6 +301,7 @@ void Player::_on_RespawnTimer_timeout()
     }
     static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(false);
     healthPoints_ = MAX_HP;
+	updateHealthBar();
 }
 
 void Player::init(String nickname, Vector2 startPosition, bool isSlave)

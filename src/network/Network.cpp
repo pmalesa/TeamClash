@@ -14,6 +14,7 @@ void Network::_register_methods()
 	register_method("createServer", &Network::createServer, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("joinServer", &Network::joinServer, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayerNickname", &Network::getPlayerNickname, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("getConnectedPlayerNickname", &Network::getConnectedPlayerNickname, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayerNetworkId", &Network::getPlayerNetworkId, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("addPlayer", &Network::addPlayer, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("removePlayer", &Network::removePlayer, GODOT_METHOD_RPC_MODE_REMOTE);
@@ -102,6 +103,14 @@ void Network::_server_disconnected()
 	connectedPlayers_.clear();
 	Godot::print("[NETWORK] Server disconnected.");
 	get_tree()->change_scene("res://scenes/MainMenu.tscn");
+}
+
+String Network::getConnectedPlayerNickname(int64_t playerId)
+{
+	if (connectedPlayers_.has(playerId))
+		return String(connectedPlayers_[playerId]);
+	else
+		return String("");
 }
 
 void Network::addPlayer(int64_t id, String nickname)

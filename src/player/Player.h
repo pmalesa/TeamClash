@@ -12,6 +12,8 @@
 
 namespace godot
 {
+	class Label;
+
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
 	enum class MovementState : int64_t { NONE, JUMPED, FALLING };
 
@@ -59,6 +61,7 @@ namespace godot
 		const float GRAVITY_PULL = 20.0f;
 
 		String nickname_;
+		Label* nicknameLabel_;
 		Vector2 velocity_;
 		Weapon* currentWeapon_;
 
