@@ -49,25 +49,63 @@ void Network::_ready()
 	Godot::print("[NETWORK] Network ready.");
 }
 
-void Network::createServer(String nickname)
+bool Network::createServer(String nickname)
 {
 	peer_ = make_unique<NetworkedMultiplayerENet>(*NetworkedMultiplayerENet::_new());
-	peer_->create_server(SERVER_PORT, MAX_PLAYERS);
-	get_tree()->set_network_peer(peer_.get());
-	networkId_ = get_tree()->get_network_unique_id();
-	nickname_ = nickname;
-	connectedPlayers_[networkId_] = nickname_;
-	Godot::print("[NETWORK] Server created successfully.");
+	Error err = peer_->create_server(SERVER_PORT, MAX_PLAYERS);
+	if (err == Error::ERR_ALREADY_IN_USE)
+	{
+		Godot::print("[NETWORK] Could not create server. This peer already has an open connection.");
+		return false;
+	}
+	else if (err == Error::ERR_CANT_CREATE)
+	{
+		Godot::print("[NETWORK] Could not create server.");
+		return false;
+	}
+	else if (err != Error::OK)
+	{
+		Godot::print("[NETWORK] Error occurred while trying to create server.");
+		return false;
+	}
+	else
+	{
+		get_tree()->set_network_peer(peer_.get());
+		networkId_ = get_tree()->get_network_unique_id();
+		nickname_ = nickname;
+		connectedPlayers_[networkId_] = nickname_;
+		Godot::print("[NETWORK] Server created successfully.");
+		return true;
+	}
 }
 
-void Network::joinServer(String nickname, String ip)
+bool Network::joinServer(String nickname, String ip)
 {
 	peer_ = make_unique<NetworkedMultiplayerENet>(*NetworkedMultiplayerENet::_new());
-	peer_->create_client(ip, SERVER_PORT);
-	get_tree()->set_network_peer(peer_.get());
-	networkId_ = get_tree()->get_network_unique_id();
-	nickname_ = nickname;
-	Godot::print("[NETWORK] Server joined successfully.");
+	Error err = peer_->create_client(ip, SERVER_PORT);
+	if (err == Error::ERR_CANT_CONNECT)
+	{
+		Godot::print("[NETWORK] Error occured. Could not connect to server.");
+		return false;
+	}
+	else if (err == Error::ERR_CANT_RESOLVE)
+	{
+		Godot::print("[NETWORK] Error occured. Could not resolve hostname.");
+		return false;
+	}
+	else if (err != Error::OK)
+	{
+		Godot::print("[NETWORK] Error occured while trying to connect to server.");
+		return false;
+	}
+	else
+	{
+		get_tree()->set_network_peer(peer_.get());
+		networkId_ = get_tree()->get_network_unique_id();
+		nickname_ = nickname;
+		Godot::print("[NETWORK] Server joined successfully.");
+		return true;
+	}
 }
 
 void Network::closeNetwork()

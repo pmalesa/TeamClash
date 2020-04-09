@@ -55,6 +55,11 @@ void Lobby::_ready()
 		chatWindowText_->set_text("[INFO] Lobby created.\n");
 		updateConnectedPlayersWindow();
 	}
+	else
+	{
+		static_cast<BaseButton*>(get_node("LobbyPanel/EnterGameButton"))->set_disabled(true);
+		static_cast<BaseButton*>(get_node("LobbyPanel/EnterGameButton"))->hide();
+	}
 	Godot::print("[LOBBY] Lobby is ready.");
 }
 

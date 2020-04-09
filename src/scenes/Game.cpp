@@ -121,11 +121,13 @@ void Game::_process(float delta)
 
 void Game::_on_player_disconnected(int64_t id)
 {
-    Godot::print("Player disconnected.");
+	Dictionary connectedPlayers = get_node("/root/Network")->call("getConnectedPlayers");
+	get_node("/root/Network")->call("removePlayer", id);
     if (get_node(godot::NodePath(String(id))))
     {
         get_node(godot::NodePath(String(id)))->queue_free();
     }
+	Godot::print("Player disconnected.");
 }
 
 void Game::_on_server_disconnected(int64_t id)

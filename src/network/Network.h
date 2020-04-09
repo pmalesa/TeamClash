@@ -24,8 +24,8 @@ namespace godot
 		void _init();
         void _ready();
 
-		void createServer(String nickname);
-		void joinServer(String nickname, String ip);
+		bool createServer(String nickname);
+		bool joinServer(String nickname, String ip);
 		void closeNetwork();
 
 		void _player_connected(int64_t connectedPlayerId);
