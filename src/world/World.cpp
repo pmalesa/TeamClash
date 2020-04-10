@@ -3,16 +3,12 @@
 
 #include <cmath>
 
-#include <PackedScene.hpp>
-
+#include <ResourceLoader.hpp>
 #include <Sprite.hpp>
 #include <Texture.hpp>
 #include <Shape.hpp>
 #include <CollisionShape2D.hpp>
 #include <RectangleShape2D.hpp>
-
-
-
 
 
 using namespace godot;
@@ -25,26 +21,26 @@ void World::_register_methods()
 
 void World::_init()
 {
-	resourceLoader_ = ResourceLoader::get_singleton();
-	Godot::print("Generating map...");
-	generateMap();
-	Godot::print("Map generation completed.");
+	ResourceLoader* resourceLoader_ = ResourceLoader::get_singleton();
+	blockScene_ = resourceLoader_->load("res://world/Block.tscn"); // This line causes the ERROR: "...does not have a library for current platform..."
 	Godot::print("World initialised.");
 }
 
 void World::_ready()
 {
+	generateMap();
 	Godot::print("World is ready.");
 }
 
 void World::generateMap()
 {
+	Godot::print("Generating map...");
 	for (unsigned int i = 0; i < worldLengthInBlocks_; ++i)
 	{
 		int x_coordinate = i * blockSize_;
-		int y_coordinate;
-		int vertical = amplitude_ * cos((pow(stretch_, -1) * (double)x_coordinate) * degToRadCoefficient) * blockSize_;
-		int remainder = vertical % blockSize_;
+		int y_coordinate = 0;
+		float vertical = amplitude_ * cos((pow(stretch_, -1) * (double)x_coordinate) * degToRadCoefficient) * blockSize_;
+		int remainder = int(vertical) % blockSize_;
 		if (remainder != 0)
 		{
 			if (remainder < blockSize_ / 2)
@@ -53,25 +49,25 @@ void World::generateMap()
 				vertical += (blockSize_ - remainder);
 		}
 
-		y_coordinate = vertical += 640;
+		y_coordinate = vertical + worldSurfaceLevel_;
 		placeBlock(BlockType::GRASS, Vector2(x_coordinate, y_coordinate));
 
-		for (unsigned int j = 1; j * 32 + y_coordinate < worldDepth_ * blockSize_; ++j)
+		for (unsigned int j = 1; j * blockSize_ + y_coordinate < worldDepth_ * blockSize_; ++j)
 		{
 			placeBlock(BlockType::DIRT, Vector2(x_coordinate, j * 32 + y_coordinate));
 		}
 		placeBlock(BlockType::BEDROCK, Vector2(x_coordinate, worldDepth_ * blockSize_));
 	}
+	Godot::print("Map generation completed.");
 }
 
 void World::placeBlock(BlockType blockType, Vector2 position)
 {
-	if (blocks_.find(position) == blocks_.end())
+	if (!blocks_.has(position))
 	{
-		Ref<PackedScene> blockScene_ = resourceLoader_->load("res://world/Block.tscn");
-		godot::Block* newBlock = static_cast<godot::Block*>(blockScene_->instance());
+		Block* newBlock = static_cast<Block*>(blockScene_->instance());
 		newBlock->init(blockType, position);
-		blocks_.insert(std::pair<Vector2, std::unique_ptr<godot::Block>>(position, newBlock));
+		blocks_[position] = newBlock;
 		add_child(newBlock);
 	}
 }
