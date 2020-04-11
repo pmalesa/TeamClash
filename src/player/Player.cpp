@@ -1,4 +1,7 @@
 #include "Player.h"
+
+#include <cmath>
+
 #include <SceneTree.hpp>
 #include <KinematicCollision2D.hpp>
 #include <CollisionShape2D.hpp>
@@ -25,6 +28,7 @@ void Player::_register_methods()
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_HealthBar_value_changed", &Player::_on_HealthBar_value_changed, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("inflictDamage", &Player::inflictDamage, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("throwback", &Player::throwback, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateInput", &Player::updateInput, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("updateSprite", &Player::updateSprite, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
@@ -37,6 +41,9 @@ void Player::_register_methods()
     register_property<Player, int64_t>("slaveMovement", &Player::slaveMovement, static_cast<int64_t>(MoveDirection::NONE), GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, int64_t>("slaveWeaponState", &Player::slaveWeaponState, static_cast<int64_t>(WeaponState::IDLE), GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<Player, int64_t>("nodeName", &Player::nodeName_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
+
+	register_property<Player, Vector2>("throwbackVelocity_", &Player::throwbackVelocity_, Vector2(), GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_property<Player, bool>("applyThrowback_", &Player::applyThrowback_, false, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 
     /*
     GODOT_METHOD_RPC_MODE_DISABLED,
@@ -56,6 +63,8 @@ void Player::_init()
 	resourceLoader_ = ResourceLoader::get_singleton();
 	healthPoints_ = MAX_HP;
 	velocity_ = Vector2(0, 0);
+	throwbackVelocity_ = Vector2(0, 0);
+	applyThrowback_ = false;
 	moveDirection_ = MoveDirection::NONE;
 	movementState_ = MovementState::NONE;
     slavePosition = Vector2();
@@ -111,7 +120,11 @@ void Player::_process(float delta)
 void Player::_move(int64_t direction)
 {
     MoveDirection moveDirection = static_cast<MoveDirection>(direction);
-
+	if (applyThrowback_)
+	{
+		movementState_ = MovementState::THROWBACK;
+		applyThrowback_ = false;
+	}
 	if (is_on_ceiling())
 	{
 		velocity_.y = 0.0f;
@@ -130,6 +143,11 @@ void Player::_move(int64_t direction)
 		velocity_.y = -JUMP_POWER;
 		movementState_ = MovementState::FALLING;
 	}
+	if (movementState_ == MovementState::THROWBACK)
+	{
+		addVelocity(Vector2(throwbackVelocity_.x, -200.0f));
+		movementState_ = MovementState::FALLING;
+	}
 	if (movementState_ == MovementState::FALLING)
 	{
 		setVelocity(Vector2(getVelocity().x, getVelocity().y + GRAVITY_PULL));
@@ -141,19 +159,41 @@ void Player::_move(int64_t direction)
 	switch (moveDirection)
 	{
 	case MoveDirection::NONE:
-		velocity_.x = 0.0f;
+		if (throwbackVelocity_.x == 0)
+			velocity_.x = 0.0f;
+		else
+			velocity_.x = throwbackVelocity_.x;
 		break;
 
 	case MoveDirection::LEFT:
-		velocity_.x = -MOVE_SPEED;
-
+		if (throwbackVelocity_.x == 0)
+			velocity_.x = -MOVE_SPEED;
+		else
+			velocity_.x = -MOVE_SPEED + throwbackVelocity_.x;
 		break;
 
 	case MoveDirection::RIGHT:
-		velocity_.x = MOVE_SPEED;
+		if (throwbackVelocity_.x == 0)
+			velocity_.x = MOVE_SPEED;
+		else
+			velocity_.x = MOVE_SPEED + throwbackVelocity_.x;
 		break;
 	}
 
+	if (throwbackVelocity_.x > 0)
+	{
+		throwbackVelocity_.x -= HORIZONTAL_THROWBACK_DECAY;
+		if (throwbackVelocity_.x < 0)
+			throwbackVelocity_.x = 0;
+	}
+	if (throwbackVelocity_.x < 0)
+	{
+		throwbackVelocity_.x += HORIZONTAL_THROWBACK_DECAY;
+		if (throwbackVelocity_.x > 0)
+			throwbackVelocity_.x = 0;
+	}
+
+	throwbackVelocity_.y = 0;
 	move_and_slide(velocity_, Vector2(0, -1));
 }
 
@@ -173,12 +213,27 @@ void Player::inflictDamage(int64_t value)
 		rpc("_die");
 }
 
+void Player::throwback(Vector2 direction)
+{
+	Vector2 throwbackVelocity = Vector2(0, 0);
+	if (direction.x > 0)
+		throwbackVelocity.x = THROWBACK_POWER;
+	else
+		throwbackVelocity.x = -THROWBACK_POWER;
+	if (direction.y > 0)
+		throwbackVelocity.y = THROWBACK_POWER;
+	else
+		throwbackVelocity.y = -THROWBACK_POWER;
+	rset("throwbackVelocity_", throwbackVelocity);
+	rset("applyThrowback_", true);
+}
+
 void Player::processAttack()
 {
 	if (weaponState_ == WeaponState::ATTACKING)
 	{
 		currentWeapon_->set_physics_process(true);
-		godot::Array overlapingBodies = currentWeapon_->get_overlapping_bodies();
+		Array overlapingBodies = currentWeapon_->get_overlapping_bodies();
 		if (overlapingBodies.empty())
 			return;
 		
@@ -190,14 +245,23 @@ void Player::processAttack()
 			else
 			{
 				Player* attackedPlayer = static_cast<Player*>(overlapingBodies[i]);
-				if (!(attackedPlayer == this))
+				if (!(attackedPlayer == this) && !(alreadyAttackedPlayers_.has(attackedPlayer)))
+				{
 					attackedPlayer->inflictDamage(currentWeapon_->getDamage());
+					if (attackedPlayer->healthPoints_ > 0)
+						attackedPlayer->throwback(Vector2(attackedPlayer->get_position().x - get_position().x, attackedPlayer->get_position().y - get_position().y));
+					if (!alreadyAttackedPlayers_.has(attackedPlayer))
+						alreadyAttackedPlayers_.push_front(attackedPlayer);
+				}
 			}
 		}
 		currentWeapon_->set_physics_process(false);
 	}
 	else
+	{
+		alreadyAttackedPlayers_.clear();
 		return;
+	}
 }
 
 void Player::updateInput()

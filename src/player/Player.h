@@ -15,7 +15,7 @@ namespace godot
 	class Label;
 
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
-	enum class MovementState : int64_t { NONE, JUMPED, FALLING };
+	enum class MovementState : int64_t { NONE, JUMPED, FALLING, THROWBACK };
 
     class Player : public KinematicBody2D
     {
@@ -37,6 +37,7 @@ namespace godot
 		void _on_RespawnTimer_timeout();
 
         void inflictDamage(int64_t damage);
+		void throwback(Vector2 direction);
 		void processAttack();
 		void updateInput();
         void updateSprite();
@@ -59,6 +60,8 @@ namespace godot
         int64_t MAX_HP = 100;
 		const float JUMP_POWER = 600.0f;
 		const float GRAVITY_PULL = 20.0f;
+		const float THROWBACK_POWER = 400.0f;
+		const float HORIZONTAL_THROWBACK_DECAY = 30.0f;
 
 		String nickname_;
 		Label* nicknameLabel_;
@@ -76,6 +79,10 @@ namespace godot
         int64_t healthPoints_;
 		HealthBar* healthBar_;
         int64_t nodeName_;
+
+		Array alreadyAttackedPlayers_;
+		Vector2 throwbackVelocity_;
+		bool applyThrowback_;
 
 		Ref<PackedScene> weaponScene_;
 		ResourceLoader* resourceLoader_;

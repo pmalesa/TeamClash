@@ -32,7 +32,7 @@ void Weapon::init(WeaponType weaponType)
 		weaponSprite->set_texture(resourceLoader_->load("res://sprites/warrior_basic_weapon.png"));
 		weaponSprite->set_position(Vector2(weaponSprite->get_position().x + 14, weaponSprite->get_position().y));
 		collisionPolygon->set_position(Vector2(weaponSprite->get_position().x + 14, weaponSprite->get_position().y));
-		damage_ = 4;
+		damage_ = 24;
 	}
 	else if (weaponType == WeaponType::AXE)
 	{
