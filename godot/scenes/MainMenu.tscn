@@ -7,6 +7,13 @@
 [ext_resource path="res://fonts/dirtyoldtown.ttf" type="DynamicFontData" id=5]
 [ext_resource path="res://scenes/ExitGameButton.gdns" type="Script" id=6]
 
+[sub_resource type="DynamicFont" id=1]
+size = 25
+outline_size = 2
+outline_color = Color( 0, 0, 0, 1 )
+use_filter = true
+font_data = ExtResource( 5 )
+
 [sub_resource type="DynamicFont" id=2]
 size = 25
 outline_size = 2
@@ -15,13 +22,6 @@ use_filter = true
 font_data = ExtResource( 5 )
 
 [sub_resource type="DynamicFont" id=3]
-size = 25
-outline_size = 2
-outline_color = Color( 0, 0, 0, 1 )
-use_filter = true
-font_data = ExtResource( 5 )
-
-[sub_resource type="DynamicFont" id=4]
 size = 140
 outline_size = 4
 use_filter = true
@@ -53,7 +53,7 @@ margin_top = 550.0
 margin_right = 1115.01
 margin_bottom = 650.0
 theme = ExtResource( 3 )
-custom_fonts/font = SubResource( 2 )
+custom_fonts/font = SubResource( 1 )
 custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
 custom_colors/font_color_hover = Color( 0.780392, 0.337255, 0.423529, 1 )
 text = "Join game"
@@ -64,7 +64,7 @@ margin_top = 680.0
 margin_right = 1115.0
 margin_bottom = 780.0
 theme = ExtResource( 3 )
-custom_fonts/font = SubResource( 3 )
+custom_fonts/font = SubResource( 2 )
 custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
 custom_colors/font_color_hover = Color( 0.780392, 0.337255, 0.423529, 1 )
 text = "Exit"
@@ -75,7 +75,7 @@ margin_left = 488.051
 margin_top = 182.022
 margin_right = 1473.05
 margin_bottom = 393.022
-custom_fonts/font = SubResource( 4 )
+custom_fonts/font = SubResource( 3 )
 custom_colors/font_color = Color( 0.643137, 0.121569, 0.243137, 1 )
 custom_colors/font_outline_modulate = Color( 0, 0, 0, 1 )
 text = "Team Clash"

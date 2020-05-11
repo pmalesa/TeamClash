@@ -20,7 +20,7 @@ void Block::_init()
 void Block::init(BlockType blockType, Vector2 position)
 {
 	ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
-	godot::Sprite* sprite = static_cast<godot::Sprite*>(get_node("Sprite"));
+	Sprite* sprite = static_cast<Sprite*>(get_node("Sprite"));
 	
 	blockType_ = blockType;
 

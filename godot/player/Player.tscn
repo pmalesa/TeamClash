@@ -1,16 +1,17 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
 [ext_resource path="res://sprites/human_basic/idle.png" type="Texture" id=2]
 [ext_resource path="res://sprites/human_basic/walk1.png" type="Texture" id=3]
 [ext_resource path="res://sprites/human_basic/walk2.png" type="Texture" id=4]
 [ext_resource path="res://sprites/human_basic/hand_idle.png" type="Texture" id=5]
-[ext_resource path="res://sprites/human_basic/hand_walk1.png" type="Texture" id=6]
-[ext_resource path="res://sprites/human_basic/hand_walk2.png" type="Texture" id=7]
-[ext_resource path="res://sprites/human_basic/hand_attack1.png" type="Texture" id=8]
-[ext_resource path="res://sprites/human_basic/hand_attack2.png" type="Texture" id=9]
-[ext_resource path="res://equipment/Weapon.tscn" type="PackedScene" id=10]
+[ext_resource path="res://sprites/human_basic/hand_attack1.png" type="Texture" id=6]
+[ext_resource path="res://sprites/human_basic/hand_attack2.png" type="Texture" id=7]
+[ext_resource path="res://sprites/human_basic/hand_walk1.png" type="Texture" id=8]
+[ext_resource path="res://sprites/human_basic/hand_walk2.png" type="Texture" id=9]
+[ext_resource path="res://sprites/human_basic/hand_idle_ranged_weapon.png" type="Texture" id=10]
 [ext_resource path="res://player/HealthBar.tscn" type="PackedScene" id=11]
+[ext_resource path="res://sounds/Body_hit.ogg" type="AudioStream" id=12]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 12.9671, 30.8344 )
@@ -35,116 +36,26 @@ animations = [ {
 "name": "idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 7 ), ExtResource( 5 ) ],
+"frames": [ ExtResource( 6 ), ExtResource( 7 ), ExtResource( 5 ) ],
+"loop": false,
+"name": "melee_attack",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 8 ), ExtResource( 5 ), ExtResource( 9 ), ExtResource( 5 ) ],
 "loop": true,
 "name": "walk",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 8 ), ExtResource( 9 ), ExtResource( 5 ) ],
-"loop": false,
-"name": "attack",
+"frames": [ ExtResource( 10 ) ],
+"loop": true,
+"name": "idle_ranged_weapon",
 "speed": 5.0
 } ]
-
-[sub_resource type="Animation" id=4]
-resource_name = "SETUP"
-length = 0.001
-tracks/0/type = "value"
-tracks/0/path = NodePath("weapon_node/Weapon:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 10.6851, 11.8925 ) ]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("weapon_node/Weapon:rotation_degrees")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ 0.0 ]
-}
-tracks/2/type = "value"
-tracks/2/path = NodePath("weapon_node/Weapon:scale")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 1, 1 ) ]
-}
-
-[sub_resource type="Animation" id=5]
-resource_name = "attack"
-length = 0.4
-tracks/0/type = "value"
-tracks/0/path = NodePath("weapon_node/Weapon:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0, 0.2, 0.4 ),
-"transitions": PoolRealArray( 1, 1, 1 ),
-"update": 1,
-"values": [ Vector2( 3.00477, -26.9836 ), Vector2( 39.5973, -4.17822 ), Vector2( 22.1083, 22.0286 ) ]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("weapon_node/Weapon:rotation_degrees")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PoolRealArray( 0, 0.2, 0.4 ),
-"transitions": PoolRealArray( 1, 1, 1 ),
-"update": 1,
-"values": [ -120.461, -8.88657, 0.0 ]
-}
-
-[sub_resource type="Animation" id=6]
-resource_name = "idle"
-length = 0.001
-tracks/0/type = "value"
-tracks/0/path = NodePath("weapon_node/Weapon:position")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ Vector2( 10.6851, 11.8925 ) ]
-}
-tracks/1/type = "value"
-tracks/1/path = NodePath("weapon_node/Weapon:rotation_degrees")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 0,
-"values": [ 0.0 ]
-}
 
 [node name="Player" type="KinematicBody2D" groups=[
 "Player",
 ]]
+position = Vector2( 10.685, 11.892 )
 script = ExtResource( 1 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
@@ -167,19 +78,15 @@ frames = SubResource( 3 )
 animation = "idle"
 
 [node name="weapon_node" type="Node2D" parent="."]
-position = Vector2( -6.12346, -10.0741 )
-
-[node name="Weapon" parent="weapon_node" instance=ExtResource( 10 )]
-position = Vector2( 22, 22 )
-z_index = 3
+position = Vector2( -6, -10 )
 
 [node name="right_hand_sprite" type="AnimatedSprite" parent="."]
-position = Vector2( -6.01958, -6.02113 )
+position = Vector2( -6, -10 )
 scale = Vector2( 2.0013, 1.99891 )
 z_index = 4
 frames = SubResource( 3 )
-animation = "attack"
-frame = 2
+animation = "idle"
+offset = Vector2( 0, 2 )
 
 [node name="HealthBar" type="Node2D" parent="."]
 
@@ -199,11 +106,10 @@ margin_bottom = -45.7875
 text = "Player"
 align = 1
 
-[node name="weapon_animation" type="AnimationPlayer" parent="."]
-anims/SETUP = SubResource( 4 )
-anims/attack = SubResource( 5 )
-anims/idle = SubResource( 6 )
-
 [node name="RespawnTimer" type="Timer" parent="."]
 wait_time = 5.0
+
+[node name="BodyHitSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 12 )
+volume_db = -15.0
 [connection signal="timeout" from="RespawnTimer" to="." method="_on_RespawnTimer_timeout"]

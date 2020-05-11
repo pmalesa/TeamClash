@@ -34,6 +34,8 @@ void Game::_register_methods()
     register_method("_on_server_disconnected", &Game::_on_server_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideRespawnWindow", &Game::hideRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
+
+	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void Game::_init()
@@ -41,7 +43,7 @@ void Game::_init()
 	ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
 	worldScene_ = resourceLoader->load("res://world/World.tscn");
 	playerScene_ = resourceLoader->load("res://player/Player.tscn");
-	Godot::print("Game initialized.");
+	Godot::print("[GAME] Game initialized.");
 }
 
 void Game::_ready()
@@ -51,7 +53,7 @@ void Game::_ready()
 	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindow"));
 	hideRespawnWindow();
 	preconfigureGame();
-	Godot::print("Game is ready.");
+	Godot::print("[GAME] Game is ready.");
 }
 
 void Game::preconfigureGame()
@@ -59,7 +61,7 @@ void Game::preconfigureGame()
 	get_tree()->set_pause(true);
 	connectedPlayersInfo_ = get_node("/root/Network")->call("getConnectedPlayers");
 	selfPeerId_ = get_tree()->get_network_unique_id();
-	world_ = static_cast<godot::World*>(worldScene_->instance());
+	world_ = static_cast<World*>(worldScene_->instance());
 	add_child(world_);
 
 	/* Load players */
@@ -68,7 +70,8 @@ void Game::preconfigureGame()
 	{
 		if (!players_.has(playerNetworkIds[i]))
 		{
-			Player* player = static_cast<godot::Player*>(playerScene_->instance());
+			Godot::print("[GAME] Initializing player " + String(connectedPlayersInfo_[playerNetworkIds[i]]) + " in progress...");
+			Player* player = static_cast<Player*>(playerScene_->instance());
 			player->set_name(String(playerNetworkIds[i]));
 			player->set("nodeName", playerNetworkIds[i]);
 			player->set_network_master(playerNetworkIds[i]);
@@ -91,10 +94,10 @@ void Game::donePreconfiguring(int64_t peerId)
 		if (!playersDoneConfiguring_.has(peerId))
 		{
 			playersDoneConfiguring_[peerId] = connectedPlayersInfo_[peerId];
-			Godot::print("Player " + String(playersDoneConfiguring_[peerId]) + " has finished preconfiguring.");
+			Godot::print("[GAME] Player " + String(playersDoneConfiguring_[peerId]) + " has finished preconfiguring.");
 		}
 		if (!playersDoneConfiguring_.has_all(connectedPlayersInfo_.keys()))
-			Godot::print("Waiting for others to preconfigure...");
+			Godot::print("[GAME] Waiting for others to preconfigure...");
 		else
 			rpc("postconfigureGame");
 	}
@@ -103,7 +106,7 @@ void Game::donePreconfiguring(int64_t peerId)
 void Game::postconfigureGame()
 {
 	get_tree()->set_pause(false);
-	Godot::print("Every player has been preconfigured.\nThe game has started.");
+	Godot::print("[GAME] Every player has been preconfigured.\nThe game has started.");
 	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
 }
 

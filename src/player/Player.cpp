@@ -1,6 +1,6 @@
 #include "Player.h"
 
-#include <cmath>
+#include "../equipment/projectiles/Bolt.h"
 
 #include <SceneTree.hpp>
 #include <KinematicCollision2D.hpp>
@@ -14,7 +14,15 @@
 #include <AnimatedSprite.hpp>
 #include <Sprite.hpp>
 #include <AnimationPlayer.hpp>
+#include <AudioStreamPlayer.hpp>
 #include <array>
+#include <Viewport.hpp>
+#include <PackedScene.hpp>
+#include <ResourceLoader.hpp>
+
+#include <iostream>
+using std::cout;
+using std::endl;
 
 using namespace godot;
 
@@ -26,43 +34,40 @@ void Player::_register_methods()
     register_method("_init", &Player::_init, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("_on_HealthBar_value_changed", &Player::_on_HealthBar_value_changed, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("inflictDamage", &Player::inflictDamage, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("playBodyHitSound", &Player::playBodyHitSound, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("throwback", &Player::throwback, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateInput", &Player::updateInput, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("updateSprite", &Player::updateSprite, GODOT_METHOD_RPC_MODE_DISABLED);
-    register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_SYNC);
+    register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_REMOTESYNC);
     register_method("init", &Player::init, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateHealthPoints", &Player::updateHealthPoints, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("updateHealthBar", &Player::updateHealthBar, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("updateArmRotation", &Player::updateArmRotation, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("setWeaponTo", &Player::setWeaponTo, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("shootBolt", &Player::shootBolt, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	
-	register_property<Player, int64_t>("healthPoints_", &Player::healthPoints_, 0, GODOT_METHOD_RPC_MODE_PUPPET);
+	register_property<Player, int64_t>("healthPoints_", &Player::healthPoints_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
     register_property<Player, Vector2>("slavePosition", &Player::slavePosition, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, int64_t>("slaveMovement", &Player::slaveMovement, static_cast<int64_t>(MoveDirection::NONE), GODOT_METHOD_RPC_MODE_PUPPET);
     register_property<Player, int64_t>("slaveWeaponState", &Player::slaveWeaponState, static_cast<int64_t>(WeaponState::IDLE), GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<Player, int64_t>("nodeName", &Player::nodeName_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 
+	register_property<Player, Vector2>("facingDirection_", &Player::facingDirection_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<Player, Vector2>("aimingDirection_", &Player::aimingDirection_, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<Player, Vector2>("throwbackVelocity_", &Player::throwbackVelocity_, Vector2(), GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_property<Player, bool>("applyThrowback_", &Player::applyThrowback_, false, GODOT_METHOD_RPC_MODE_REMOTESYNC);
-
-    /*
-    GODOT_METHOD_RPC_MODE_DISABLED,
-    GODOT_METHOD_RPC_MODE_REMOTE,
-    GODOT_METHOD_RPC_MODE_MASTER,
-    GODOT_METHOD_RPC_MODE_PUPPET,
-    GODOT_METHOD_RPC_MODE_SLAVE = GODOT_METHOD_RPC_MODE_PUPPET,
-    GODOT_METHOD_RPC_MODE_REMOTESYNC,
-    GODOT_METHOD_RPC_MODE_SYNC = GODOT_METHOD_RPC_MODE_REMOTESYNC,
-    GODOT_METHOD_RPC_MODE_MASTERSYNC,
-    GODOT_METHOD_RPC_MODE_PUPPETSYNC,
-    */
 }
 
 void Player::_init()
 {
 	resourceLoader_ = ResourceLoader::get_singleton();
+	weaponScene_ = resourceLoader_->load("res://equipment/Weapon.tscn");
+	boltScene_ = resourceLoader_->load("res://equipment/projectiles/Bolt.tscn");
 	healthPoints_ = MAX_HP;
 	velocity_ = Vector2(0, 0);
+	facingDirection_ = Vector2(1, 0);
+	aimingDirection_ = Vector2(0, 0);
 	throwbackVelocity_ = Vector2(0, 0);
 	applyThrowback_ = false;
 	moveDirection_ = MoveDirection::NONE;
@@ -71,18 +76,19 @@ void Player::_init()
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName_ = 0;
 
-	Godot::print("[PLAYER] Player initialized.");
+	Godot::print("[PLAYER] Player variables initialized.");
 }
 
 void Player::_ready()
 {
 	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
 	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
-	currentWeapon_ = static_cast<Weapon*>(get_node("weapon_node/Weapon"));
+	currentWeapon_ = static_cast<Weapon*>(weaponScene_->instance());
+	get_node("weapon_node")->add_child(currentWeapon_);
+	setWeaponTo(static_cast<int64_t>(WeaponType::CROSSBOW));
 
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
-	setWeapon(WeaponType::SWORD);
 	Godot::print("[PLAYER] Player ready.");
 }
 
@@ -94,7 +100,10 @@ void Player::_physics_process(float delta)
 		rset("slaveMovement", static_cast<int64_t>(moveDirection_));
         rset("slaveWeaponState", static_cast<int64_t>(weaponState_));
 		_move(static_cast<int64_t>(moveDirection_));
-		processAttack();
+		if (currentWeapon_->isRanged())
+			processRangedAttack();
+		else
+			processMeleeAttack();
 	}
 	else
 	{
@@ -108,7 +117,13 @@ void Player::_process(float delta)
     if (is_network_master())
     {
         updateInput();
-    }
+		if (currentWeapon_->isRanged())
+		{
+			updateAimingDirection();
+			rset("aimingDirection_", aimingDirection_);
+			rpc("updateArmRotation", aimingDirection_);
+		}
+	}
     else
     {
         moveDirection_ = MoveDirection(slaveMovement);
@@ -197,20 +212,26 @@ void Player::_move(int64_t direction)
 	move_and_slide(velocity_, Vector2(0, -1));
 }
 
-void Player::_on_HealthBar_value_changed(float value)
-{
-	
-}
-
 void Player::inflictDamage(int64_t value)
 {
+	cout << "[PLAYER] Old HP: " << healthPoints_ << endl;
+	cout << "[PLAYER] Inflicted " << value << " damage points." << endl;
 	healthPoints_ -= value;
 	if (healthPoints_ < 0)
 		healthPoints_ = 0;
+
+	cout << "[PLAYER] New HP: " << healthPoints_ << endl;
+
+	rpc("playBodyHitSound");
 	rpc("updateHealthPoints", healthPoints_);
 	rpc("updateHealthBar");
 	if (healthPoints_ == 0)
 		rpc("_die");
+}
+
+void Player::playBodyHitSound()
+{
+	static_cast<AudioStreamPlayer*>(get_node("BodyHitSound"))->play();
 }
 
 void Player::throwback(Vector2 direction)
@@ -228,7 +249,7 @@ void Player::throwback(Vector2 direction)
 	rset("applyThrowback_", true);
 }
 
-void Player::processAttack()
+void Player::processMeleeAttack()
 {
 	if (weaponState_ == WeaponState::ATTACKING)
 	{
@@ -264,10 +285,28 @@ void Player::processAttack()
 	}
 }
 
+void Player::processRangedAttack()
+{
+	if (weaponState_ == WeaponState::SHOOTING)
+	{
+		rpc("shootBolt");
+		Godot::print("SHOT!");
+	}
+}
+
+void Player::shootBolt()
+{
+	Bolt* bolt = static_cast<Bolt*>(boltScene_->instance());
+	Vector2 boltInitialPosition = Vector2(get_position().x + aimingDirection_.x * 40, get_position().y + aimingDirection_.y * 40);
+	bolt->init(getNodeName(), boltInitialPosition, aimingDirection_);
+	get_node("/root/Game/World")->add_child(bolt);
+}
+
 void Player::updateInput()
 {
 	moveDirection_ = MoveDirection::NONE;
 	Input* input = Input::get_singleton();
+	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"));
 	if (input->is_action_pressed("left"))
 	{
 		moveDirection_ = MoveDirection::LEFT;
@@ -282,15 +321,33 @@ void Player::updateInput()
 		if (is_on_floor()) movementState_ = MovementState::JUMPED;
 	}
 
-    AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_animation"));
-    if (input->is_action_just_pressed("basic_attack"))
-    {
-        if (!weaponAnimation->is_playing()) weaponState_ = WeaponState::ATTACKING;
-    }
-    else
-    {
-        if (!weaponAnimation->is_playing()) weaponState_ = WeaponState::IDLE;
-    }
+	if (input->is_action_just_pressed("1"))
+		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::SWORD));
+	if (input->is_action_just_pressed("2"))
+		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::CROSSBOW));
+
+	if (currentWeapon_->isRanged())
+	{
+		if (input->is_action_just_pressed("basic_attack"))
+		{
+			weaponState_ = WeaponState::SHOOTING;
+		}
+		else
+		{
+			weaponState_ = WeaponState::IDLE;
+		}
+	}
+	else
+	{
+		if (input->is_action_just_pressed("basic_attack"))
+		{
+			if (!weaponAnimation->is_playing()) weaponState_ = WeaponState::ATTACKING;
+		}
+		else
+		{
+			if (!weaponAnimation->is_playing()) weaponState_ = WeaponState::IDLE;
+		}
+	}
 }
 
 void Player::updateSprite()
@@ -298,41 +355,56 @@ void Player::updateSprite()
     AnimatedSprite* bodySprite = static_cast<AnimatedSprite*>(get_node("body_sprite"));
     AnimatedSprite* leftHandSprite = static_cast<AnimatedSprite*>(get_node("left_hand_sprite"));
     AnimatedSprite* rightHandSprite = static_cast<AnimatedSprite*>(get_node("right_hand_sprite"));
-    AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_animation"));
-    godot::Weapon* weapon = static_cast<godot::Weapon*>(get_node("weapon_node"));
+	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"));
+    Weapon* weapon = static_cast<Weapon*>(get_node("weapon_node"));
+
+	if (currentWeapon_->isRanged())
+		rightHandSprite->play("idle_ranged_weapon");
+	else
+	{
+		if (weaponState_ == WeaponState::IDLE)
+			rightHandSprite->play("idle");
+	}
 
     if (moveDirection_ == MoveDirection::RIGHT)
     {
         bodySprite->play("walk");
         bodySprite->set_flip_h(false);
-        rightHandSprite->set_flip_h(false);
+		rightHandSprite->set_flip_h(false);
         rightHandSprite->set_z_index(2);
+		leftHandSprite->play("walk");
         leftHandSprite->set_flip_h(false);
         leftHandSprite->set_z_index(1);
         weapon->set_z_index(-1);
-        weapon->set_scale(Vector2(1, weapon->get_scale().y));
+		weapon->set_scale(Vector2(1, weapon->get_scale().y));
+		facingDirection_ = Vector2(1, 0);
     }
     else if (moveDirection_ == MoveDirection::LEFT)
     {
         bodySprite->play("walk");
         bodySprite->set_flip_h(true);
-        rightHandSprite->set_flip_h(true);
+		rightHandSprite->set_flip_h(true);
         rightHandSprite->set_z_index(-3);
+		leftHandSprite->play("walk");
         leftHandSprite->set_flip_h(true);
         leftHandSprite->set_z_index(3);
         weapon->set_z_index(-2);
-        weapon->set_scale(Vector2(-1, weapon->get_scale().y));
+		weapon->set_scale(Vector2(-1, weapon->get_scale().y));
+		facingDirection_ = Vector2(-1, 0);
     }
     else
     {
         bodySprite->play("idle");
+		leftHandSprite->play("idle");
     }
 
     if (!weaponAnimation->is_playing() && weaponState_ == WeaponState::ATTACKING)
     {
-        weaponAnimation->play("attack");
-        rightHandSprite->set_frame(0);
-        rightHandSprite->play("attack");
+		if (!currentWeapon_->isRanged())
+			weaponAnimation->play("attack");
+		rightHandSprite->set_frame(0);
+		if (!currentWeapon_->isRanged())
+			rightHandSprite->play("melee_attack");
     }
 }
 
@@ -377,13 +449,8 @@ void Player::_on_RespawnTimer_timeout()
 void Player::init(String nickname, Vector2 startPosition, bool isSlave)
 {
     set_global_position(startPosition);
-	Godot::print("Player " + nickname + " initialized.");
+	Godot::print("[PLAYER] Player " + nickname + " initialized.");
 	//nickname_ = nickname; This line generates some unknown error and the program crashes
-}
-
-void Player::setWeapon(WeaponType weaponType)
-{
-	currentWeapon_->init(weaponType);
 }
 
 void Player::updateHealthPoints(int64_t newHealthPoints)
@@ -398,4 +465,33 @@ void Player::updateHealthPoints(int64_t newHealthPoints)
 void Player::updateHealthBar()
 {
 	healthBar_->setValue(healthPoints_);
+}
+
+void Player::updateArmRotation(Vector2 aimingDirection)
+{
+	real_t angle = facingDirection_.angle_to(aimingDirection);
+	static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(angle);
+	static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(angle);
+}
+
+void Player::setWeaponTo(int64_t weaponType)
+{
+	currentWeapon_->setWeapon(static_cast<WeaponType>(weaponType));
+	if (!currentWeapon_->isRanged())
+	{
+		static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(0);
+		static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(0);
+	}
+}
+
+void Player::updateAimingDirection()
+{
+	Vector2 mousePosition = get_viewport()->get_mouse_position();
+	Vector2 aimingDirection = Vector2(mousePosition.x - 960, mousePosition.y - 540);
+	if (facingDirection_.x == 1 && aimingDirection.x < 0)
+		aimingDirection.x = 0;
+	else if (facingDirection_.x == -1 && aimingDirection.x > 0)
+		aimingDirection.x = 0;
+
+	aimingDirection_ = aimingDirection.normalized();
 }

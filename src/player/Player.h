@@ -1,11 +1,7 @@
 #pragma once
 
-#include <memory>
 #include <Godot.hpp>
 #include <KinematicBody2D.hpp>
-
-#include <PackedScene.hpp>
-#include <ResourceLoader.hpp>
 
 #include "../equipment/Weapon.h"
 #include "HealthBar.h"
@@ -13,6 +9,9 @@
 namespace godot
 {
 	class Label;
+	class AnimationPlayer;
+	class ResourceLoader;
+	class PackedScene;
 
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
 	enum class MovementState : int64_t { NONE, JUMPED, FALLING, THROWBACK };
@@ -29,20 +28,7 @@ namespace godot
 
         void _init();
         void _ready();
-        void _physics_process(float delta);
-		void _process(float delta);
-        void _move(int64_t direction);
-		void _on_HealthBar_value_changed(float value);
-		void _die();
-		void _on_RespawnTimer_timeout();
-
-        void inflictDamage(int64_t damage);
-		void throwback(Vector2 direction);
-		void processAttack();
-		void updateInput();
-        void updateSprite();
         void init(String nickname, Vector2 startPosition, bool isSlave);
-		void setWeapon(WeaponType weaponType);
 
 		String getNickname() const { return nickname_; }
 		Vector2 getVelocity() const { return velocity_; }
@@ -52,10 +38,29 @@ namespace godot
 		void setNickname(String newNickname) { nickname_ = newNickname; }
 		void setVelocity(Vector2 velocity) { velocity_ = velocity; }
 		void addVelocity(Vector2 velocity) { velocity_ += velocity; }
-		void updateHealthPoints(int64_t newHealthPoints);
-		void updateHealthBar();
+
+		void inflictDamage(int64_t damage);
+		void throwback(Vector2 direction);
 
     private:
+		void _physics_process(float delta);
+		void _process(float delta);
+		void _move(int64_t direction);
+		void _die();
+		void _on_RespawnTimer_timeout();
+
+		void processMeleeAttack();
+		void processRangedAttack();
+		void shootBolt();
+		void updateInput();
+		void updateSprite();
+		void updateHealthPoints(int64_t newHealthPoints);
+		void updateHealthBar();
+		void updateArmRotation(Vector2 aimingDirection);
+		void setWeaponTo(int64_t weaponType);
+		void updateAimingDirection();
+		void playBodyHitSound();
+
         const float MOVE_SPEED = 300.0f;
         int64_t MAX_HP = 100;
 		const float JUMP_POWER = 600.0f;
@@ -66,7 +71,10 @@ namespace godot
 		String nickname_;
 		Label* nicknameLabel_;
 		Vector2 velocity_;
+		Vector2 facingDirection_;
+		Vector2 aimingDirection_;
 		Weapon* currentWeapon_;
+		Ref<PackedScene> boltScene_;
 
 		MoveDirection moveDirection_;
 		MovementState movementState_;
@@ -84,8 +92,8 @@ namespace godot
 		Vector2 throwbackVelocity_;
 		bool applyThrowback_;
 
-		Ref<PackedScene> weaponScene_;
 		ResourceLoader* resourceLoader_;
+		Ref<PackedScene> weaponScene_;
     };
 
 }

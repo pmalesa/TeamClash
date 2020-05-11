@@ -1,0 +1,33 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://equipment/projectiles/Bolt.gdns" type="Script" id=1]
+[ext_resource path="res://sprites/projectiles/bolt.png" type="Texture" id=2]
+[ext_resource path="res://sounds/Bolt_fire.ogg" type="AudioStream" id=3]
+
+[node name="Bolt" type="KinematicBody2D"]
+script = ExtResource( 1 )
+
+[node name="bolt_sprite" type="Sprite" parent="."]
+position = Vector2( 17, -0.5 )
+texture = ExtResource( 2 )
+
+[node name="BoltArea" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="BoltArea"]
+polygon = PoolVector2Array( -0.502643, -1.53312, 8.50097, -1.54352, 8.50097, -2.52195, 9.48981, -2.52195, 11.4883, -0.502645, 11.4883, 0.4966, 9.48981, 2.49509, 8.50097, 2.49509, 8.50097, 1.50625, -0.513052, 1.50625 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PoolVector2Array( -0.504059, 1.49999, 8.5055, 1.49585, 8.51591, 2.48468, 9.45973, 2.48841, 11.5285, 0.474807, 11.5285, -0.463038, 9.49727, -2.52439, 8.4943, -2.53181, 8.4943, -1.5388, -0.497978, -1.5388 )
+disabled = true
+
+[node name="BoltLifeAfterHitTimer" type="Timer" parent="."]
+wait_time = 5.0
+
+[node name="BoltMaximumLifeTimer" type="Timer" parent="."]
+wait_time = 30.0
+
+[node name="BoltShootSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = -15.0
+[connection signal="timeout" from="BoltLifeAfterHitTimer" to="." method="_on_BoltLifeAfterHitTimer_timeout"]
+[connection signal="timeout" from="BoltMaximumLifeTimer" to="." method="_on_BoltMaximumLifeTimer_timeout"]
