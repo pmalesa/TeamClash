@@ -8,6 +8,7 @@
 #include "camera/Camera.h"
 #include "equipment/Weapon.h"
 #include "equipment/projectiles/Bolt.h"
+#include "equipment/projectiles/ExplosiveBolt.h"
 
 #include "world/Block.h"
 #include "world/Biome.h"
@@ -42,6 +43,7 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
 	godot::register_class<godot::Camera>();
 	godot::register_class<godot::Weapon>();
 	godot::register_class<godot::Bolt>();
+	godot::register_class<godot::ExplosiveBolt>();
 	godot::register_class<godot::Block>();
 	godot::register_class<godot::World>();
 	godot::register_class<godot::Biome>();

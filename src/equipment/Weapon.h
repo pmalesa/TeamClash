@@ -6,6 +6,7 @@
 namespace godot
 {
 	enum class WeaponType : int64_t { NONE, FISTS, STICK, SWORD, AXE, CLUB, CROSSBOW };
+	enum class ProjectileType : int64_t { BOLT, EXPLOSIVE_BOLT };
 	enum class WeaponState : int64_t { IDLE, ATTACKING, SHOOTING };
 
     class Weapon : public Area2D

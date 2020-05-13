@@ -1,13 +1,13 @@
 #include "Player.h"
 
 #include "../equipment/projectiles/Bolt.h"
+#include "../equipment/projectiles/ExplosiveBolt.h"
 
 #include <SceneTree.hpp>
 #include <KinematicCollision2D.hpp>
 #include <CollisionShape2D.hpp>
 #include <Label.hpp>
 #include <Texture.hpp>
-#include <Timer.hpp>
 #include <Array.hpp>
 #include <Input.hpp>
 #include <SceneTree.hpp>
@@ -32,7 +32,9 @@ void Player::_register_methods()
 	register_method("_process", &Player::_process, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_ready", &Player::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_init", &Player::_init, GODOT_METHOD_RPC_MODE_DISABLED);
-    register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+    register_method("_on_BoltCooldown_timeout", &Player::_on_BoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_ExplosiveBoltCooldown_timeout", &Player::_on_ExplosiveBoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("inflictDamage", &Player::inflictDamage, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("playBodyHitSound", &Player::playBodyHitSound, GODOT_METHOD_RPC_MODE_REMOTESYNC);
@@ -45,6 +47,7 @@ void Player::_register_methods()
 	register_method("updateHealthBar", &Player::updateHealthBar, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("updateArmRotation", &Player::updateArmRotation, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("setWeaponTo", &Player::setWeaponTo, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("setProjectileTypeTo", &Player::setProjectileTypeTo, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("shootBolt", &Player::shootBolt, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	
 	register_property<Player, int64_t>("healthPoints_", &Player::healthPoints_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -64,6 +67,7 @@ void Player::_init()
 	resourceLoader_ = ResourceLoader::get_singleton();
 	weaponScene_ = resourceLoader_->load("res://equipment/Weapon.tscn");
 	boltScene_ = resourceLoader_->load("res://equipment/projectiles/Bolt.tscn");
+	explosiveBoltScene_ = resourceLoader_->load("res://equipment/projectiles/ExplosiveBolt.tscn");
 	healthPoints_ = MAX_HP;
 	velocity_ = Vector2(0, 0);
 	facingDirection_ = Vector2(1, 0);
@@ -75,6 +79,7 @@ void Player::_init()
     slavePosition = Vector2();
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName_ = 0;
+	currentAmmoType_ = ProjectileType::BOLT;
 
 	Godot::print("[PLAYER] Player variables initialized.");
 }
@@ -160,7 +165,8 @@ void Player::_move(int64_t direction)
 	}
 	if (movementState_ == MovementState::THROWBACK)
 	{
-		addVelocity(Vector2(throwbackVelocity_.x, -200.0f));
+		throwbackVelocity_.y = -200.0f;
+		addVelocity(throwbackVelocity_);
 		movementState_ = MovementState::FALLING;
 	}
 	if (movementState_ == MovementState::FALLING)
@@ -214,13 +220,9 @@ void Player::_move(int64_t direction)
 
 void Player::inflictDamage(int64_t value)
 {
-	cout << "[PLAYER] Old HP: " << healthPoints_ << endl;
-	cout << "[PLAYER] Inflicted " << value << " damage points." << endl;
 	healthPoints_ -= value;
 	if (healthPoints_ < 0)
 		healthPoints_ = 0;
-
-	cout << "[PLAYER] New HP: " << healthPoints_ << endl;
 
 	rpc("playBodyHitSound");
 	rpc("updateHealthPoints", healthPoints_);
@@ -234,17 +236,17 @@ void Player::playBodyHitSound()
 	static_cast<AudioStreamPlayer*>(get_node("BodyHitSound"))->play();
 }
 
-void Player::throwback(Vector2 direction)
+void Player::throwback(Vector2 direction, int64_t throwbackPower)
 {
 	Vector2 throwbackVelocity = Vector2(0, 0);
 	if (direction.x > 0)
-		throwbackVelocity.x = THROWBACK_POWER;
+		throwbackVelocity.x = throwbackPower;
 	else
-		throwbackVelocity.x = -THROWBACK_POWER;
+		throwbackVelocity.x = -throwbackPower;
 	if (direction.y > 0)
-		throwbackVelocity.y = THROWBACK_POWER;
+		throwbackVelocity.y = throwbackPower;
 	else
-		throwbackVelocity.y = -THROWBACK_POWER;
+		throwbackVelocity.y = -throwbackPower;
 	rset("throwbackVelocity_", throwbackVelocity);
 	rset("applyThrowback_", true);
 }
@@ -288,18 +290,35 @@ void Player::processMeleeAttack()
 void Player::processRangedAttack()
 {
 	if (weaponState_ == WeaponState::SHOOTING)
-	{
 		rpc("shootBolt");
-		Godot::print("SHOT!");
-	}
 }
 
 void Player::shootBolt()
 {
-	Bolt* bolt = static_cast<Bolt*>(boltScene_->instance());
-	Vector2 boltInitialPosition = Vector2(get_position().x + aimingDirection_.x * 40, get_position().y + aimingDirection_.y * 40);
-	bolt->init(getNodeName(), boltInitialPosition, aimingDirection_);
-	get_node("/root/Game/World")->add_child(bolt);
+	if (currentAmmoType_ == ProjectileType::BOLT)
+	{
+		if (!isBoltOnCooldown())
+		{
+			Bolt* bolt = static_cast<Bolt*>(boltScene_->instance());
+			Vector2 boltInitialPosition = Vector2(get_position().x + aimingDirection_.x * 40, get_position().y + aimingDirection_.y * 40);
+			bolt->init(getNodeName(), boltInitialPosition, aimingDirection_);
+			get_node("/root/Game/World")->add_child(bolt);
+			static_cast<Timer*>(get_node("BoltCooldown"))->start();
+			Godot::print("BOLT SHOT!");
+		}
+	}
+	else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT)
+	{
+		if (!isExplosiveBoltOnCooldown())
+		{
+			ExplosiveBolt* explosiveBolt = static_cast<ExplosiveBolt*>(explosiveBoltScene_->instance());
+			Vector2 boltInitialPosition = Vector2(get_position().x + aimingDirection_.x * 40, get_position().y + aimingDirection_.y * 40);
+			explosiveBolt->init(getNodeName(), boltInitialPosition, aimingDirection_);
+			get_node("/root/Game/World")->add_child(explosiveBolt);
+			static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->start();
+			Godot::print("EXPLOSIVE BOLT SHOT!");
+		}
+	}
 }
 
 void Player::updateInput()
@@ -325,6 +344,13 @@ void Player::updateInput()
 		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::SWORD));
 	if (input->is_action_just_pressed("2"))
 		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::CROSSBOW));
+	if (input->is_action_just_pressed("f"))
+	{
+		if (currentAmmoType_ == ProjectileType::BOLT)
+			rpc("setProjectileTypeTo", static_cast<int64_t>(ProjectileType::EXPLOSIVE_BOLT));
+		else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT)
+			rpc("setProjectileTypeTo", static_cast<int64_t>(ProjectileType::BOLT));
+	}
 
 	if (currentWeapon_->isRanged())
 	{
@@ -412,7 +438,8 @@ void Player::_die()
 {
 	if (is_network_master())
 		get_node("/root/Game")->call("showRespawnWindow");
-
+		
+	static_cast<AudioStreamPlayer*>(get_node("DeathSound"))->play();
     static_cast<Timer*>(get_node("RespawnTimer"))->start();
     set_physics_process(false);
 
@@ -442,8 +469,20 @@ void Player::_on_RespawnTimer_timeout()
         }
     }
     static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(false);
+	throwbackVelocity_ = Vector2(0, 0);
+	applyThrowback_ = false;
     healthPoints_ = MAX_HP;
 	updateHealthBar();
+}
+
+void Player::_on_BoltCooldown_timeout()
+{
+	static_cast<Timer*>(get_node("BoltCooldown"))->stop();
+}
+
+void Player::_on_ExplosiveBoltCooldown_timeout()
+{
+	static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->stop();
 }
 
 void Player::init(String nickname, Vector2 startPosition, bool isSlave)
@@ -476,12 +515,20 @@ void Player::updateArmRotation(Vector2 aimingDirection)
 
 void Player::setWeaponTo(int64_t weaponType)
 {
-	currentWeapon_->setWeapon(static_cast<WeaponType>(weaponType));
-	if (!currentWeapon_->isRanged())
+	if (!static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"))->is_playing())
 	{
-		static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(0);
-		static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(0);
+		currentWeapon_->setWeapon(static_cast<WeaponType>(weaponType));
+		if (!currentWeapon_->isRanged())
+		{
+			static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(0);
+			static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(0);
+		}
 	}
+}
+
+void Player::setProjectileTypeTo(int64_t newProjectileType)
+{
+	currentAmmoType_ = static_cast<ProjectileType>(newProjectileType);
 }
 
 void Player::updateAimingDirection()

@@ -1,0 +1,69 @@
+[gd_scene load_steps=17 format=2]
+
+[ext_resource path="res://equipment/projectiles/ExplosiveBolt.gdns" type="Script" id=1]
+[ext_resource path="res://sprites/projectiles/explosive_bolt.png" type="Texture" id=2]
+[ext_resource path="res://sprites/explosion_animiation/explosion_1.png" type="Texture" id=3]
+[ext_resource path="res://sprites/explosion_animiation/explosion_2.png" type="Texture" id=4]
+[ext_resource path="res://sprites/explosion_animiation/explosion_3.png" type="Texture" id=5]
+[ext_resource path="res://sprites/explosion_animiation/explosion_4.png" type="Texture" id=6]
+[ext_resource path="res://sprites/explosion_animiation/explosion_5.png" type="Texture" id=7]
+[ext_resource path="res://sprites/explosion_animiation/explosion_6.png" type="Texture" id=8]
+[ext_resource path="res://sprites/explosion_animiation/explosion_7.png" type="Texture" id=9]
+[ext_resource path="res://sprites/explosion_animiation/explosion_8.png" type="Texture" id=10]
+[ext_resource path="res://sprites/explosion_animiation/explosion_9.png" type="Texture" id=11]
+[ext_resource path="res://sprites/explosion_animiation/explosion_10.png" type="Texture" id=12]
+[ext_resource path="res://sprites/explosion_animiation/explosion_11.png" type="Texture" id=13]
+[ext_resource path="res://sounds/Explosion.ogg" type="AudioStream" id=14]
+[ext_resource path="res://sounds/Explosive_bolt_fire.ogg" type="AudioStream" id=15]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), ExtResource( 7 ), ExtResource( 8 ), ExtResource( 9 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 12 ), ExtResource( 13 ), null ],
+"loop": false,
+"name": "explosion",
+"speed": 25.0
+} ]
+
+[node name="ExplosiveBolt" type="KinematicBody2D"]
+script = ExtResource( 1 )
+
+[node name="explosive_bolt_sprite" type="Sprite" parent="."]
+position = Vector2( 17, -0.5 )
+texture = ExtResource( 2 )
+
+[node name="ExplosiveBoltArea" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ExplosiveBoltArea"]
+polygon = PoolVector2Array( -0.502643, -1.53312, 14.4883, -1.51765, 14.5079, -3.50207, 15.5221, -4.51207, 17.4575, -4.5062, 20.5013, -1.47811, 20.5013, 1.51861, 17.536, 4.51532, 15.4807, 4.51532, 14.4765, 3.4955, 14.4765, 1.50292, -0.513052, 1.50625 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+visible = false
+polygon = PoolVector2Array( -0.504059, 1.49999, -0.487573, 4.83512, 5.07351, 4.83512, 8.81654, 4.83512, 15.8392, 4.83512, 21.0794, 4.83512, 21.0794, 0.379123, 21.0794, -4.469, 8.42441, -4.469, -0.558869, -4.469 )
+disabled = true
+
+[node name="Explosion" type="Area2D" parent="."]
+
+[node name="ExplosionCollisionPolygon" type="CollisionPolygon2D" parent="Explosion"]
+position = Vector2( 0, -40 )
+polygon = PoolVector2Array( 35.4139, 103.144, 101.093, 82.5782, 111.044, 22.8703, 91.1412, -8.31042, 34.087, -15.608, -13.0704, -37.1651, -53.623, -37.1651, -94.6165, -12.2909, -105.065, 60.9823, -80.0213, 87.8855 )
+
+[node name="ExplosionAnimatedSprite" type="AnimatedSprite" parent="Explosion"]
+position = Vector2( 0, -40 )
+z_index = 10
+frames = SubResource( 1 )
+animation = "explosion"
+
+[node name="ExplosionSound" type="AudioStreamPlayer" parent="Explosion"]
+stream = ExtResource( 14 )
+volume_db = -5.0
+
+[node name="ExplosiveBoltMaximumLifeTimer" type="Timer" parent="."]
+wait_time = 30.0
+
+[node name="ExplosiveBoltAfterExplosionLifeTime" type="Timer" parent="."]
+
+[node name="ExplosiveBoltShootSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 15 )
+volume_db = -15.0
+[connection signal="timeout" from="ExplosiveBoltMaximumLifeTimer" to="." method="_on_ExplosiveBoltMaximumLifeTimer_timeout"]
+[connection signal="timeout" from="ExplosiveBoltAfterExplosionLifeTime" to="." method="_on_ExplosiveBoltAfterExplosionLifeTime_timeout"]

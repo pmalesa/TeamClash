@@ -5,6 +5,7 @@
 
 #include "../equipment/Weapon.h"
 #include "HealthBar.h"
+#include <Timer.hpp>
 
 namespace godot
 {
@@ -40,7 +41,7 @@ namespace godot
 		void addVelocity(Vector2 velocity) { velocity_ += velocity; }
 
 		void inflictDamage(int64_t damage);
-		void throwback(Vector2 direction);
+		void throwback(Vector2 direction, int64_t throwbackPower = THROWBACK_POWER);
 
     private:
 		void _physics_process(float delta);
@@ -48,6 +49,8 @@ namespace godot
 		void _move(int64_t direction);
 		void _die();
 		void _on_RespawnTimer_timeout();
+		void _on_BoltCooldown_timeout();
+		void _on_ExplosiveBoltCooldown_timeout();
 
 		void processMeleeAttack();
 		void processRangedAttack();
@@ -58,14 +61,18 @@ namespace godot
 		void updateHealthBar();
 		void updateArmRotation(Vector2 aimingDirection);
 		void setWeaponTo(int64_t weaponType);
+		void setProjectileTypeTo(int64_t newProjectileType);
 		void updateAimingDirection();
 		void playBodyHitSound();
+
+		bool isBoltOnCooldown() { return static_cast<Timer*>(get_node("BoltCooldown"))->get_time_left() > 0; }
+		bool isExplosiveBoltOnCooldown() { return static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->get_time_left() > 0; }
 
         const float MOVE_SPEED = 300.0f;
         int64_t MAX_HP = 100;
 		const float JUMP_POWER = 600.0f;
 		const float GRAVITY_PULL = 20.0f;
-		const float THROWBACK_POWER = 400.0f;
+		const static int64_t THROWBACK_POWER = 400;
 		const float HORIZONTAL_THROWBACK_DECAY = 30.0f;
 
 		String nickname_;
@@ -74,7 +81,7 @@ namespace godot
 		Vector2 facingDirection_;
 		Vector2 aimingDirection_;
 		Weapon* currentWeapon_;
-		Ref<PackedScene> boltScene_;
+		ProjectileType currentAmmoType_;
 
 		MoveDirection moveDirection_;
 		MovementState movementState_;
@@ -94,6 +101,8 @@ namespace godot
 
 		ResourceLoader* resourceLoader_;
 		Ref<PackedScene> weaponScene_;
+		Ref<PackedScene> boltScene_;
+		Ref<PackedScene> explosiveBoltScene_;
     };
 
 }

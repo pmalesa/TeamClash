@@ -1,17 +1,18 @@
-[gd_scene load_steps=16 format=2]
+[gd_scene load_steps=17 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
 [ext_resource path="res://sprites/human_basic/idle.png" type="Texture" id=2]
 [ext_resource path="res://sprites/human_basic/walk1.png" type="Texture" id=3]
 [ext_resource path="res://sprites/human_basic/walk2.png" type="Texture" id=4]
 [ext_resource path="res://sprites/human_basic/hand_idle.png" type="Texture" id=5]
-[ext_resource path="res://sprites/human_basic/hand_attack1.png" type="Texture" id=6]
-[ext_resource path="res://sprites/human_basic/hand_attack2.png" type="Texture" id=7]
-[ext_resource path="res://sprites/human_basic/hand_walk1.png" type="Texture" id=8]
-[ext_resource path="res://sprites/human_basic/hand_walk2.png" type="Texture" id=9]
+[ext_resource path="res://sprites/human_basic/hand_walk1.png" type="Texture" id=6]
+[ext_resource path="res://sprites/human_basic/hand_walk2.png" type="Texture" id=7]
+[ext_resource path="res://sprites/human_basic/hand_attack1.png" type="Texture" id=8]
+[ext_resource path="res://sprites/human_basic/hand_attack2.png" type="Texture" id=9]
 [ext_resource path="res://sprites/human_basic/hand_idle_ranged_weapon.png" type="Texture" id=10]
 [ext_resource path="res://player/HealthBar.tscn" type="PackedScene" id=11]
 [ext_resource path="res://sounds/Body_hit.ogg" type="AudioStream" id=12]
+[ext_resource path="res://sounds/Death.ogg" type="AudioStream" id=13]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 12.9671, 30.8344 )
@@ -36,14 +37,14 @@ animations = [ {
 "name": "idle",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 6 ), ExtResource( 7 ), ExtResource( 5 ) ],
-"loop": false,
-"name": "melee_attack",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 8 ), ExtResource( 5 ), ExtResource( 9 ), ExtResource( 5 ) ],
+"frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 7 ), ExtResource( 5 ) ],
 "loop": true,
 "name": "walk",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 8 ), ExtResource( 9 ), ExtResource( 5 ) ],
+"loop": false,
+"name": "melee_attack",
 "speed": 5.0
 }, {
 "frames": [ ExtResource( 10 ) ],
@@ -106,10 +107,21 @@ margin_bottom = -45.7875
 text = "Player"
 align = 1
 
+[node name="BoltCooldown" type="Timer" parent="."]
+
+[node name="ExplosiveBoltCooldown" type="Timer" parent="."]
+wait_time = 5.0
+
 [node name="RespawnTimer" type="Timer" parent="."]
 wait_time = 5.0
 
 [node name="BodyHitSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 12 )
 volume_db = -15.0
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 13 )
+volume_db = 10.0
+[connection signal="timeout" from="BoltCooldown" to="." method="_on_BoltCooldown_timeout"]
+[connection signal="timeout" from="ExplosiveBoltCooldown" to="." method="_on_ExplosiveBoltCooldown_timeout"]
 [connection signal="timeout" from="RespawnTimer" to="." method="_on_RespawnTimer_timeout"]
