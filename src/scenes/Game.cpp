@@ -113,7 +113,9 @@ void Game::postconfigureGame()
 void Game::_process(float delta)
 {
     Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
+	Control* ui = static_cast<Control*>(get_node("UI/PlayerUI"));
     camera->set_position(Vector2(player_->get_position().x, player_->get_position().y));
+	ui->set_position(Vector2(player_->get_position().x - 220, player_->get_position().y + 400));
 
 	if (respawnWindow_->is_visible())
 	{

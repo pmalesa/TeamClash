@@ -8,6 +8,7 @@
 #include <CollisionShape2D.hpp>
 #include <Label.hpp>
 #include <Texture.hpp>
+#include <TextureRect.hpp>
 #include <Array.hpp>
 #include <Input.hpp>
 #include <SceneTree.hpp>
@@ -79,7 +80,6 @@ void Player::_init()
     slavePosition = Vector2();
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName_ = 0;
-	currentAmmoType_ = ProjectileType::BOLT;
 
 	Godot::print("[PLAYER] Player variables initialized.");
 }
@@ -88,12 +88,20 @@ void Player::_ready()
 {
 	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
 	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
+	ui_ = static_cast<Control*>(get_node("/root/Game/UI/PlayerUI"));
 	currentWeapon_ = static_cast<Weapon*>(weaponScene_->instance());
 	get_node("weapon_node")->add_child(currentWeapon_);
-	setWeaponTo(static_cast<int64_t>(WeaponType::CROSSBOW));
-
+	setWeaponTo(static_cast<int64_t>(WeaponType::CROSSBOW)); // INITIALIZING WITH SWORD CREATES ERRORS --> FIX IT
+	setProjectileTypeTo(static_cast<int64_t>(ProjectileType::BOLT));
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
+	if (is_network_master())
+	{
+		static_cast<TextureRect*>(ui_->get_node("Frame2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/highlighted_icon_frame.png"));
+		static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_highlighted_icon_frame.png"));
+		static_cast<TextureRect*>(ui_->get_node("Frame1/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/sword_icon.png"));
+		static_cast<TextureRect*>(ui_->get_node("Frame2/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
+	}
 	Godot::print("[PLAYER] Player ready.");
 }
 
@@ -341,15 +349,31 @@ void Player::updateInput()
 	}
 
 	if (input->is_action_just_pressed("1"))
+	{
 		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::SWORD));
+		static_cast<TextureRect*>(ui_->get_node("Frame1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/highlighted_icon_frame.png"));
+		static_cast<TextureRect*>(ui_->get_node("Frame2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/icon_frame.png"));
+	}
 	if (input->is_action_just_pressed("2"))
+	{
 		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::CROSSBOW));
+		static_cast<TextureRect*>(ui_->get_node("Frame1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/icon_frame.png"));
+		static_cast<TextureRect*>(ui_->get_node("Frame2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/highlighted_icon_frame.png"));
+	}
 	if (input->is_action_just_pressed("f"))
 	{
 		if (currentAmmoType_ == ProjectileType::BOLT)
+		{
 			rpc("setProjectileTypeTo", static_cast<int64_t>(ProjectileType::EXPLOSIVE_BOLT));
+			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_icon_frame.png"));
+			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_highlighted_icon_frame.png"));
+		}
 		else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT)
+		{
 			rpc("setProjectileTypeTo", static_cast<int64_t>(ProjectileType::BOLT));
+			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_highlighted_icon_frame.png"));
+			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_icon_frame.png"));
+		}
 	}
 
 	if (currentWeapon_->isRanged())

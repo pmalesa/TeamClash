@@ -9,6 +9,7 @@
 namespace godot
 {
 	class Node2D;
+	class Control;
 
 	class Game : public Node
 	{

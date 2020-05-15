@@ -1,9 +1,10 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://scenes/Game.gdns" type="Script" id=1]
 [ext_resource path="res://fonts/dirtyoldtown.ttf" type="DynamicFontData" id=2]
-[ext_resource path="res://scenes/Camera2D.gdns" type="Script" id=3]
-[ext_resource path="res://soundtracks/TeamClash_short .ogg" type="AudioStream" id=4]
+[ext_resource path="res://player/PlayerUI.tscn" type="PackedScene" id=3]
+[ext_resource path="res://scenes/Camera2D.gdns" type="Script" id=4]
+[ext_resource path="res://soundtracks/TeamClash_short .ogg" type="AudioStream" id=5]
 
 [sub_resource type="DynamicFont" id=1]
 size = 40
@@ -79,13 +80,22 @@ align = 1
 valign = 1
 clip_text = true
 
+[node name="UI" type="Node2D" parent="."]
+z_index = 90
+
+[node name="PlayerUI" parent="UI" instance=ExtResource( 3 )]
+margin_left = -220.0
+margin_top = 400.0
+margin_right = -180.0
+margin_bottom = 440.0
+
 [node name="Camera2D" type="Camera2D" parent="."]
 current = true
 drag_margin_left = 0.0
 drag_margin_top = 0.0
 drag_margin_right = 0.0
 drag_margin_bottom = 0.0
-script = ExtResource( 3 )
+script = ExtResource( 4 )
 
 [node name="BackgroundMusic" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 4 )
+stream = ExtResource( 5 )

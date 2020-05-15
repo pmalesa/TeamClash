@@ -13,6 +13,7 @@ namespace godot
 	class AnimationPlayer;
 	class ResourceLoader;
 	class PackedScene;
+	class Control;
 
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
 	enum class MovementState : int64_t { NONE, JUMPED, FALLING, THROWBACK };
@@ -51,6 +52,7 @@ namespace godot
 		void _on_RespawnTimer_timeout();
 		void _on_BoltCooldown_timeout();
 		void _on_ExplosiveBoltCooldown_timeout();
+		void initUI();
 
 		void processMeleeAttack();
 		void processRangedAttack();
@@ -75,6 +77,7 @@ namespace godot
 		const static int64_t THROWBACK_POWER = 400;
 		const float HORIZONTAL_THROWBACK_DECAY = 30.0f;
 
+		Control* ui_;
 		String nickname_;
 		Label* nicknameLabel_;
 		Vector2 velocity_;
