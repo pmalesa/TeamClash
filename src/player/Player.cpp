@@ -97,10 +97,10 @@ void Player::_ready()
 	updateHealthBar();
 	if (is_network_master())
 	{
-		static_cast<TextureRect*>(ui_->get_node("Frame2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/highlighted_icon_frame.png"));
-		static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_highlighted_icon_frame.png"));
-		static_cast<TextureRect*>(ui_->get_node("Frame1/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/sword_icon.png"));
-		static_cast<TextureRect*>(ui_->get_node("Frame2/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
+		static_cast<TextureRect*>(ui_->get_node("Slot1/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/sword_icon.png"));
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
 	}
 	Godot::print("[PLAYER] Player ready.");
 }
@@ -351,28 +351,31 @@ void Player::updateInput()
 	if (input->is_action_just_pressed("1"))
 	{
 		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::SWORD));
-		static_cast<TextureRect*>(ui_->get_node("Frame1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/highlighted_icon_frame.png"));
-		static_cast<TextureRect*>(ui_->get_node("Frame2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/icon_frame.png"));
+		static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(true);
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(false);
 	}
 	if (input->is_action_just_pressed("2"))
 	{
-		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::CROSSBOW));
-		static_cast<TextureRect*>(ui_->get_node("Frame1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/icon_frame.png"));
-		static_cast<TextureRect*>(ui_->get_node("Frame2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/highlighted_icon_frame.png"));
+		if (!static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"))->is_playing())
+		{
+			rpc("setWeaponTo", static_cast<int64_t>(WeaponType::CROSSBOW));
+			static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(false);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
+		}
 	}
 	if (input->is_action_just_pressed("f"))
 	{
 		if (currentAmmoType_ == ProjectileType::BOLT)
 		{
 			rpc("setProjectileTypeTo", static_cast<int64_t>(ProjectileType::EXPLOSIVE_BOLT));
-			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_icon_frame.png"));
-			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_highlighted_icon_frame.png"));
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(false);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot2/Highlight"))->set_visible(true);
 		}
 		else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT)
 		{
 			rpc("setProjectileTypeTo", static_cast<int64_t>(ProjectileType::BOLT));
-			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe1"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_highlighted_icon_frame.png"));
-			static_cast<TextureRect*>(ui_->get_node("Frame2/Subframe2"))->set_texture(resourceLoader_->load("res://sprites/player_ui/small_icon_frame.png"));
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot2/Highlight"))->set_visible(false);
 		}
 	}
 
@@ -539,14 +542,11 @@ void Player::updateArmRotation(Vector2 aimingDirection)
 
 void Player::setWeaponTo(int64_t weaponType)
 {
-	if (!static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"))->is_playing())
+	currentWeapon_->setWeapon(static_cast<WeaponType>(weaponType));
+	if (!currentWeapon_->isRanged())
 	{
-		currentWeapon_->setWeapon(static_cast<WeaponType>(weaponType));
-		if (!currentWeapon_->isRanged())
-		{
-			static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(0);
-			static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(0);
-		}
+		static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(0);
+		static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(0);
 	}
 }
 
