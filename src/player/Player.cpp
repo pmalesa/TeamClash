@@ -93,6 +93,7 @@ void Player::_ready()
 	get_node("weapon_node")->add_child(currentWeapon_);
 	setWeaponTo(static_cast<int64_t>(WeaponType::CROSSBOW)); // INITIALIZING WITH SWORD CREATES ERRORS --> FIX IT
 	setProjectileTypeTo(static_cast<int64_t>(ProjectileType::BOLT));
+	spawnPoint_ = get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint");
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
 	if (is_network_master())
@@ -486,6 +487,7 @@ void Player::_on_RespawnTimer_timeout()
 		get_node("/root/Game")->call("hideRespawnWindow");
 	
 	static_cast<Timer*>(get_node("RespawnTimer"))->stop();
+	set_position(spawnPoint_);
     set_physics_process(true);
 
     for (unsigned int i = 0; i < get_child_count(); i++)

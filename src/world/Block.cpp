@@ -35,6 +35,9 @@ void Block::init(BlockType blockType, Vector2 position)
 
 	else if (blockType == BlockType::BEDROCK)
 		sprite->set_texture(resourceLoader->load("res://sprites/blocks/Bedrock.png"));
+
+	else if (blockType == BlockType::MARBLE)
+		sprite->set_texture(resourceLoader->load("res://sprites/blocks/Marble.png"));
 	set_position(position);
 }
 

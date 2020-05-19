@@ -83,6 +83,7 @@ namespace godot
 		Vector2 velocity_;
 		Vector2 facingDirection_;
 		Vector2 aimingDirection_;
+		Vector2 spawnPoint_;
 		Weapon* currentWeapon_;
 		ProjectileType currentAmmoType_;
 

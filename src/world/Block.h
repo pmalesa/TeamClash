@@ -11,7 +11,8 @@ namespace godot
 	{
 		BEDROCK,
 		GRASS,
-		DIRT
+		DIRT,
+		MARBLE
 	};
 
 	class Block : public StaticBody2D

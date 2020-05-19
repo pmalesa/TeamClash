@@ -13,6 +13,11 @@
 
 namespace godot
 {
+	class ResourceLoader;
+
+	enum class BaseOrientation : int64_t { RIGHTWARDS, LEFTWARDS };
+	enum class Team : int64_t { CELADON, CRIMSON };
+
 	class World : public WorldEnvironment
 	{
 		GODOT_CLASS(World, WorldEnvironment)
@@ -25,20 +30,30 @@ namespace godot
 
 		void _init();
 		void _ready();
-		void generateMap();
+
+		Vector2 getCeladonTeamSpawnPoint() { return celadonTeamSpawnPoint_; }
+		Vector2 getCrimsonTeamSpawnPoint() { return crimsonTeamSpawnPoint_; }
 
 	private:
+		void generateMap();
+		void generateTeamBases();
+		void createBase(Team team, real_t startingCoordinateX = 0, BaseOrientation baseOrientation = BaseOrientation::RIGHTWARDS);
 		void placeBlock(BlockType blockType, Vector2 position);
 
 		Dictionary blocks_;
 
 		const int blockSize_ = 32;
 		const int amplitude_ = 8;
-		const int stretch_ = 10;
-		const int worldLengthInBlocks_ = 500;
+		const int stretch_ = 12;
+		const int worldLengthInBlocks_ = 200;
 		const int worldSurfaceLevel_ = 640;
 		const double degToRadCoefficient = Math_PI / 180;
 		const int worldDepth_ = 30;
+		const int baseWidthInBlocks_ = 15;
+		Vector2 celadonTeamSpawnPoint_;
+		Vector2 crimsonTeamSpawnPoint_;
+
+		ResourceLoader* resourceLoader_;
 		Ref<PackedScene> blockScene_;
 	};
 }
