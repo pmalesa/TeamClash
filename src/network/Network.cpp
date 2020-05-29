@@ -20,6 +20,10 @@ void Network::_register_methods()
 	register_method("removePlayer", &Network::removePlayer, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("closeNetwork", &Network::closeNetwork, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getConnectedPlayers", &Network::getConnectedPlayers, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setChosenTeam", &Network::setChosenTeam, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setChosenRole", &Network::setChosenRole, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getChosenTeam", &Network::getChosenTeam, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getChosenRole", &Network::getChosenRole, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("sendConnectedPlayersInfo", &Network::sendConnectedPlayersInfo, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("updateConnectedPlayers", &Network::updateConnectedPlayers, GODOT_METHOD_RPC_MODE_REMOTE);
 
@@ -45,6 +49,8 @@ void Network::_ready()
 
 	nickname_ = "";
 	networkId_ = 0;
+	chosenTeam_ = 0;
+	chosenRole_ = 0;
 
 	Godot::print("[NETWORK] Network ready.");
 }

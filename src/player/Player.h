@@ -17,6 +17,8 @@ namespace godot
 
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
 	enum class MovementState : int64_t { NONE, JUMPED, FALLING, THROWBACK };
+	enum class Team : int64_t { CELADON, CRIMSON };
+	enum class Role : int64_t { WARRIOR, ARCHER };
 
     class Player : public KinematicBody2D
     {
@@ -30,7 +32,7 @@ namespace godot
 
         void _init();
         void _ready();
-        void init(String nickname, Vector2 startPosition, bool isSlave);
+        void init(int64_t chosenTeam, int64_t chosenRole);
 
 		String getNickname() const { return nickname_; }
 		Vector2 getVelocity() const { return velocity_; }
@@ -52,7 +54,10 @@ namespace godot
 		void _on_RespawnTimer_timeout();
 		void _on_BoltCooldown_timeout();
 		void _on_ExplosiveBoltCooldown_timeout();
-		void initUI();
+
+		void setTeam(int64_t team);
+		void setRole(int64_t role);
+		void setSpawnPoint(Vector2 newSpawnPoint) { spawnPoint_ = newSpawnPoint; }
 
 		void processMeleeAttack();
 		void processRangedAttack();
@@ -84,6 +89,7 @@ namespace godot
 		Vector2 facingDirection_;
 		Vector2 aimingDirection_;
 		Vector2 spawnPoint_;
+		String animationNameSuffix_;
 		Weapon* currentWeapon_;
 		ProjectileType currentAmmoType_;
 

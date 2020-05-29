@@ -72,8 +72,8 @@ void World::generateMap()
 
 void World::generateTeamBases()
 {
-	createBase(Team::CELADON, 0, BaseOrientation::RIGHTWARDS);
-	createBase(Team::CRIMSON, (worldLengthInBlocks_ - 1) * blockSize_, BaseOrientation::LEFTWARDS);
+	createBase(Team::CELADON, 30 * blockSize_, BaseOrientation::RIGHTWARDS);
+	createBase(Team::CRIMSON, (worldLengthInBlocks_ - 31) * blockSize_, BaseOrientation::LEFTWARDS);
 }
 
 void World::createBase(Team team, real_t startingCoordinateX, BaseOrientation baseOrientation)
@@ -98,8 +98,6 @@ void World::createBase(Team team, real_t startingCoordinateX, BaseOrientation ba
 		utmostBlockPosition -= Vector2(0, blockSize_);
 	}
 	real_t maxTerrainLevel = utmostBlockPosition.y;
-
-	cout << "Starting block position: x = " << utmostBlockPosition.x << ", y = " << utmostBlockPosition.y << endl;
 
 	bool baseGeneratedCorrectly = false;
 	if (baseOrientation == BaseOrientation::RIGHTWARDS)
@@ -184,24 +182,21 @@ void World::createBase(Team team, real_t startingCoordinateX, BaseOrientation ba
 	/* Placing the team's flag */
 	if (baseGeneratedCorrectly)
 	{
-		cout << static_cast<int64_t>(team) << endl;
 		if (team == Team::CELADON)
 		{
 			if (baseOrientation == BaseOrientation::RIGHTWARDS)
-				static_cast<Node2D*>(get_node("CeladonTeamFlag"))->set_position(Vector2(utmostBlockPosition.x + blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
+				static_cast<Node2D*>(get_node("CeladonFlag"))->set_position(Vector2(utmostBlockPosition.x + blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
 			else
-				static_cast<Node2D*>(get_node("CeladonTeamFlag"))->set_position(Vector2(utmostBlockPosition.x - blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
-			static_cast<TextureRect*>(get_node("CeladonTeamFlag/FlagTexture"))->set_texture(resourceLoader_->load("res://sprites/celadon_team/celadon_team_flag.png"));
-			celadonTeamSpawnPoint_ = static_cast<Node2D*>(get_node("CeladonTeamFlag"))->get_position();
+				static_cast<Node2D*>(get_node("CeladonFlag"))->set_position(Vector2(utmostBlockPosition.x - blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
+			celadonTeamSpawnPoint_ = static_cast<Node2D*>(get_node("CeladonFlag"))->get_position();
 		}
 		else if (team == Team::CRIMSON)
 		{
 			if (baseOrientation == BaseOrientation::RIGHTWARDS)
-				static_cast<Node2D*>(get_node("CrimsonTeamFlag"))->set_position(Vector2(utmostBlockPosition.x + blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
+				static_cast<Node2D*>(get_node("CrimsonFlag"))->set_position(Vector2(utmostBlockPosition.x + blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
 			else
-				static_cast<Node2D*>(get_node("CrimsonTeamFlag"))->set_position(Vector2(utmostBlockPosition.x - blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
-			static_cast<TextureRect*>(get_node("CrimsonTeamFlag/FlagTexture"))->set_texture(resourceLoader_->load("res://sprites/crimson_team/crimson_team_flag.png"));
-			crimsonTeamSpawnPoint_ = static_cast<Node2D*>(get_node("CrimsonTeamFlag"))->get_position();
+				static_cast<Node2D*>(get_node("CrimsonFlag"))->set_position(Vector2(utmostBlockPosition.x - blockSize_ * (baseWidthInBlocks_ / 2), maxTerrainLevel - blockSize_));
+			crimsonTeamSpawnPoint_ = static_cast<Node2D*>(get_node("CrimsonFlag"))->get_position();
 		}
 		else
 			Godot::print("[WORLD] Error occurred while placing team flag. Team was not chosen correctly.");

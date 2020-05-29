@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Block.h"
+#include "../player/Player.h"
 
 #include <Godot.hpp>
 #include <WorldEnvironment.hpp>
@@ -16,7 +17,6 @@ namespace godot
 	class ResourceLoader;
 
 	enum class BaseOrientation : int64_t { RIGHTWARDS, LEFTWARDS };
-	enum class Team : int64_t { CELADON, CRIMSON };
 
 	class World : public WorldEnvironment
 	{
@@ -45,7 +45,7 @@ namespace godot
 		const int blockSize_ = 32;
 		const int amplitude_ = 8;
 		const int stretch_ = 12;
-		const int worldLengthInBlocks_ = 200;
+		const int worldLengthInBlocks_ = 300;
 		const int worldSurfaceLevel_ = 640;
 		const double degToRadCoefficient = Math_PI / 180;
 		const int worldDepth_ = 30;

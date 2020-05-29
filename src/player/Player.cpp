@@ -13,6 +13,7 @@
 #include <Input.hpp>
 #include <SceneTree.hpp>
 #include <AnimatedSprite.hpp>
+#include <SpriteFrames.hpp>
 #include <Sprite.hpp>
 #include <AnimationPlayer.hpp>
 #include <AudioStreamPlayer.hpp>
@@ -36,6 +37,9 @@ void Player::_register_methods()
 	register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_BoltCooldown_timeout", &Player::_on_BoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_ExplosiveBoltCooldown_timeout", &Player::_on_ExplosiveBoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setTeam", &Player::setTeam, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("setRole", &Player::setRole, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("setSpawnPoint", &Player::setSpawnPoint, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("inflictDamage", &Player::inflictDamage, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("playBodyHitSound", &Player::playBodyHitSound, GODOT_METHOD_RPC_MODE_REMOTESYNC);
@@ -80,6 +84,7 @@ void Player::_init()
     slavePosition = Vector2();
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName_ = 0;
+	animationNameSuffix_ = String();
 
 	Godot::print("[PLAYER] Player variables initialized.");
 }
@@ -93,7 +98,6 @@ void Player::_ready()
 	get_node("weapon_node")->add_child(currentWeapon_);
 	setWeaponTo(static_cast<int64_t>(WeaponType::CROSSBOW)); // INITIALIZING WITH SWORD CREATES ERRORS --> FIX IT
 	setProjectileTypeTo(static_cast<int64_t>(ProjectileType::BOLT));
-	spawnPoint_ = get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint");
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
 	if (is_network_master())
@@ -413,20 +417,20 @@ void Player::updateSprite()
     Weapon* weapon = static_cast<Weapon*>(get_node("weapon_node"));
 
 	if (currentWeapon_->isRanged())
-		rightHandSprite->play("idle_ranged_weapon");
+		rightHandSprite->play("idle_ranged_weapon" + animationNameSuffix_);
 	else
 	{
 		if (weaponState_ == WeaponState::IDLE)
-			rightHandSprite->play("idle");
+			rightHandSprite->play("idle" + animationNameSuffix_);
 	}
 
     if (moveDirection_ == MoveDirection::RIGHT)
     {
-        bodySprite->play("walk");
+        bodySprite->play("walk" + animationNameSuffix_);
         bodySprite->set_flip_h(false);
 		rightHandSprite->set_flip_h(false);
         rightHandSprite->set_z_index(2);
-		leftHandSprite->play("walk");
+		leftHandSprite->play("walk" + animationNameSuffix_);
         leftHandSprite->set_flip_h(false);
         leftHandSprite->set_z_index(1);
         weapon->set_z_index(-1);
@@ -435,11 +439,11 @@ void Player::updateSprite()
     }
     else if (moveDirection_ == MoveDirection::LEFT)
     {
-        bodySprite->play("walk");
+        bodySprite->play("walk" + animationNameSuffix_);
         bodySprite->set_flip_h(true);
 		rightHandSprite->set_flip_h(true);
         rightHandSprite->set_z_index(-3);
-		leftHandSprite->play("walk");
+		leftHandSprite->play("walk" + animationNameSuffix_);
         leftHandSprite->set_flip_h(true);
         leftHandSprite->set_z_index(3);
         weapon->set_z_index(-2);
@@ -448,8 +452,8 @@ void Player::updateSprite()
     }
     else
     {
-        bodySprite->play("idle");
-		leftHandSprite->play("idle");
+        bodySprite->play("idle" + animationNameSuffix_);
+		leftHandSprite->play("idle" + animationNameSuffix_);
     }
 
     if (!weaponAnimation->is_playing() && weaponState_ == WeaponState::ATTACKING)
@@ -458,7 +462,7 @@ void Player::updateSprite()
 			weaponAnimation->play("attack");
 		rightHandSprite->set_frame(0);
 		if (!currentWeapon_->isRanged())
-			rightHandSprite->play("melee_attack");
+			rightHandSprite->play("melee_attack" + animationNameSuffix_);
     }
 }
 
@@ -514,11 +518,34 @@ void Player::_on_ExplosiveBoltCooldown_timeout()
 	static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->stop();
 }
 
-void Player::init(String nickname, Vector2 startPosition, bool isSlave)
+void Player::setTeam(int64_t team)
 {
-    set_global_position(startPosition);
-	Godot::print("[PLAYER] Player " + nickname + " initialized.");
-	//nickname_ = nickname; This line generates some unknown error and the program crashes
+	if (Team::CELADON == static_cast<Team>(team))
+	{
+		add_to_group("Celadon");
+		animationNameSuffix_ = "_celadon";
+	}
+	else
+	{
+		add_to_group("Crimson");
+		animationNameSuffix_ = "_crimson";
+	}
+}
+
+void Player::setRole(int64_t role)
+{
+
+}
+
+void Player::init(int64_t chosenTeam, int64_t chosenRole)
+{
+	rpc("setTeam", chosenTeam);
+	rpc("setRole", chosenRole);
+	if (Team::CELADON == static_cast<Team>(chosenTeam))
+		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint"));
+	else
+		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCrimsonTeamSpawnPoint"));
+	set_position(spawnPoint_);
 }
 
 void Player::updateHealthPoints(int64_t newHealthPoints)

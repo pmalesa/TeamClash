@@ -76,7 +76,6 @@ void Game::preconfigureGame()
 			player->set("nodeName", playerNetworkIds[i]);
 			player->set_network_master(playerNetworkIds[i]);
 			add_child(player);
-			player->init(connectedPlayersInfo_[playerNetworkIds[i]], Vector2(360, 180), false);
 			players_[playerNetworkIds[i]] = player;
 		}
 	}
@@ -105,8 +104,9 @@ void Game::donePreconfiguring(int64_t peerId)
 
 void Game::postconfigureGame()
 {
+	player_->init(get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
 	get_tree()->set_pause(false);
-	Godot::print("[GAME] Every player has been preconfigured.\nThe game has started.");
+	Godot::print("[GAME] Every player has been preconfigured.\n[GAME] The game has started.");
 	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
 }
 

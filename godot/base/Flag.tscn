@@ -1,9 +1,0 @@
-[gd_scene format=2]
-
-[node name="Flag" type="Node2D"]
-
-[node name="FlagTexture" type="TextureRect" parent="."]
-margin_left = -36.0
-margin_top = -175.0
-margin_right = 64.0
-margin_bottom = 25.0
