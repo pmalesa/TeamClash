@@ -14,6 +14,7 @@ animations = [ {
 } ]
 
 [node name="CrimsonFlag" type="Node2D"]
+z_index = -5
 
 [node name="PoleSprite" type="TextureRect" parent="."]
 margin_left = -36.0

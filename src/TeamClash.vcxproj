@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -149,7 +149,11 @@
     <ClCompile Include="camera\Camera.cpp" />
     <ClCompile Include="equipment\projectiles\Bolt.cpp" />
     <ClCompile Include="equipment\projectiles\ExplosiveBolt.cpp" />
-    <ClCompile Include="equipment\Weapon.cpp" />
+    <ClCompile Include="equipment\utility\EntanglingBalls.cpp" />
+    <ClCompile Include="equipment\weapons\Axe.cpp" />
+    <ClCompile Include="equipment\weapons\Crossbow.cpp" />
+    <ClCompile Include="equipment\weapons\Dagger.cpp" />
+    <ClCompile Include="equipment\weapons\Weapon.cpp" />
     <ClCompile Include="GodotLibrary.cpp" />
     <ClCompile Include="network\Network.cpp" />
     <ClCompile Include="network\NetworkOld.cpp" />
@@ -168,7 +172,11 @@
     <ClInclude Include="camera\Camera.h" />
     <ClInclude Include="equipment\projectiles\Bolt.h" />
     <ClInclude Include="equipment\projectiles\ExplosiveBolt.h" />
-    <ClInclude Include="equipment\Weapon.h" />
+    <ClInclude Include="equipment\utility\EntanglingBalls.h" />
+    <ClInclude Include="equipment\weapons\Axe.h" />
+    <ClInclude Include="equipment\weapons\Crossbow.h" />
+    <ClInclude Include="equipment\weapons\Dagger.h" />
+    <ClInclude Include="equipment\weapons\Weapon.h" />
     <ClInclude Include="network\Network.h" />
     <ClInclude Include="network\NetworkOld.h" />
     <ClInclude Include="player\HealthBar.h" />

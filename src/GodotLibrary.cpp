@@ -6,9 +6,13 @@
 #include "player/Player.h"
 #include "player/HealthBar.h"
 #include "camera/Camera.h"
-#include "equipment/Weapon.h"
+#include "equipment/weapons/Weapon.h"
+#include "equipment/weapons/Dagger.h"
+#include "equipment/weapons/Axe.h"
+#include "equipment/weapons/Crossbow.h"
 #include "equipment/projectiles/Bolt.h"
 #include "equipment/projectiles/ExplosiveBolt.h"
+#include "equipment/utility/EntanglingBalls.h"
 
 #include "world/Block.h"
 #include "world/Biome.h"
@@ -42,8 +46,12 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
 	godot::register_class<godot::Network>();
 	godot::register_class<godot::Camera>();
 	godot::register_class<godot::Weapon>();
+	godot::register_class<godot::Dagger>();
+	godot::register_class<godot::Axe>();
+	godot::register_class<godot::Crossbow>();
 	godot::register_class<godot::Bolt>();
 	godot::register_class<godot::ExplosiveBolt>();
+	godot::register_class<godot::EntanglingBalls>();
 	godot::register_class<godot::Block>();
 	godot::register_class<godot::World>();
 	godot::register_class<godot::Biome>();

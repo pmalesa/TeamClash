@@ -1,7 +1,11 @@
 #include "Player.h"
 
+#include "../equipment/weapons/Dagger.h"
+#include "../equipment/weapons/Axe.h"
+#include "../equipment/weapons/Crossbow.h"
 #include "../equipment/projectiles/Bolt.h"
 #include "../equipment/projectiles/ExplosiveBolt.h"
+#include "../equipment/utility/EntanglingBalls.h"
 
 #include <SceneTree.hpp>
 #include <KinematicCollision2D.hpp>
@@ -34,14 +38,18 @@ void Player::_register_methods()
 	register_method("_process", &Player::_process, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_ready", &Player::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_init", &Player::_init, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_SlowTimer_timeout", &Player::_on_SlowTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_BoltCooldown_timeout", &Player::_on_BoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_ExplosiveBoltCooldown_timeout", &Player::_on_ExplosiveBoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_EntanglingBallsCooldown_timeout", &Player::_on_EntanglingBallsCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("setTeam", &Player::setTeam, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("setRole", &Player::setRole, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("setUI", &Player::setUI, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("setSpawnPoint", &Player::setSpawnPoint, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("inflictDamage", &Player::inflictDamage, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("inflictSlow", &Player::inflictSlow, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("playBodyHitSound", &Player::playBodyHitSound, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("throwback", &Player::throwback, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateInput", &Player::updateInput, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -49,11 +57,16 @@ void Player::_register_methods()
     register_method("_die", &Player::_die, GODOT_METHOD_RPC_MODE_REMOTESYNC);
     register_method("init", &Player::init, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("updateHealthPoints", &Player::updateHealthPoints, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("updateMovementSpeed", &Player::updateMovementSpeed, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("setSlowTime", &Player::setSlowTime, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("updateHealthBar", &Player::updateHealthBar, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("updateArmRotation", &Player::updateArmRotation, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
-	register_method("setWeaponTo", &Player::setWeaponTo, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("switchWeapon", &Player::switchWeapon, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("setProjectileTypeTo", &Player::setProjectileTypeTo, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("shootBolt", &Player::shootBolt, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("throwEntanglingBalls", &Player::throwEntanglingBalls, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("showEntanglementEffect", &Player::showEntanglementEffect, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("hideEntanglementEffect", &Player::hideEntanglementEffect, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	
 	register_property<Player, int64_t>("healthPoints_", &Player::healthPoints_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
     register_property<Player, Vector2>("slavePosition", &Player::slavePosition, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
@@ -70,21 +83,24 @@ void Player::_register_methods()
 void Player::_init()
 {
 	resourceLoader_ = ResourceLoader::get_singleton();
-	weaponScene_ = resourceLoader_->load("res://equipment/Weapon.tscn");
+	weaponScene_ = resourceLoader_->load("res://equipment/weapons/Weapon.tscn");
 	boltScene_ = resourceLoader_->load("res://equipment/projectiles/Bolt.tscn");
 	explosiveBoltScene_ = resourceLoader_->load("res://equipment/projectiles/ExplosiveBolt.tscn");
+	entanglingBallsScene_ = resourceLoader_->load("res://equipment/utility/EntanglingBalls.tscn");
 	healthPoints_ = MAX_HP;
 	velocity_ = Vector2(0, 0);
 	facingDirection_ = Vector2(1, 0);
 	aimingDirection_ = Vector2(0, 0);
 	throwbackVelocity_ = Vector2(0, 0);
 	applyThrowback_ = false;
+	entanglingBallsThrown_ = false;
 	moveDirection_ = MoveDirection::NONE;
 	movementState_ = MovementState::NONE;
     slavePosition = Vector2();
     slaveMovement = static_cast<int64_t>(MoveDirection::NONE);
     nodeName_ = 0;
 	animationNameSuffix_ = String();
+	initialized_ = false;
 
 	Godot::print("[PLAYER] Player variables initialized.");
 }
@@ -94,19 +110,9 @@ void Player::_ready()
 	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
 	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
 	ui_ = static_cast<Control*>(get_node("/root/Game/UI/PlayerUI"));
-	currentWeapon_ = static_cast<Weapon*>(weaponScene_->instance());
-	get_node("weapon_node")->add_child(currentWeapon_);
-	setWeaponTo(static_cast<int64_t>(WeaponType::CROSSBOW)); // INITIALIZING WITH SWORD CREATES ERRORS --> FIX IT
-	setProjectileTypeTo(static_cast<int64_t>(ProjectileType::BOLT));
+	currentMovementSpeed_ = DEFAULT_MOVEMENT_SPEED;
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
-	if (is_network_master())
-	{
-		static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
-		static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
-		static_cast<TextureRect*>(ui_->get_node("Slot1/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/sword_icon.png"));
-		static_cast<TextureRect*>(ui_->get_node("Slot2/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
-	}
 	Godot::print("[PLAYER] Player ready.");
 }
 
@@ -118,10 +124,6 @@ void Player::_physics_process(float delta)
 		rset("slaveMovement", static_cast<int64_t>(moveDirection_));
         rset("slaveWeaponState", static_cast<int64_t>(weaponState_));
 		_move(static_cast<int64_t>(moveDirection_));
-		if (currentWeapon_->isRanged())
-			processRangedAttack();
-		else
-			processMeleeAttack();
 	}
 	else
 	{
@@ -135,19 +137,20 @@ void Player::_process(float delta)
     if (is_network_master())
     {
         updateInput();
+		updateAimingDirection();
+		processRangedAttack();
+		processMeleeAttack();
+		processThrow();
+		rset("aimingDirection_", aimingDirection_);
 		if (currentWeapon_->isRanged())
-		{
-			updateAimingDirection();
-			rset("aimingDirection_", aimingDirection_);
 			rpc("updateArmRotation", aimingDirection_);
-		}
 	}
     else
     {
         moveDirection_ = MoveDirection(slaveMovement);
         weaponState_ = WeaponState(slaveWeaponState);
     }
-    updateSprite();
+	updateSprite();
 }
 
 void Player::_move(int64_t direction)
@@ -201,16 +204,16 @@ void Player::_move(int64_t direction)
 
 	case MoveDirection::LEFT:
 		if (throwbackVelocity_.x == 0)
-			velocity_.x = -MOVE_SPEED;
+			velocity_.x = -currentMovementSpeed_;
 		else
-			velocity_.x = -MOVE_SPEED + throwbackVelocity_.x;
+			velocity_.x = -currentMovementSpeed_ + throwbackVelocity_.x;
 		break;
 
 	case MoveDirection::RIGHT:
 		if (throwbackVelocity_.x == 0)
-			velocity_.x = MOVE_SPEED;
+			velocity_.x = currentMovementSpeed_;
 		else
-			velocity_.x = MOVE_SPEED + throwbackVelocity_.x;
+			velocity_.x = currentMovementSpeed_ + throwbackVelocity_.x;
 		break;
 	}
 
@@ -244,6 +247,14 @@ void Player::inflictDamage(int64_t value)
 		rpc("_die");
 }
 
+void Player::inflictSlow(int64_t slowAmount, int64_t slowTime)
+{
+	rpc("playBodyHitSound");
+	rpc("updateMovementSpeed", slowAmount);
+	rpc("setSlowTime", slowTime);
+	rpc("showEntanglementEffect");
+}
+
 void Player::playBodyHitSound()
 {
 	static_cast<AudioStreamPlayer*>(get_node("BodyHitSound"))->play();
@@ -266,8 +277,12 @@ void Player::throwback(Vector2 direction, int64_t throwbackPower)
 
 void Player::processMeleeAttack()
 {
+	if (currentWeapon_->isRanged())
+		return;
+
 	if (weaponState_ == WeaponState::ATTACKING)
 	{
+		currentWeapon_->playAttackSound();
 		currentWeapon_->set_physics_process(true);
 		Array overlapingBodies = currentWeapon_->get_overlapping_bodies();
 		if (overlapingBodies.empty())
@@ -306,14 +321,26 @@ void Player::processRangedAttack()
 		rpc("shootBolt");
 }
 
+void Player::processThrow()
+{
+	if (entanglingBallsThrown_)
+	{
+		rpc("throwEntanglingBalls");
+		entanglingBallsThrown_ = false;
+	}
+}
+
 void Player::shootBolt()
 {
+	if (!currentWeapon_->isRanged())
+		return;
+
 	if (currentAmmoType_ == ProjectileType::BOLT)
 	{
-		if (!isBoltOnCooldown())
+		if (!boltOnCooldown())
 		{
 			Bolt* bolt = static_cast<Bolt*>(boltScene_->instance());
-			Vector2 boltInitialPosition = Vector2(get_position().x + aimingDirection_.x * 40, get_position().y + aimingDirection_.y * 40);
+			Vector2 boltInitialPosition = Vector2(get_position().x + aimingDirection_.x * 100, get_position().y + aimingDirection_.y * 100);
 			bolt->init(getNodeName(), boltInitialPosition, aimingDirection_);
 			get_node("/root/Game/World")->add_child(bolt);
 			static_cast<Timer*>(get_node("BoltCooldown"))->start();
@@ -322,7 +349,7 @@ void Player::shootBolt()
 	}
 	else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT)
 	{
-		if (!isExplosiveBoltOnCooldown())
+		if (!explosiveBoltOnCooldown())
 		{
 			ExplosiveBolt* explosiveBolt = static_cast<ExplosiveBolt*>(explosiveBoltScene_->instance());
 			Vector2 boltInitialPosition = Vector2(get_position().x + aimingDirection_.x * 40, get_position().y + aimingDirection_.y * 40);
@@ -334,11 +361,24 @@ void Player::shootBolt()
 	}
 }
 
+void Player::throwEntanglingBalls()
+{
+	if (!entanglingBallsOnCooldown())
+	{
+		EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(entanglingBallsScene_->instance());
+		Vector2 initialPosition = Vector2(get_position().x + aimingDirection_.x * 40, get_position().y + aimingDirection_.y * 40);
+		entanglingBalls->init(getNodeName(), initialPosition, aimingDirection_);
+		get_node("/root/Game/World")->add_child(entanglingBalls);
+		static_cast<Timer*>(get_node("EntanglingBallsCooldown"))->start();
+		Godot::print("ENTANGLING BALLS THROWN!");
+	}
+}
+
 void Player::updateInput()
 {
 	moveDirection_ = MoveDirection::NONE;
 	Input* input = Input::get_singleton();
-	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"));
+	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("melee_weapon_node/Weapon/melee_weapon_animation"));
 	if (input->is_action_pressed("left"))
 	{
 		moveDirection_ = MoveDirection::LEFT;
@@ -355,20 +395,28 @@ void Player::updateInput()
 
 	if (input->is_action_just_pressed("1"))
 	{
-		rpc("setWeaponTo", static_cast<int64_t>(WeaponType::SWORD));
-		static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(true);
-		static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(false);
+		if (Role::ARCHER == static_cast<Role>(role_) && currentWeapon_->getWeaponType() != static_cast<int64_t>(WeaponType::DAGGER))
+		{
+			rpc("switchWeapon");
+			static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(true);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(false);
+		}
 	}
 	if (input->is_action_just_pressed("2"))
 	{
-		if (!static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"))->is_playing())
+		if (!weaponAnimation->is_playing())
 		{
-			rpc("setWeaponTo", static_cast<int64_t>(WeaponType::CROSSBOW));
-			static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(false);
-			static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
+			if (Role::ARCHER == static_cast<Role>(role_) && currentWeapon_->getWeaponType() != static_cast<int64_t>(WeaponType::CROSSBOW))
+			{
+				rpc("switchWeapon");
+				static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(false);
+				static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
+			}
+			else if (Role::WARRIOR == static_cast<Role>(role_))
+				entanglingBallsThrown_ = true;
 		}
 	}
-	if (input->is_action_just_pressed("f"))
+	if (Role::ARCHER == static_cast<Role>(role_) && input->is_action_just_pressed("f"))
 	{
 		if (currentAmmoType_ == ProjectileType::BOLT)
 		{
@@ -410,14 +458,19 @@ void Player::updateInput()
 
 void Player::updateSprite()
 {
-    AnimatedSprite* bodySprite = static_cast<AnimatedSprite*>(get_node("body_sprite"));
-    AnimatedSprite* leftHandSprite = static_cast<AnimatedSprite*>(get_node("left_hand_sprite"));
-    AnimatedSprite* rightHandSprite = static_cast<AnimatedSprite*>(get_node("right_hand_sprite"));
-	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("weapon_node/Weapon/melee_weapon_animation"));
-    Weapon* weapon = static_cast<Weapon*>(get_node("weapon_node"));
+	if (!initialized_)
+		return;
+	AnimatedSprite* bodySprite = static_cast<AnimatedSprite*>(get_node("body_sprite"));
+	AnimatedSprite* leftHandSprite = static_cast<AnimatedSprite*>(get_node("left_hand_sprite"));
+	AnimatedSprite* rightHandSprite = static_cast<AnimatedSprite*>(get_node("right_hand_sprite"));
+	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("melee_weapon_node/Weapon/melee_weapon_animation"));
+	Node2D* meleeWeaponNode = static_cast<Node2D*>(get_node("melee_weapon_node"));
+	Node2D* rangedWeaponNode = static_cast<Node2D*>(get_node("ranged_weapon_node"));
 
 	if (currentWeapon_->isRanged())
+	{
 		rightHandSprite->play("idle_ranged_weapon" + animationNameSuffix_);
+	}
 	else
 	{
 		if (weaponState_ == WeaponState::IDLE)
@@ -433,8 +486,10 @@ void Player::updateSprite()
 		leftHandSprite->play("walk" + animationNameSuffix_);
         leftHandSprite->set_flip_h(false);
         leftHandSprite->set_z_index(1);
-        weapon->set_z_index(-1);
-		weapon->set_scale(Vector2(1, weapon->get_scale().y));
+		meleeWeaponNode->set_z_index(-1);
+		rangedWeaponNode->set_z_index(-1);
+		meleeWeaponNode->set_scale(Vector2(1, meleeWeaponNode->get_scale().y));
+		rangedWeaponNode->set_scale(Vector2(1, rangedWeaponNode->get_scale().y));
 		facingDirection_ = Vector2(1, 0);
     }
     else if (moveDirection_ == MoveDirection::LEFT)
@@ -446,8 +501,10 @@ void Player::updateSprite()
 		leftHandSprite->play("walk" + animationNameSuffix_);
         leftHandSprite->set_flip_h(true);
         leftHandSprite->set_z_index(3);
-        weapon->set_z_index(-2);
-		weapon->set_scale(Vector2(-1, weapon->get_scale().y));
+		meleeWeaponNode->set_z_index(-2);
+		rangedWeaponNode->set_z_index(-2);
+		meleeWeaponNode->set_scale(Vector2(-1, meleeWeaponNode->get_scale().y));
+		rangedWeaponNode->set_scale(Vector2(-1, rangedWeaponNode->get_scale().y));
 		facingDirection_ = Vector2(-1, 0);
     }
     else
@@ -485,6 +542,13 @@ void Player::_die()
     static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(true);
 }
 
+void Player::_on_SlowTimer_timeout()
+{
+	hideEntanglementEffect();
+	static_cast<Timer*>(get_node("SlowTimer"))->stop();
+	rpc("updateMovementSpeed", DEFAULT_MOVEMENT_SPEED);
+}
+
 void Player::_on_RespawnTimer_timeout()
 {
 	if(is_network_master())
@@ -501,6 +565,10 @@ void Player::_on_RespawnTimer_timeout()
             get_child(i)->call("show");
         }
     }
+	if (currentWeapon_->isRanged())
+		static_cast<Node2D*>(get_node("melee_weapon_node"))->set_visible(false);
+	else
+		static_cast<Node2D*>(get_node("ranged_weapon_node"))->set_visible(false);
     static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(false);
 	throwbackVelocity_ = Vector2(0, 0);
 	applyThrowback_ = false;
@@ -516,6 +584,23 @@ void Player::_on_BoltCooldown_timeout()
 void Player::_on_ExplosiveBoltCooldown_timeout()
 {
 	static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->stop();
+}
+
+void Player::_on_EntanglingBallsCooldown_timeout()
+{
+	static_cast<Timer*>(get_node("EntanglingBallsCooldown"))->stop();
+}
+
+void Player::init(int64_t chosenTeam, int64_t chosenRole)
+{
+	rpc("setTeam", chosenTeam);
+	rpc("setRole", chosenRole);
+	setUI(chosenRole);
+	if (Team::CELADON == static_cast<Team>(chosenTeam))
+		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint"));
+	else
+		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCrimsonTeamSpawnPoint"));
+	set_position(spawnPoint_);
 }
 
 void Player::setTeam(int64_t team)
@@ -534,18 +619,43 @@ void Player::setTeam(int64_t team)
 
 void Player::setRole(int64_t role)
 {
-
+	role_ = role;
+	if (Role::WARRIOR == static_cast<Role>(role_))
+	{
+		weapons_.push_back(static_cast<Axe*>(static_cast<Ref<PackedScene>>(resourceLoader_->load("res://equipment/weapons/Axe.tscn"))->instance()));
+		get_node("melee_weapon_node")->add_child(weapons_[0]);
+		currentWeapon_ = static_cast<Axe*>(weapons_[0]);
+	}
+	else
+	{
+		weapons_.push_back(static_cast<Dagger*>(static_cast<Ref<PackedScene>>(resourceLoader_->load("res://equipment/weapons/Dagger.tscn"))->instance()));
+		weapons_.push_back(static_cast<Crossbow*>(static_cast<Ref<PackedScene>>(resourceLoader_->load("res://equipment/weapons/Crossbow.tscn"))->instance()));
+		get_node("melee_weapon_node")->add_child(weapons_[0]);
+		get_node("ranged_weapon_node")->add_child(weapons_[1]);
+		static_cast<Node2D*>(get_node("melee_weapon_node"))->set_visible(false);
+		currentWeapon_ = static_cast<Crossbow*>(weapons_[1]);
+		setProjectileTypeTo(static_cast<int64_t>(ProjectileType::BOLT));
+	}
+	initialized_ = true;
 }
 
-void Player::init(int64_t chosenTeam, int64_t chosenRole)
+void Player::setUI(int64_t role)
 {
-	rpc("setTeam", chosenTeam);
-	rpc("setRole", chosenRole);
-	if (Team::CELADON == static_cast<Team>(chosenTeam))
-		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint"));
+	if (Role::WARRIOR == static_cast<Role>(role_))
+	{
+		static_cast<TextureRect*>(ui_->get_node("Slot1/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/axe_icon.png"));
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/entangling_balls_icon.png"));
+		static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(true);
+	}
 	else
-		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCrimsonTeamSpawnPoint"));
-	set_position(spawnPoint_);
+	{
+		static_cast<TextureRect*>(ui_->get_node("Slot1/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/dagger_icon.png"));
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Icon"))->set_texture(resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
+		static_cast<CanvasItem*>(ui_->get_node("Slot2/Subslot1"))->set_visible(true);
+		static_cast<CanvasItem*>(ui_->get_node("Slot2/Subslot2"))->set_visible(true);
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
+		static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
+	}
 }
 
 void Player::updateHealthPoints(int64_t newHealthPoints)
@@ -562,21 +672,40 @@ void Player::updateHealthBar()
 	healthBar_->setValue(healthPoints_);
 }
 
+void Player::updateMovementSpeed(int64_t newMovementSpeed)
+{
+	currentMovementSpeed_ = newMovementSpeed; 
+}
+
+void Player::setSlowTime(int64_t slowTime)
+{
+	static_cast<Timer*>(get_node("SlowTimer"))->set_wait_time(slowTime);
+	static_cast<Timer*>(get_node("SlowTimer"))->start();
+}
+
 void Player::updateArmRotation(Vector2 aimingDirection)
 {
 	real_t angle = facingDirection_.angle_to(aimingDirection);
 	static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(angle);
-	static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(angle);
+	static_cast<Crossbow*>(get_node("ranged_weapon_node"))->set_rotation(angle);
 }
 
-void Player::setWeaponTo(int64_t weaponType)
+void Player::switchWeapon()
 {
-	currentWeapon_->setWeapon(static_cast<WeaponType>(weaponType));
-	if (!currentWeapon_->isRanged())
+	if (currentWeapon_->getWeaponType() == static_cast<int64_t>(WeaponType::CROSSBOW))
 	{
+		currentWeapon_ = weapons_[0];
+		static_cast<Node2D*>(get_node("melee_weapon_node"))->set_visible(true);
+		static_cast<Node2D*>(get_node("ranged_weapon_node"))->set_visible(false);
 		static_cast<AnimatedSprite*>(get_node("right_hand_sprite"))->set_rotation(0);
-		static_cast<Weapon*>(get_node("weapon_node"))->set_rotation(0);
 	}
+	else if (currentWeapon_->getWeaponType() == static_cast<int64_t>(WeaponType::DAGGER))
+	{
+		currentWeapon_ = weapons_[1];
+		static_cast<Node2D*>(get_node("melee_weapon_node"))->set_visible(false);
+		static_cast<Node2D*>(get_node("ranged_weapon_node"))->set_visible(true);
+	}
+	currentWeapon_->playDrawSound();
 }
 
 void Player::setProjectileTypeTo(int64_t newProjectileType)

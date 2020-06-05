@@ -55,6 +55,18 @@
     <Filter Include="Source Files\equipment\projectiles">
       <UniqueIdentifier>{cb26ab3f-1dc7-4390-9ba7-21d130f08548}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\equipment\utility">
+      <UniqueIdentifier>{dbeaaa36-99f2-4025-b540-762f84f7c531}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\equipment\utility">
+      <UniqueIdentifier>{485f3887-8937-4122-9623-e3979515e88f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\equipment\weapons">
+      <UniqueIdentifier>{312a774c-3a41-4ed4-bcd4-ab5e086eaa7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\equipment\weapons">
+      <UniqueIdentifier>{8d3b00eb-fd3e-4c6a-a475-575f13ec660e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
@@ -81,9 +93,6 @@
     <ClCompile Include="camera\Camera.cpp">
       <Filter>Source Files\camera</Filter>
     </ClCompile>
-    <ClCompile Include="equipment\Weapon.cpp">
-      <Filter>Source Files\equipment</Filter>
-    </ClCompile>
     <ClCompile Include="world\Block.cpp">
       <Filter>Source Files\world</Filter>
     </ClCompile>
@@ -108,6 +117,21 @@
     <ClCompile Include="equipment\projectiles\ExplosiveBolt.cpp">
       <Filter>Source Files\equipment\projectiles</Filter>
     </ClCompile>
+    <ClCompile Include="equipment\weapons\Dagger.cpp">
+      <Filter>Source Files\equipment\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="equipment\weapons\Axe.cpp">
+      <Filter>Source Files\equipment\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="equipment\weapons\Crossbow.cpp">
+      <Filter>Source Files\equipment\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="equipment\weapons\Weapon.cpp">
+      <Filter>Source Files\equipment\weapons</Filter>
+    </ClCompile>
+    <ClCompile Include="equipment\utility\EntanglingBalls.cpp">
+      <Filter>Source Files\equipment\utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -130,9 +154,6 @@
     </ClInclude>
     <ClInclude Include="camera\Camera.h">
       <Filter>Header Files\camera</Filter>
-    </ClInclude>
-    <ClInclude Include="equipment\Weapon.h">
-      <Filter>Header Files\equipment</Filter>
     </ClInclude>
     <ClInclude Include="world\World.h">
       <Filter>Header Files\world</Filter>
@@ -157,6 +178,21 @@
     </ClInclude>
     <ClInclude Include="equipment\projectiles\ExplosiveBolt.h">
       <Filter>Header Files\equipment\projectiles</Filter>
+    </ClInclude>
+    <ClInclude Include="equipment\weapons\Weapon.h">
+      <Filter>Header Files\equipment\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="equipment\weapons\Dagger.h">
+      <Filter>Header Files\equipment\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="equipment\weapons\Crossbow.h">
+      <Filter>Header Files\equipment\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="equipment\weapons\Axe.h">
+      <Filter>Header Files\equipment\weapons</Filter>
+    </ClInclude>
+    <ClInclude Include="equipment\utility\EntanglingBalls.h">
+      <Filter>Header Files\equipment\utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

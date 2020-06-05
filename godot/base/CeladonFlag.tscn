@@ -14,6 +14,7 @@ animations = [ {
 } ]
 
 [node name="CeladonFlag" type="Node2D"]
+z_index = -5
 
 [node name="PoleSprite" type="TextureRect" parent="."]
 margin_left = -36.0
@@ -26,4 +27,5 @@ texture = ExtResource( 1 )
 position = Vector2( 32, -127 )
 frames = SubResource( 1 )
 animation = "waving"
+frame = 2
 playing = true
