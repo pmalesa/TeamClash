@@ -9,6 +9,7 @@
 namespace godot
 {
 	class Node2D;
+	class Control;
 
 	class Game : public Node
 	{
@@ -26,6 +27,8 @@ namespace godot
 		void _process(float delta);
 		void _on_player_disconnected(int64_t id);
 		void _on_server_disconnected(int64_t id);
+
+		Player* getPlayer(int64_t nodeName) const { return players_[nodeName]; }
 
 		void showRespawnWindow();
 		void hideRespawnWindow();

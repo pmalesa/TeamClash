@@ -1,10 +1,8 @@
 [gd_resource type="NativeScript" load_steps=2 format=2]
 
-[sub_resource type="GDNativeLibrary" id=1]
-config_file = Object(ConfigFile,"script":null)
-
+[ext_resource path="res://TeamClash.gdnlib" type="GDNativeLibrary" id=1]
 
 [resource]
 resource_name = "Block"
 class_name = "Block"
-library = SubResource( 1 )
+library = ExtResource( 1 )

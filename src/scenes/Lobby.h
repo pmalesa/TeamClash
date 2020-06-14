@@ -16,6 +16,7 @@ namespace godot
 	class TextEdit;
 	class LineEdit;
 	class BaseButton;
+	class TextureButton;
 
 	class Lobby : public Node2D
 	{
@@ -37,6 +38,10 @@ namespace godot
 		void _on_BackButton_pressed();
 		void _on_SendButton_pressed();
 		void _on_EnterGameButton_pressed();
+		void _on_CeladonTeamButton_pressed();
+		void _on_CrimsonTeamButton_pressed();
+		void _on_WarriorButton_pressed();
+		void _on_ArcherButton_pressed();
 
 		void updateConnectedPlayersWindow();
 		void sendMessage(String message);
@@ -48,6 +53,10 @@ namespace godot
 		TextEdit* chatWindowText_;
 		LineEdit* lineEdit_;
 		BaseButton* sendButton_;
+		TextureButton* celadonTeamButton_;
+		TextureButton* crimsonTeamButton_;
+		TextureButton* warriorButton_;
+		TextureButton* archerButton_;
 
 		String lobbyNickname_;
 		int64_t id_;

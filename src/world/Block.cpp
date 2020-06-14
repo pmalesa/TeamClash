@@ -20,7 +20,7 @@ void Block::_init()
 void Block::init(BlockType blockType, Vector2 position)
 {
 	ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
-	godot::Sprite* sprite = static_cast<godot::Sprite*>(get_node("Sprite"));
+	Sprite* sprite = static_cast<Sprite*>(get_node("Sprite"));
 	
 	blockType_ = blockType;
 
@@ -35,6 +35,9 @@ void Block::init(BlockType blockType, Vector2 position)
 
 	else if (blockType == BlockType::BEDROCK)
 		sprite->set_texture(resourceLoader->load("res://sprites/blocks/Bedrock.png"));
+
+	else if (blockType == BlockType::MARBLE)
+		sprite->set_texture(resourceLoader->load("res://sprites/blocks/Marble.png"));
 	set_position(position);
 }
 

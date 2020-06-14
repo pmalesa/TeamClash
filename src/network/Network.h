@@ -1,6 +1,5 @@
 #pragma once
 #include <memory>
-#include <map>
 
 #include <core/CoreTypes.hpp>
 #include <core/Godot.hpp>
@@ -8,7 +7,6 @@
 #include <NetworkedMultiplayerENet.hpp>
 
 using std::unique_ptr;
-using std::map;
 
 namespace godot
 {
@@ -24,8 +22,8 @@ namespace godot
 		void _init();
         void _ready();
 
-		void createServer(String nickname);
-		void joinServer(String nickname, String ip);
+		bool createServer(String nickname);
+		bool joinServer(String nickname, String ip);
 		void closeNetwork();
 
 		void _player_connected(int64_t connectedPlayerId);
@@ -34,10 +32,15 @@ namespace godot
 		void _connection_failed();
 		void _server_disconnected();
 
+		void setChosenTeam(int64_t chosenTeam) { chosenTeam_ = chosenTeam; }
+		void setChosenRole(int64_t chosenRole) { chosenRole_ = chosenRole; }
+
 		String getPlayerNickname() const { return nickname_;  }
 		String getConnectedPlayerNickname(int64_t playerId);
 		int64_t getPlayerNetworkId() const { return networkId_; }
 		Dictionary getConnectedPlayers() const { return connectedPlayers_; }
+		int64_t getChosenTeam() const { return chosenTeam_; }
+		int64_t getChosenRole() const { return chosenRole_; }
 
 		void addPlayer(int64_t id, String nickname);
 		void removePlayer(int64_t id);
@@ -50,6 +53,8 @@ namespace godot
 		unique_ptr<NetworkedMultiplayerENet> peer_;
 		int64_t networkId_;
 		String nickname_;
+		int64_t chosenTeam_;
+		int64_t chosenRole_;
 
 		const int64_t SERVER_PORT = 12345;
 		const int64_t MAX_PLAYERS = 128;

@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://equipment/utility/EntanglingBalls.gdns" type="Script" id=1]
+[ext_resource path="res://sprites/entangling_balls.png" type="Texture" id=2]
+[ext_resource path="res://sounds/entangling_balls_throw_sound.ogg" type="AudioStream" id=3]
+
+[node name="EntanglingBalls" type="KinematicBody2D"]
+script = ExtResource( 1 )
+
+[node name="sprite" type="Sprite" parent="."]
+position = Vector2( 17, -0.5 )
+texture = ExtResource( 2 )
+
+[node name="Area" type="Area2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Area"]
+position = Vector2( 2.20832, 1.65184 )
+scale = Vector2( 2.25187, 3.96644 )
+polygon = PoolVector2Array( 1.74514, -1.01876, 8.32595, -2.53032, 10.1846, -3.58556, 13.2239, -3.5713, 14.957, -2.54458, 15.0575, -0.790598, 9.63206, 2.50347, 7.87383, 3.51593, 4.85972, 3.48741, 1.72002, 1.94733 )
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+visible = false
+polygon = PoolVector2Array( -0.504059, 1.49999, 8.5055, 1.49585, 8.51591, 2.48468, 9.45973, 2.48841, 11.5285, 0.474807, 11.5285, -0.463038, 9.49727, -2.52439, 8.4943, -2.53181, 8.4943, -1.5388, -0.497978, -1.5388 )
+disabled = true
+
+[node name="ThrowSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 3 )
+volume_db = 10.0

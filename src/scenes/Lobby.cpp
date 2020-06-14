@@ -5,10 +5,9 @@
 #include <LineEdit.hpp>
 #include <Input.hpp>
 #include <BaseButton.hpp>
+#include <TextureButton.hpp>
 
 using namespace godot;
-using std::make_unique;
-using std::pair;
 
 void Lobby::_register_methods()
 {
@@ -22,6 +21,11 @@ void Lobby::_register_methods()
 	register_method((char*)"_on_BackButton_pressed", &Lobby::_on_BackButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method((char*)"_on_SendButton_pressed", &Lobby::_on_SendButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method((char*)"_on_EnterGameButton_pressed", &Lobby::_on_EnterGameButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_CeladonTeamButton_pressed", &Lobby::_on_CeladonTeamButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_CrimsonTeamButton_pressed", &Lobby::_on_CrimsonTeamButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_WarriorButton_pressed", &Lobby::_on_WarriorButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_ArcherButton_pressed", &Lobby::_on_ArcherButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
+
 	register_method("updateConnectedPlayersWindow", &Lobby::updateConnectedPlayersWindow, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("sendMessage", &Lobby::sendMessage, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("startGame", &Lobby::startGame, GODOT_METHOD_RPC_MODE_REMOTESYNC);
@@ -49,11 +53,20 @@ void Lobby::_ready()
 	lineEdit_->set_placeholder_alpha(0.4);
 	sendButton_ = static_cast<godot::BaseButton*>(get_node("LobbyPanel/ChatPanel/SendButton"));
 	lineEdit_->set_placeholder("Enter message...");
+	celadonTeamButton_ = static_cast<TextureButton*>(get_node("LobbyPanel/ConfigWindow/CeladonTeamButton"));
+	crimsonTeamButton_ = static_cast<TextureButton*>(get_node("LobbyPanel/ConfigWindow/CrimsonTeamButton"));
+	warriorButton_ = static_cast<TextureButton*>(get_node("LobbyPanel/ConfigWindow/WarriorButton"));
+	archerButton_ = static_cast<TextureButton*>(get_node("LobbyPanel/ConfigWindow/ArcherButton"));
 
 	if (get_tree()->is_network_server())
 	{
 		chatWindowText_->set_text("[INFO] Lobby created.\n");
 		updateConnectedPlayersWindow();
+	}
+	else
+	{
+		static_cast<BaseButton*>(get_node("LobbyPanel/EnterGameButton"))->set_disabled(true);
+		static_cast<BaseButton*>(get_node("LobbyPanel/EnterGameButton"))->hide();
 	}
 	Godot::print("[LOBBY] Lobby is ready.");
 }
@@ -133,6 +146,34 @@ void Lobby::_on_EnterGameButton_pressed()
 		get_tree()->set_refuse_new_network_connections(true);
 		rpc("startGame");
 	}
+}
+
+void Lobby::_on_CeladonTeamButton_pressed()
+{
+	get_node("/root/Network")->call("setChosenTeam", 0);
+	celadonTeamButton_->set_pressed(true);
+	crimsonTeamButton_->set_pressed(false);
+}
+
+void Lobby::_on_CrimsonTeamButton_pressed()
+{
+	get_node("/root/Network")->call("setChosenTeam", 1);
+	celadonTeamButton_->set_pressed(false);
+	crimsonTeamButton_->set_pressed(true);
+}
+
+void Lobby::_on_WarriorButton_pressed()
+{
+	get_node("/root/Network")->call("setChosenRole", 0);
+	warriorButton_->set_pressed(true);
+	archerButton_->set_pressed(false);
+}
+
+void Lobby::_on_ArcherButton_pressed()
+{
+	get_node("/root/Network")->call("setChosenRole", 1);
+	warriorButton_->set_pressed(false);
+	archerButton_->set_pressed(true);
 }
 
 void Lobby::updateConnectedPlayersWindow()

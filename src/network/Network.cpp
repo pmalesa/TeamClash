@@ -20,6 +20,10 @@ void Network::_register_methods()
 	register_method("removePlayer", &Network::removePlayer, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("closeNetwork", &Network::closeNetwork, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getConnectedPlayers", &Network::getConnectedPlayers, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setChosenTeam", &Network::setChosenTeam, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setChosenRole", &Network::setChosenRole, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getChosenTeam", &Network::getChosenTeam, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getChosenRole", &Network::getChosenRole, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("sendConnectedPlayersInfo", &Network::sendConnectedPlayersInfo, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("updateConnectedPlayers", &Network::updateConnectedPlayers, GODOT_METHOD_RPC_MODE_REMOTE);
 
@@ -45,29 +49,69 @@ void Network::_ready()
 
 	nickname_ = "";
 	networkId_ = 0;
+	chosenTeam_ = 0;
+	chosenRole_ = 0;
 
 	Godot::print("[NETWORK] Network ready.");
 }
 
-void Network::createServer(String nickname)
+bool Network::createServer(String nickname)
 {
 	peer_ = make_unique<NetworkedMultiplayerENet>(*NetworkedMultiplayerENet::_new());
-	peer_->create_server(SERVER_PORT, MAX_PLAYERS);
-	get_tree()->set_network_peer(peer_.get());
-	networkId_ = get_tree()->get_network_unique_id();
-	nickname_ = nickname;
-	connectedPlayers_[networkId_] = nickname_;
-	Godot::print("[NETWORK] Server created successfully.");
+	Error err = peer_->create_server(SERVER_PORT, MAX_PLAYERS);
+	if (err == Error::ERR_ALREADY_IN_USE)
+	{
+		Godot::print("[NETWORK] Could not create server. This peer already has an open connection.");
+		return false;
+	}
+	else if (err == Error::ERR_CANT_CREATE)
+	{
+		Godot::print("[NETWORK] Could not create server.");
+		return false;
+	}
+	else if (err != Error::OK)
+	{
+		Godot::print("[NETWORK] Error occurred while trying to create server.");
+		return false;
+	}
+	else
+	{
+		get_tree()->set_network_peer(peer_.get());
+		networkId_ = get_tree()->get_network_unique_id();
+		nickname_ = nickname;
+		connectedPlayers_[networkId_] = nickname_;
+		Godot::print("[NETWORK] Server created successfully.");
+		return true;
+	}
 }
 
-void Network::joinServer(String nickname, String ip)
+bool Network::joinServer(String nickname, String ip)
 {
 	peer_ = make_unique<NetworkedMultiplayerENet>(*NetworkedMultiplayerENet::_new());
-	peer_->create_client(ip, SERVER_PORT);
-	get_tree()->set_network_peer(peer_.get());
-	networkId_ = get_tree()->get_network_unique_id();
-	nickname_ = nickname;
-	Godot::print("[NETWORK] Server joined successfully.");
+	Error err = peer_->create_client(ip, SERVER_PORT);
+	if (err == Error::ERR_CANT_CONNECT)
+	{
+		Godot::print("[NETWORK] Error occured. Could not connect to server.");
+		return false;
+	}
+	else if (err == Error::ERR_CANT_RESOLVE)
+	{
+		Godot::print("[NETWORK] Error occured. Could not resolve hostname.");
+		return false;
+	}
+	else if (err != Error::OK)
+	{
+		Godot::print("[NETWORK] Error occured while trying to connect to server.");
+		return false;
+	}
+	else
+	{
+		get_tree()->set_network_peer(peer_.get());
+		networkId_ = get_tree()->get_network_unique_id();
+		nickname_ = nickname;
+		Godot::print("[NETWORK] Server joined successfully.");
+		return true;
+	}
 }
 
 void Network::closeNetwork()
@@ -108,7 +152,9 @@ void Network::_server_disconnected()
 String Network::getConnectedPlayerNickname(int64_t playerId)
 {
 	if (connectedPlayers_.has(playerId))
+	{
 		return String(connectedPlayers_[playerId]);
+	}
 	else
 		return String("");
 }

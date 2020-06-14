@@ -34,6 +34,9 @@ void Game::_register_methods()
     register_method("_on_server_disconnected", &Game::_on_server_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideRespawnWindow", &Game::hideRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
+
+	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void Game::_init()
@@ -41,7 +44,7 @@ void Game::_init()
 	ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
 	worldScene_ = resourceLoader->load("res://world/World.tscn");
 	playerScene_ = resourceLoader->load("res://player/Player.tscn");
-	Godot::print("Game initialized.");
+	Godot::print("[GAME] Game initialized.");
 }
 
 void Game::_ready()
@@ -51,7 +54,7 @@ void Game::_ready()
 	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindow"));
 	hideRespawnWindow();
 	preconfigureGame();
-	Godot::print("Game is ready.");
+	Godot::print("[GAME] Game is ready.");
 }
 
 void Game::preconfigureGame()
@@ -59,7 +62,7 @@ void Game::preconfigureGame()
 	get_tree()->set_pause(true);
 	connectedPlayersInfo_ = get_node("/root/Network")->call("getConnectedPlayers");
 	selfPeerId_ = get_tree()->get_network_unique_id();
-	world_ = static_cast<godot::World*>(worldScene_->instance());
+	world_ = static_cast<World*>(worldScene_->instance());
 	add_child(world_);
 
 	/* Load players */
@@ -68,12 +71,12 @@ void Game::preconfigureGame()
 	{
 		if (!players_.has(playerNetworkIds[i]))
 		{
-			Player* player = static_cast<godot::Player*>(playerScene_->instance());
+			Godot::print("[GAME] Initializing player " + String(connectedPlayersInfo_[playerNetworkIds[i]]) + " in progress...");
+			Player* player = static_cast<Player*>(playerScene_->instance());
 			player->set_name(String(playerNetworkIds[i]));
-			player->set("nodeName", playerNetworkIds[i]);
+			player->set("nodeName_", playerNetworkIds[i]);
 			player->set_network_master(playerNetworkIds[i]);
 			add_child(player);
-			player->init(connectedPlayersInfo_[playerNetworkIds[i]], Vector2(360, 180), false);
 			players_[playerNetworkIds[i]] = player;
 		}
 	}
@@ -91,10 +94,10 @@ void Game::donePreconfiguring(int64_t peerId)
 		if (!playersDoneConfiguring_.has(peerId))
 		{
 			playersDoneConfiguring_[peerId] = connectedPlayersInfo_[peerId];
-			Godot::print("Player " + String(playersDoneConfiguring_[peerId]) + " has finished preconfiguring.");
+			Godot::print("[GAME] Player " + String(playersDoneConfiguring_[peerId]) + " has finished preconfiguring.");
 		}
 		if (!playersDoneConfiguring_.has_all(connectedPlayersInfo_.keys()))
-			Godot::print("Waiting for others to preconfigure...");
+			Godot::print("[GAME] Waiting for others to preconfigure...");
 		else
 			rpc("postconfigureGame");
 	}
@@ -102,15 +105,18 @@ void Game::donePreconfiguring(int64_t peerId)
 
 void Game::postconfigureGame()
 {
+	player_->init(get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
 	get_tree()->set_pause(false);
-	Godot::print("Every player has been preconfigured.\nThe game has started.");
+	Godot::print("[GAME] Every player has been preconfigured.\n[GAME] The game has started.");
 	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
 }
 
 void Game::_process(float delta)
 {
     Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
+	Control* ui = static_cast<Control*>(get_node("UI/PlayerUI"));
     camera->set_position(Vector2(player_->get_position().x, player_->get_position().y));
+	ui->set_position(Vector2(player_->get_position().x - 220, player_->get_position().y + 400));
 
 	if (respawnWindow_->is_visible())
 	{
@@ -121,11 +127,13 @@ void Game::_process(float delta)
 
 void Game::_on_player_disconnected(int64_t id)
 {
-    Godot::print("Player disconnected.");
+	Dictionary connectedPlayers = get_node("/root/Network")->call("getConnectedPlayers");
+	get_node("/root/Network")->call("removePlayer", id);
     if (get_node(godot::NodePath(String(id))))
     {
         get_node(godot::NodePath(String(id)))->queue_free();
     }
+	Godot::print("Player disconnected.");
 }
 
 void Game::_on_server_disconnected(int64_t id)
