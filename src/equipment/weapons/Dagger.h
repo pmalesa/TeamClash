@@ -24,5 +24,6 @@ namespace godot
 		void _physics_process(float delta);
 		void _process(float delta);
 
+		Array alreadyAttackedPlayers_;
     };
 }

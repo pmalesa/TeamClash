@@ -1,9 +1,15 @@
 #pragma once
 #include "Weapon.h"
+
 #include <Godot.hpp>
+#include <Timer.hpp>
 
 namespace godot
 {
+	class PackedScene;
+
+	enum class ProjectileType : int64_t { BOLT, EXPLOSIVE_BOLT };
+
 	class Crossbow : public Weapon
 	{
 		GODOT_CLASS(Crossbow, Weapon)
@@ -17,12 +23,28 @@ namespace godot
 		void _init();
 		void _ready();
 
+		void setAmmoType(ProjectileType ammoType) { currentAmmoType_ = ammoType; }
+		ProjectileType getAmmoType() const { return currentAmmoType_; }
+
 		void playDrawSound();
 		void playAttackSound();
 
 	private:
 		void _physics_process(float delta);
 		void _process(float delta);
+		void _on_BoltCooldown_timeout() { static_cast<Timer*>(get_node("BoltCooldown"))->stop(); };
+		void _on_ExplosiveBoltCooldown_timeout() { static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->stop(); };
 
+		void shoot();
+		void shootBolt();
+		void shootExplosiveBolt();
+
+		bool boltOnCooldown() { return static_cast<Timer*>(get_node("BoltCooldown"))->get_time_left() > 0; }
+		bool explosiveBoltOnCooldown() { return static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->get_time_left() > 0; }
+
+		ProjectileType currentAmmoType_;
+
+		Ref<PackedScene> boltScene_;
+		Ref<PackedScene> explosiveBoltScene_;
 	};
 }

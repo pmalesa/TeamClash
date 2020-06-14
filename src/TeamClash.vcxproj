@@ -157,8 +157,10 @@
     <ClCompile Include="GodotLibrary.cpp" />
     <ClCompile Include="network\Network.cpp" />
     <ClCompile Include="network\NetworkOld.cpp" />
+    <ClCompile Include="player\Archer.cpp" />
     <ClCompile Include="player\HealthBar.cpp" />
     <ClCompile Include="player\Player.cpp" />
+    <ClCompile Include="player\Warrior.cpp" />
     <ClCompile Include="scenes\CreateGameScene.cpp" />
     <ClCompile Include="scenes\Game.cpp" />
     <ClCompile Include="scenes\JoinGameScene.cpp" />
@@ -179,8 +181,11 @@
     <ClInclude Include="equipment\weapons\Weapon.h" />
     <ClInclude Include="network\Network.h" />
     <ClInclude Include="network\NetworkOld.h" />
+    <ClInclude Include="player\Archer.h" />
     <ClInclude Include="player\HealthBar.h" />
     <ClInclude Include="player\Player.h" />
+    <ClInclude Include="player\Role.h" />
+    <ClInclude Include="player\Warrior.h" />
     <ClInclude Include="scenes\CreateGameScene.h" />
     <ClInclude Include="scenes\Game.h" />
     <ClInclude Include="scenes\JoinGameScene.h" />

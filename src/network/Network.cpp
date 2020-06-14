@@ -152,7 +152,9 @@ void Network::_server_disconnected()
 String Network::getConnectedPlayerNickname(int64_t playerId)
 {
 	if (connectedPlayers_.has(playerId))
+	{
 		return String(connectedPlayers_[playerId]);
+	}
 	else
 		return String("");
 }

@@ -132,6 +132,12 @@
     <ClCompile Include="equipment\utility\EntanglingBalls.cpp">
       <Filter>Source Files\equipment\utility</Filter>
     </ClCompile>
+    <ClCompile Include="player\Archer.cpp">
+      <Filter>Source Files\player</Filter>
+    </ClCompile>
+    <ClCompile Include="player\Warrior.cpp">
+      <Filter>Source Files\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -193,6 +199,15 @@
     </ClInclude>
     <ClInclude Include="equipment\utility\EntanglingBalls.h">
       <Filter>Header Files\equipment\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="player\Archer.h">
+      <Filter>Header Files\player</Filter>
+    </ClInclude>
+    <ClInclude Include="player\Warrior.h">
+      <Filter>Header Files\player</Filter>
+    </ClInclude>
+    <ClInclude Include="player\Role.h">
+      <Filter>Header Files\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

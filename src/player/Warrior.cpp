@@ -1,0 +1,130 @@
+#include "Warrior.h"
+
+#include "../equipment/weapons/Axe.h"
+#include "../equipment/utility/EntanglingBalls.h"
+
+#include <Ref.hpp>
+#include <ResourceLoader.hpp>
+#include <PackedScene.hpp>
+#include <TextureRect.hpp>
+#include <Texture.hpp>
+#include <AnimatedSprite.hpp>
+#include <AnimationPlayer.hpp>
+
+#include <Godot.hpp>
+#include <iostream>
+using std::cout;
+using std::endl;
+
+using namespace godot;
+
+Warrior::Warrior(Player* newOwner) : Role(newOwner)
+{
+	getOwner()->weapons_.clear();
+	getOwner()->weapons_.push_back(static_cast<Axe*>(static_cast<Ref<PackedScene>>(getOwner()->resourceLoader_->load("res://equipment/weapons/Axe.tscn"))->instance()));
+	getOwner()->get_node("melee_weapon_node")->add_child(getOwner()->weapons_[0]);
+	getOwner()->currentWeapon_ = static_cast<Axe*>(getOwner()->weapons_[0]);
+	entanglingBallsScene_ = getOwner()->resourceLoader_->load("res://equipment/utility/EntanglingBalls.tscn");
+	static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->set_wait_time(ENTANGLING_BALLS_COOLDOWN);
+	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(CHARGE_COOLDOWN);
+	static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->set_wait_time(STONE_SKIN_COOLDOWN);
+}
+
+void Warrior::setUI()
+{
+	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/axe_icon.png"));
+	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/entangling_balls_icon.png"));
+	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Highlight"))->set_visible(true);
+}
+
+void Warrior::updateSprite()
+{
+	AnimatedSprite* bodySprite = static_cast<AnimatedSprite*>(getOwner()->get_node("body_sprite"));
+	AnimatedSprite* leftHandSprite = static_cast<AnimatedSprite*>(getOwner()->get_node("left_hand_sprite"));
+	AnimatedSprite* rightHandSprite = static_cast<AnimatedSprite*>(getOwner()->get_node("right_hand_sprite"));
+	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(getOwner()->get_node("melee_weapon_node/Weapon/melee_weapon_animation"));
+	Node2D* meleeWeaponNode = static_cast<Node2D*>(getOwner()->get_node("melee_weapon_node"));
+	Node2D* rangedWeaponNode = static_cast<Node2D*>(getOwner()->get_node("ranged_weapon_node"));
+
+	if (getOwner()->currentWeapon_->getWeaponState() == WeaponState::IDLE)
+		rightHandSprite->play("idle" + getOwner()->animationNameSuffix_);
+	if (getOwner()->moveDirection_ == MoveDirection::RIGHT)
+	{
+		bodySprite->play("walk" + getOwner()->animationNameSuffix_);
+		bodySprite->set_flip_h(false);
+		rightHandSprite->set_flip_h(false);
+		rightHandSprite->set_z_index(2);
+		leftHandSprite->play("walk" + getOwner()->animationNameSuffix_);
+		leftHandSprite->set_flip_h(false);
+		leftHandSprite->set_z_index(1);
+		meleeWeaponNode->set_z_index(-1);
+		rangedWeaponNode->set_z_index(-1);
+		meleeWeaponNode->set_scale(Vector2(1, meleeWeaponNode->get_scale().y));
+		rangedWeaponNode->set_scale(Vector2(1, rangedWeaponNode->get_scale().y));
+		getOwner()->facingDirection_ = Vector2(1, 0);
+	}
+	else if (getOwner()->moveDirection_ == MoveDirection::LEFT)
+	{
+		bodySprite->play("walk" + getOwner()->animationNameSuffix_);
+		bodySprite->set_flip_h(true);
+		rightHandSprite->set_flip_h(true);
+		rightHandSprite->set_z_index(-3);
+		leftHandSprite->play("walk" + getOwner()->animationNameSuffix_);
+		leftHandSprite->set_flip_h(true);
+		leftHandSprite->set_z_index(3);
+		meleeWeaponNode->set_z_index(-2);
+		rangedWeaponNode->set_z_index(-2);
+		meleeWeaponNode->set_scale(Vector2(-1, meleeWeaponNode->get_scale().y));
+		rangedWeaponNode->set_scale(Vector2(-1, rangedWeaponNode->get_scale().y));
+		getOwner()->facingDirection_ = Vector2(-1, 0);
+	}
+	else
+	{
+		bodySprite->play("idle" + getOwner()->animationNameSuffix_);
+		leftHandSprite->play("idle" + getOwner()->animationNameSuffix_);
+	}
+	if (!weaponAnimation->is_playing() && getOwner()->currentWeapon_->getWeaponState() == WeaponState::ATTACKING)
+	{
+		weaponAnimation->play("attack");
+		rightHandSprite->set_frame(0);
+		rightHandSprite->play("melee_attack" + getOwner()->animationNameSuffix_);
+	}
+}
+
+void Warrior::useSecondAbility()
+{
+	if (!entanglingBallsOnCooldown())
+	{
+		EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(entanglingBallsScene_->instance());
+		Vector2 initialPosition = getOwner()->get_position() + 40 * getOwner()->aimingDirection_;
+		entanglingBalls->init(getOwner()->getNodeName(), initialPosition, getOwner()->aimingDirection_);
+		getOwner()->get_node("/root/Game/World")->add_child(entanglingBalls);
+		static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->start();
+		Godot::print("ENTANGLING BALLS THROWN!");
+	}
+}
+
+void Warrior::useThirdAbility()
+{
+
+}
+
+void Warrior::useFourthAbility()
+{
+
+}
+
+bool Warrior::entanglingBallsOnCooldown()
+{
+	return static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->get_time_left() > 0;
+}
+
+bool Warrior::chargeOnCooldown()
+{
+	return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0;
+}
+
+bool Warrior::stoneSkinOnCooldown()
+{
+	return static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->get_time_left() > 0;
+}

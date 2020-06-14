@@ -2,11 +2,14 @@
 
 #include <Godot.hpp>
 #include <Area2D.hpp>
+#include <Node2D.hpp>
+
 
 namespace godot
 {
+	class Player;
+
 	enum class WeaponType : int64_t { NONE, DAGGER, AXE, CROSSBOW };
-	enum class ProjectileType : int64_t { BOLT, EXPLOSIVE_BOLT };
 	enum class WeaponState : int64_t { IDLE, ATTACKING, SHOOTING, THROWING };
 
     class Weapon : public Area2D
@@ -22,18 +25,29 @@ namespace godot
 		virtual void _init() {};
 		virtual void _ready() {};
 
-		int64_t getWeaponType() const { return weaponType_; }
+
+		Player* getOwner() const { return owner_; }
+		Vector2 getOwnerPosition() const { return static_cast<Node2D*>(get_parent()->get_parent())->get_position(); }
+		WeaponType getWeaponType() const { return weaponType_; }
+		WeaponState getWeaponState() const { return weaponState_; }
 		int64_t getDamage() const { return damage_; }
-		bool isRanged() const { return weaponType_ == static_cast<int64_t>(WeaponType::CROSSBOW); }
+
+		void setOwner(Player* newOwner) { owner_ = newOwner; }
+		void setWeaponType(WeaponType weaponType) { weaponType_ = weaponType; }
+		void setWeaponState(WeaponState weaponState) { weaponState_ = weaponState; }
+		void setDamage(int64_t newDamage) { damage_ = newDamage; }
+		bool isRanged() const { return weaponType_ == WeaponType::CROSSBOW; }
 
 		virtual void playDrawSound() {};
 		virtual void playAttackSound() {};
 
-	protected:
+	private:
 		virtual void _physics_process(float delta) {};
 		virtual void _process(float delta) {};
 
-		int64_t weaponType_;
+		Player* owner_;
+		WeaponType weaponType_;
+		WeaponState weaponState_;
 		int64_t damage_;
     };
 }

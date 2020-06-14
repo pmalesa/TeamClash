@@ -20,7 +20,7 @@ namespace godot
 
         void _init();
         void _ready();
-		void init(int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
+		void init(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
 
 	private:
 		void _physics_process(float delta);
@@ -33,28 +33,15 @@ namespace godot
 		bool collisionDetected();
 
 		const static int64_t damage_ = 75;
-		const static int64_t INITIAL_PROJECTILE_SPEED = 1200;
+		const static int64_t INITIAL_PROJECTILE_SPEED = 1300;
 		const static int64_t GRAVITY_PULL = 20;
 		const static int64_t AIR_RESISTANCE = 3;
-		const static int64_t MAX_FALLING_SPEED = 1600;
+		const static int64_t MAX_FALLING_SPEED = 1500;
 		const static int64_t EXPLOSION_THROWBACK = 1000;
 		Vector2 velocity_;
 		Vector2 initialDirection_;
-		int64_t shooterNodeName_;
+		String shooterNodeName_;
 		bool objectHit_;
 
     };
 }
-
-
-
-/* 
-	Note:
-
-	Strange thing happens when the above's private variables are declared only as const and are assigned with some values.
-	During the program execution, those constant variables have different values than they were assigned with and those 
-	values CHANGE (!), even though the variables are constant.
-
-	Disable possibility to hit yourself with your own bolt.
-
-*/

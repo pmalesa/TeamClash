@@ -34,6 +34,7 @@ void Game::_register_methods()
     register_method("_on_server_disconnected", &Game::_on_server_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideRespawnWindow", &Game::hideRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 
 	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
@@ -73,7 +74,7 @@ void Game::preconfigureGame()
 			Godot::print("[GAME] Initializing player " + String(connectedPlayersInfo_[playerNetworkIds[i]]) + " in progress...");
 			Player* player = static_cast<Player*>(playerScene_->instance());
 			player->set_name(String(playerNetworkIds[i]));
-			player->set("nodeName", playerNetworkIds[i]);
+			player->set("nodeName_", playerNetworkIds[i]);
 			player->set_network_master(playerNetworkIds[i]);
 			add_child(player);
 			players_[playerNetworkIds[i]] = player;

@@ -30,7 +30,7 @@ void ExplosiveBolt::_register_methods()
 	register_method("collisionDetected", &ExplosiveBolt::collisionDetected, GODOT_METHOD_RPC_MODE_DISABLED);
 
 	register_property<ExplosiveBolt, Vector2>("velocity_", &ExplosiveBolt::velocity_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
-	register_property<ExplosiveBolt, int64_t>("shooterNodeName_", &ExplosiveBolt::shooterNodeName_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<ExplosiveBolt, String>("shooterNodeName_", &ExplosiveBolt::shooterNodeName_, String(), GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void ExplosiveBolt::_init()
@@ -48,7 +48,7 @@ void ExplosiveBolt::_ready()
 	Godot::print("[BOLT] Ready and fired.");
 }
 
-void ExplosiveBolt::init(int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+void ExplosiveBolt::init(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
 {
 	set_position(initialPosition);
 	set_rotation(-initialDirection.angle_to(Vector2(1, 0)));
@@ -89,11 +89,8 @@ void ExplosiveBolt::processImpact()
 		if (overlappedNode->is_in_group("Player"))
 		{
 			Player* shotPlayer = static_cast<Player*>(explosionOverlapingBodies[i]);
-			if (shotPlayer->is_network_master())
-			{
-				shotPlayer->inflictDamage(damage_);
-				shotPlayer->throwback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
-			}
+			shotPlayer->inflictDamage(damage_);
+			shotPlayer->applyThrowback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
 		}
 	}
 	objectHit_ = true;

@@ -26,7 +26,7 @@ void Bolt::_register_methods()
 	register_method("collisionDetected", &Bolt::collisionDetected, GODOT_METHOD_RPC_MODE_DISABLED);
 
 	register_property<Bolt, Vector2>("velocity_", &Bolt::velocity_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
-	register_property<Bolt, int64_t>("shooterNodeName_", &Bolt::shooterNodeName_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<Bolt, String>("shooterNodeName_", &Bolt::shooterNodeName_, String(), GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void Bolt::_init()
@@ -43,7 +43,7 @@ void Bolt::_ready()
 	Godot::print("[BOLT] Ready and fired.");
 }
 
-void Bolt::init(int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+void Bolt::init(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
 {
 	set_position(initialPosition);
 	set_rotation(-initialDirection.angle_to(Vector2(1, 0)));
@@ -78,10 +78,8 @@ void Bolt::processImpact()
 		if (overlappedNode->is_in_group("Player"))
 		{
 			Player* shotPlayer = static_cast<Player*>(overlapingBodies[i]);
-			Variant shooterNodeName = shooterNodeName_;
-			if (shotPlayer->get_name() != String(shooterNodeName))
-				if (shotPlayer->is_network_master())
-					shotPlayer->inflictDamage(damage_);
+			if (shotPlayer->get_name() != shooterNodeName_)
+				shotPlayer->inflictDamage(damage_);
 			queue_free();
 		}
 		else
