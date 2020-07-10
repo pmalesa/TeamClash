@@ -10,6 +10,7 @@
 #include <Texture.hpp>
 #include <AnimatedSprite.hpp>
 #include <AnimationPlayer.hpp>
+#include <AudioStreamPlayer.hpp>
 
 #include <Godot.hpp>
 #include <iostream>
@@ -28,12 +29,20 @@ Warrior::Warrior(Player* newOwner) : Role(newOwner)
 	static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->set_wait_time(ENTANGLING_BALLS_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(CHARGE_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->set_wait_time(STONE_SKIN_COOLDOWN);
+	static_cast<Timer*>(getOwner()->get_node("FirstEffectTimer"))->set_wait_time(CHARGE_DURATION);
+	static_cast<Timer*>(getOwner()->get_node("SecondEffectTimer"))->set_wait_time(STONE_SKIN_DURATION);
+	Ref<PackedScene> warriorEffectsScene = getOwner()->resourceLoader_->load("res://player/WarriorEffects.tscn");
+	getOwner()->get_node("ClassEffects")->add_child(static_cast<Node2D*>(warriorEffectsScene->instance()));
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeAnimatedSprite"))->set_frame(0);
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeOnAnimatedSprite"))->set_frame(0);
+	static_cast<CanvasItem*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->set_visible(false);
 }
 
 void Warrior::setUI()
 {
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/axe_icon.png"));
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/entangling_balls_icon.png"));
+	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/charge_icon.png"));
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Highlight"))->set_visible(true);
 }
 
@@ -106,10 +115,35 @@ void Warrior::useSecondAbility()
 
 void Warrior::useThirdAbility()
 {
-
+	if (!chargeOnCooldown())
+	{
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeAnimatedSprite"))->set_frame(1);
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeAnimatedSprite"))->play("charge");
+		static_cast<AudioStreamPlayer*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeSound"))->play();
+		getOwner()->currentMovementSpeed_ *= 1.5;
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeOnAnimatedSprite"))->set_frame(1);
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeOnAnimatedSprite"))->play("charge_on");
+		static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->start();
+		static_cast<Timer*>(getOwner()->get_node("FirstEffectTimer"))->start();
+	}
 }
 
 void Warrior::useFourthAbility()
+{
+	if (!stoneSkinOnCooldown())
+	{
+
+	}
+}
+
+void Warrior::neutralizeFirstEffect()
+{
+	getOwner()->currentMovementSpeed_ = getOwner()->DEFAULT_MOVEMENT_SPEED;
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeOnAnimatedSprite"))->stop();
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeOnAnimatedSprite"))->set_frame(0);
+}
+
+void Warrior::neutralizeSecondEffect()
 {
 
 }

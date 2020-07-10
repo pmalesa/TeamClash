@@ -16,6 +16,8 @@ namespace godot
 		void useSecondAbility();
 		void useThirdAbility();
 		void useFourthAbility();
+		void neutralizeFirstEffect();
+		void neutralizeSecondEffect();
 
 	private:
 		bool entanglingBallsOnCooldown();
@@ -26,5 +28,7 @@ namespace godot
 		const static int64_t ENTANGLING_BALLS_COOLDOWN = 10;
 		const static int64_t CHARGE_COOLDOWN = 10;
 		const static int64_t STONE_SKIN_COOLDOWN = 20;
+		const static int64_t CHARGE_DURATION = 3;
+		const static int64_t STONE_SKIN_DURATION = 5;
 	};
 }

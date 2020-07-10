@@ -39,6 +39,8 @@ void Player::_register_methods()
 	register_method("_on_SecondAbilityCooldown_timeout", &Player::_on_SecondAbilityCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_ThirdAbilityCooldown_timeout", &Player::_on_ThirdAbilityCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_FourthAbilityCooldown_timeout", &Player::_on_FourthAbilityCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_FirstEffectTimer_timeout", &Player::_on_FirstEffectTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_SecondEffectTimer_timeout", &Player::_on_SecondEffectTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("setTeam", &Player::setTeam, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("setRole", &Player::setRole, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("setUI", &Player::setUI, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -390,6 +392,18 @@ void Player::_on_RespawnTimer_timeout()
 	applyThrowback_ = false;
     healthPoints_ = MAX_HP;
 	updateHealthBar();
+}
+
+void Player::_on_FirstEffectTimer_timeout()
+{
+	static_cast<Timer*>(get_node("FirstEffectTimer"))->stop();
+	role_->neutralizeFirstEffect();
+}
+
+void Player::_on_SecondEffectTimer_timeout()
+{
+	static_cast<Timer*>(get_node("SecondEffectTimer"))->stop();
+	role_->neutralizeSecondEffect();
 }
 
 void Player::init(int64_t chosenTeam, int64_t chosenRole)

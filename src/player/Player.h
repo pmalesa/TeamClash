@@ -71,6 +71,8 @@ namespace godot
 		void _on_SecondAbilityCooldown_timeout() { static_cast<Timer*>(get_node("SecondAbilityCooldown"))->stop(); }
 		void _on_ThirdAbilityCooldown_timeout() { static_cast<Timer*>(get_node("ThirdAbilityCooldown"))->stop(); }
 		void _on_FourthAbilityCooldown_timeout() { static_cast<Timer*>(get_node("FourthAbilityCooldown"))->stop(); }
+		void _on_FirstEffectTimer_timeout();
+		void _on_SecondEffectTimer_timeout();
 
 		void setTeam(int64_t team);
 		void setRole(int64_t role);
