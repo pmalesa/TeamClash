@@ -1,0 +1,51 @@
+[gd_scene load_steps=9 format=2]
+
+[ext_resource path="res://sprites/effects/warrior/charge/charge_1.png" type="Texture" id=1]
+[ext_resource path="res://sprites/effects/warrior/charge/charge_2.png" type="Texture" id=2]
+[ext_resource path="res://sprites/effects/warrior/charge/charge_3.png" type="Texture" id=3]
+[ext_resource path="res://sprites/effects/warrior/charge/charge_4.png" type="Texture" id=4]
+[ext_resource path="res://sprites/effects/warrior/charge/charge_5.png" type="Texture" id=5]
+[ext_resource path="res://sprites/effects/warrior/charge/charge_6.png" type="Texture" id=6]
+[ext_resource path="res://sounds/charge_sound.ogg" type="AudioStream" id=7]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ null, ExtResource( 1 ), ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), null ],
+"loop": true,
+"name": "charge_on",
+"speed": 20.0
+}, {
+"frames": [ null, ExtResource( 1 ), ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), null ],
+"loop": false,
+"name": "charge",
+"speed": 20.0
+} ]
+
+[node name="Warrior" type="Node2D" groups=[
+"Player",
+]]
+position = Vector2( 10.685, 11.892 )
+
+[node name="Charge" type="Node2D" parent="."]
+
+[node name="ChargeAnimatedSprite" type="AnimatedSprite" parent="Charge"]
+position = Vector2( -15, -40 )
+frames = SubResource( 1 )
+animation = "charge_on"
+
+[node name="ChargeOnAnimatedSprite" type="AnimatedSprite" parent="Charge"]
+position = Vector2( -12, 5 )
+scale = Vector2( 0.25, 0.25 )
+frames = SubResource( 1 )
+animation = "charge_on"
+speed_scale = 2.0
+
+[node name="ChargeSound" type="AudioStreamPlayer" parent="Charge"]
+stream = ExtResource( 7 )
+volume_db = -6.0
+
+[node name="StoneSkin" type="Node2D" parent="."]
+
+[node name="StoneSkinAnimatedSprite" type="AnimatedSprite" parent="StoneSkin"]
+
+[node name="StoneSkinSound" type="AudioStreamPlayer" parent="StoneSkin"]

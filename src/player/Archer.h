@@ -31,6 +31,7 @@ namespace godot
 		const static int64_t EXPLOSIVE_BOLT_COOLDOWN = 5;
 		const static int64_t TRAP_COOLDOWN = 10;
 		const static int64_t RAPID_FIRE_COOLDOWN = 20;
+		const static int64_t RAPID_FIRE_DURATION = 8;
 
 		int64_t currentBoltCooldown_;
 	};

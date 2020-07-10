@@ -1,0 +1,10 @@
+[gd_scene format=2]
+
+[node name="Archer" type="Node2D"]
+position = Vector2( 10.685, 11.892 )
+
+[node name="RapidFire" type="Node2D" parent="."]
+
+[node name="RapidFireAnimatedSprite" type="AnimatedSprite" parent="RapidFire"]
+
+[node name="RapidFireSound" type="AudioStreamPlayer" parent="RapidFire"]

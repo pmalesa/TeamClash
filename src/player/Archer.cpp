@@ -33,6 +33,9 @@ Archer::Archer(Player* newOwner) : Role(newOwner)
 	static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->set_wait_time(EXPLOSIVE_BOLT_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(TRAP_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->set_wait_time(RAPID_FIRE_COOLDOWN);
+	static_cast<Timer*>(getOwner()->get_node("FirstEffectTimer"))->set_wait_time(RAPID_FIRE_DURATION);
+	Ref<PackedScene> archerEffectsScene = getOwner()->resourceLoader_->load("res://player/ArcherEffects.tscn");
+	getOwner()->get_node("ClassEffects")->add_child(static_cast<Node2D*>(archerEffectsScene->instance()));
 }
 
 void Archer::setUI()
