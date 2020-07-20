@@ -82,6 +82,7 @@ void Player::_init()
 {
 	resourceLoader_ = ResourceLoader::get_singleton();
 	healthPoints_ = MAX_HP;
+	damageFactor_ = 1;
 	velocity_ = Vector2(0, 0);
 	facingDirection_ = Vector2(1, 0);
 	aimingDirection_ = Vector2(0, 0);
@@ -232,7 +233,7 @@ void Player::inflictDamage(int64_t value)
 {
 	// Moze jednak zrob wywoluj te funkcje po rpc (ale jeszcze potestuj zachowanie)
 	// !!!
-	healthPoints_ -= value;
+	healthPoints_ -= damageFactor_ * value;
 	if (healthPoints_ < 0)
 		healthPoints_ = 0;
 

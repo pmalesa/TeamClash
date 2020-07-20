@@ -9,6 +9,7 @@
 #include <TextureRect.hpp>
 #include <Texture.hpp>
 #include <AnimatedSprite.hpp>
+#include <Sprite.hpp>
 #include <AnimationPlayer.hpp>
 #include <AudioStreamPlayer.hpp>
 
@@ -35,7 +36,8 @@ Warrior::Warrior(Player* newOwner) : Role(newOwner)
 	getOwner()->get_node("ClassEffects")->add_child(static_cast<Node2D*>(warriorEffectsScene->instance()));
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeAnimatedSprite"))->set_frame(0);
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeOnAnimatedSprite"))->set_frame(0);
-	static_cast<CanvasItem*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->set_visible(false);
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->set_frame(0);
+	static_cast<Sprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnSprite"))->set_visible(false);
 }
 
 void Warrior::setUI()
@@ -43,6 +45,7 @@ void Warrior::setUI()
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/axe_icon.png"));
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/entangling_balls_icon.png"));
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/charge_icon.png"));
+	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot4/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/stoneskin_icon.png"));
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Highlight"))->set_visible(true);
 }
 
@@ -132,7 +135,13 @@ void Warrior::useFourthAbility()
 {
 	if (!stoneSkinOnCooldown())
 	{
-
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->set_frame(1);
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->play("stoneskin");
+		static_cast<AudioStreamPlayer*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinSound"))->play();
+		static_cast<Sprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnSprite"))->set_visible(true);
+		getOwner()->damageFactor_ = 0.25;
+		static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->start();
+		static_cast<Timer*>(getOwner()->get_node("SecondEffectTimer"))->start();
 	}
 }
 
@@ -145,7 +154,8 @@ void Warrior::neutralizeFirstEffect()
 
 void Warrior::neutralizeSecondEffect()
 {
-
+	static_cast<Sprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnSprite"))->set_visible(false);
+	getOwner()->damageFactor_ = 1;
 }
 
 bool Warrior::entanglingBallsOnCooldown()

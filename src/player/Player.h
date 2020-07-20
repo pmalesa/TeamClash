@@ -131,6 +131,7 @@ namespace godot
 
         int64_t healthPoints_;
 		HealthBar* healthBar_;
+		float damageFactor_;
         int64_t nodeName_;
 
 		Array alreadyAttackedPlayers_;
