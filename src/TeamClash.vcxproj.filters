@@ -138,6 +138,9 @@
     <ClCompile Include="player\Warrior.cpp">
       <Filter>Source Files\player</Filter>
     </ClCompile>
+    <ClCompile Include="equipment\utility\Trap.cpp">
+      <Filter>Source Files\equipment\utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -208,6 +211,9 @@
     </ClInclude>
     <ClInclude Include="player\Role.h">
       <Filter>Header Files\player</Filter>
+    </ClInclude>
+    <ClInclude Include="equipment\utility\Trap.h">
+      <Filter>Header Files\equipment\utility</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

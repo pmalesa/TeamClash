@@ -1,5 +1,7 @@
 #pragma once
+
 #include "Role.h"
+#include <Timer.hpp>
 
 namespace godot
 {
@@ -20,9 +22,9 @@ namespace godot
 		void neutralizeSecondEffect();
 
 	private:
-		bool entanglingBallsOnCooldown();
-		bool chargeOnCooldown();
-		bool stoneSkinOnCooldown();
+		bool entanglingBallsOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->get_time_left() > 0; }
+		bool chargeOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0; }
+		bool stoneSkinOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->get_time_left() > 0; }
 
 		Ref<PackedScene> entanglingBallsScene_;
 		const static int64_t ENTANGLING_BALLS_COOLDOWN = 10;

@@ -9,3 +9,4 @@ godot/.import/*
 *.TMP
 *.png.import
 *.ogg.import
+bin/*

@@ -2,6 +2,7 @@
 
 #include "../equipment/weapons/Dagger.h"
 #include "../equipment/weapons/Crossbow.h"
+#include "../equipment/utility/Trap.h"
 
 #include <Godot.hpp>
 #include <Ref.hpp>
@@ -29,6 +30,7 @@ Archer::Archer(Player* newOwner) : Role(newOwner)
 	getOwner()->currentWeapon_ = static_cast<Crossbow*>(getOwner()->weapons_[1]);
 	setProjectileTypeTo(ProjectileType::BOLT);
 	currentBoltCooldown_ = DEFAULT_BOLT_COOLDOWN;
+	trapScene_ = getOwner()->resourceLoader_->load("res://equipment/utility/Trap.tscn");
 	static_cast<Timer*>(getOwner()->get_node("FirstAbilityCooldown"))->set_wait_time(DEFAULT_BOLT_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->set_wait_time(EXPLOSIVE_BOLT_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(TRAP_COOLDOWN);
@@ -42,6 +44,7 @@ void Archer::setUI()
 {
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/dagger_icon.png"));
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
+	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/trap_icon.png"));
 	static_cast<CanvasItem*>(getOwner()->ui_->get_node("Slot2/Subslot1"))->set_visible(true);
 	static_cast<CanvasItem*>(getOwner()->ui_->get_node("Slot2/Subslot2"))->set_visible(true);
 	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Highlight"))->set_visible(true);
@@ -68,7 +71,7 @@ void Archer::updateSprite()
 			rightHandSprite->play("idle" + getOwner()->animationNameSuffix_);
 	}
 
-    if (getOwner()->moveDirection_ == MoveDirection::RIGHT)
+    if (getOwner()->moveDirection_ == MoveDirection::RIGHT && !getOwner()->immobilized_)
     {
         bodySprite->play("walk" + getOwner()->animationNameSuffix_);
         bodySprite->set_flip_h(false);
@@ -83,7 +86,7 @@ void Archer::updateSprite()
 		rangedWeaponNode->set_scale(Vector2(1, rangedWeaponNode->get_scale().y));
 		getOwner()->facingDirection_ = Vector2(1, 0);
     }
-    else if (getOwner()->moveDirection_ == MoveDirection::LEFT)
+    else if (getOwner()->moveDirection_ == MoveDirection::LEFT && !getOwner()->immobilized_)
     {
         bodySprite->play("walk" + getOwner()->animationNameSuffix_);
         bodySprite->set_flip_h(true);
@@ -125,7 +128,7 @@ void Archer::useSecondAbility()
 
 void Archer::useThirdAbility()
 {
-
+	placeTrap();
 }
 
 void Archer::useFourthAbility()
@@ -187,6 +190,19 @@ void Archer::switchAmmoType()
 			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
 			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Subslot2/Highlight"))->set_visible(false);
 		}
+	}
+}
+
+void Archer::placeTrap()
+{
+	if (!trapOnCooldown())
+	{
+		Trap* trap = static_cast<Trap*>(trapScene_->instance());
+		Vector2 initialPosition = getOwner()->get_position() +  60 * getOwner()->facingDirection_;
+		trap->init(getOwner()->get_name(), initialPosition - Vector2(0, 40));
+		getOwner()->get_node("/root/Game/World")->add_child(trap);
+		static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->start();
+		Godot::print("TRAP PLACED!");
 	}
 }
 
