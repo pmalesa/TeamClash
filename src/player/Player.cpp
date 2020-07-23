@@ -34,6 +34,7 @@ void Player::_register_methods()
     register_method("_ready", &Player::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_init", &Player::_init, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_SlowTimer_timeout", &Player::_on_SlowTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_ImmobilizeTimer_timeout", &Player::_on_ImmobilizeTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_FirstAbilityCooldown_timeout", &Player::_on_FirstAbilityCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_SecondAbilityCooldown_timeout", &Player::_on_SecondAbilityCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -53,6 +54,7 @@ void Player::_register_methods()
     register_method("_move", &Player::_move, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("inflictDamage", &Player::inflictDamage, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("inflictSlow", &Player::inflictSlow, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("immobilize", &Player::immobilize, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("playBodyHitSound", &Player::playBodyHitSound, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("applyThrowback", &Player::applyThrowback, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("processInput", &Player::processInput, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -62,6 +64,8 @@ void Player::_register_methods()
 	register_method("updateHealthPoints", &Player::updateHealthPoints, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("updateMovementSpeed", &Player::updateMovementSpeed, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("setSlowTime", &Player::setSlowTime, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("setImmobilizeTime", &Player::setImmobilizeTime, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("setImmobilize", &Player::setImmobilize, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("updateHealthBar", &Player::updateHealthBar, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("showEntanglementEffect", &Player::showEntanglementEffect, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("hideEntanglementEffect", &Player::hideEntanglementEffect, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
@@ -88,6 +92,7 @@ void Player::_init()
 	aimingDirection_ = Vector2(0, 0);
 	throwbackVelocity_ = Vector2(0, 0);
 	applyThrowback_ = false;
+	immobilized_ = false;
 	moveDirection_ = MoveDirection::NONE;
 	movementState_ = MovementState::NONE;
     slavePosition = Vector2();
@@ -150,6 +155,9 @@ void Player::_process(float delta)
 
 void Player::_move(int64_t direction)
 {
+	if (immobilized_)
+		return;
+
     MoveDirection moveDirection = static_cast<MoveDirection>(direction);
 	if (applyThrowback_)
 	{
@@ -244,12 +252,18 @@ void Player::inflictDamage(int64_t value)
 		_die();
 }
 
-void Player::inflictSlow(int64_t slowAmount, int64_t slowTime)
+void Player::inflictSlow(int64_t newSpeed, int64_t slowTime)
 {
 	rpc("playBodyHitSound");
-	rpc("updateMovementSpeed", slowAmount);
+	rpc("updateMovementSpeed", newSpeed);
 	rpc("setSlowTime", slowTime);
 	rpc("showEntanglementEffect");
+}
+
+void Player::immobilize(int64_t immobilizeTime)
+{
+	rpc("setImmobilize", true);
+	rpc("setImmobilizeTime", immobilizeTime);
 }
 
 void Player::playBodyHitSound()
@@ -288,7 +302,7 @@ void Player::processInput()
 
 	if (input->is_action_just_pressed("space"))
 	{
-		if (is_on_floor()) movementState_ = MovementState::JUMPED;
+		if (is_on_floor() && !immobilized_) movementState_ = MovementState::JUMPED;
 	}
 	if (input->is_action_just_pressed("1"))
 	{
@@ -366,6 +380,12 @@ void Player::_on_SlowTimer_timeout()
 	hideEntanglementEffect();
 	static_cast<Timer*>(get_node("SlowTimer"))->stop();
 	rpc("updateMovementSpeed", DEFAULT_MOVEMENT_SPEED);
+}
+
+void Player::_on_ImmobilizeTimer_timeout()
+{
+	static_cast<Timer*>(get_node("ImmobilizeTimer"))->stop();
+	rpc("setImmobilize", false);
 }
 
 void Player::_on_RespawnTimer_timeout()
@@ -495,6 +515,12 @@ void Player::setSlowTime(int64_t slowTime)
 {
 	static_cast<Timer*>(get_node("SlowTimer"))->set_wait_time(slowTime);
 	static_cast<Timer*>(get_node("SlowTimer"))->start();
+}
+
+void Player::setImmobilizeTime(int64_t immobilizeTime)
+{
+	static_cast<Timer*>(get_node("ImmobilizeTimer"))->set_wait_time(immobilizeTime);
+	static_cast<Timer*>(get_node("ImmobilizeTimer"))->start();
 }
 
 void Player::updateAimingDirection()

@@ -150,6 +150,7 @@
     <ClCompile Include="equipment\projectiles\Bolt.cpp" />
     <ClCompile Include="equipment\projectiles\ExplosiveBolt.cpp" />
     <ClCompile Include="equipment\utility\EntanglingBalls.cpp" />
+    <ClCompile Include="equipment\utility\Trap.cpp" />
     <ClCompile Include="equipment\weapons\Axe.cpp" />
     <ClCompile Include="equipment\weapons\Crossbow.cpp" />
     <ClCompile Include="equipment\weapons\Dagger.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="equipment\projectiles\Bolt.h" />
     <ClInclude Include="equipment\projectiles\ExplosiveBolt.h" />
     <ClInclude Include="equipment\utility\EntanglingBalls.h" />
+    <ClInclude Include="equipment\utility\Trap.h" />
     <ClInclude Include="equipment\weapons\Axe.h" />
     <ClInclude Include="equipment\weapons\Crossbow.h" />
     <ClInclude Include="equipment\weapons\Dagger.h" />

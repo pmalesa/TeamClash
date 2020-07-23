@@ -1,0 +1,56 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://equipment/utility/Trap.gdns" type="Script" id=1]
+[ext_resource path="res://sprites/trap_animation/trap_5.png" type="Texture" id=2]
+[ext_resource path="res://sprites/trap_animation/trap_4.png" type="Texture" id=3]
+[ext_resource path="res://sprites/trap_animation/trap_3.png" type="Texture" id=4]
+[ext_resource path="res://sprites/trap_animation/trap_2.png" type="Texture" id=5]
+[ext_resource path="res://sprites/trap_animation/trap_1.png" type="Texture" id=6]
+[ext_resource path="res://sounds/trap_placement.ogg" type="AudioStream" id=7]
+[ext_resource path="res://sounds/trap_closing.ogg" type="AudioStream" id=8]
+
+[sub_resource type="SpriteFrames" id=1]
+animations = [ {
+"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ) ],
+"loop": false,
+"name": "placement",
+"speed": 15.0
+}, {
+"frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 4 ), ExtResource( 3 ), ExtResource( 2 ) ],
+"loop": false,
+"name": "trigger",
+"speed": 30.0
+} ]
+
+[node name="Trap" type="KinematicBody2D"]
+script = ExtResource( 1 )
+
+[node name="TrapCollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+polygon = PoolVector2Array( -15.3895, 10.8706, 17.4639, 11.0025, 17.332, 8.82551, -15.3895, 8.95745 )
+
+[node name="TriggerArea" type="Area2D" parent="."]
+
+[node name="TriggerCollisionPolygon2D" type="CollisionPolygon2D" parent="TriggerArea"]
+polygon = PoolVector2Array( -16.643, 7.63803, 18.4535, 7.50609, 13.2335, -8.16597, -11.5353, -8.04183 )
+
+[node name="TrapAnimatedSprite" type="AnimatedSprite" parent="."]
+z_index = 5
+frames = SubResource( 1 )
+animation = "placement"
+speed_scale = 2.0
+
+[node name="PlacementTimer" type="Timer" parent="."]
+wait_time = 0.33
+
+[node name="LifeAfterTriggerTimer" type="Timer" parent="."]
+wait_time = 3.0
+
+[node name="PlacementSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 7 )
+volume_db = -6.0
+
+[node name="TriggerSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 8 )
+volume_db = -15.0
+[connection signal="timeout" from="PlacementTimer" to="." method="_on_PlacementTimer_timeout"]
+[connection signal="timeout" from="LifeAfterTriggerTimer" to="." method="_on_LifeAfterTriggerTimer_timeout"]

@@ -60,7 +60,7 @@ void Warrior::updateSprite()
 
 	if (getOwner()->currentWeapon_->getWeaponState() == WeaponState::IDLE)
 		rightHandSprite->play("idle" + getOwner()->animationNameSuffix_);
-	if (getOwner()->moveDirection_ == MoveDirection::RIGHT)
+	if (getOwner()->moveDirection_ == MoveDirection::RIGHT && !getOwner()->immobilized_)
 	{
 		bodySprite->play("walk" + getOwner()->animationNameSuffix_);
 		bodySprite->set_flip_h(false);
@@ -75,7 +75,7 @@ void Warrior::updateSprite()
 		rangedWeaponNode->set_scale(Vector2(1, rangedWeaponNode->get_scale().y));
 		getOwner()->facingDirection_ = Vector2(1, 0);
 	}
-	else if (getOwner()->moveDirection_ == MoveDirection::LEFT)
+	else if (getOwner()->moveDirection_ == MoveDirection::LEFT && !getOwner()->immobilized_)
 	{
 		bodySprite->play("walk" + getOwner()->animationNameSuffix_);
 		bodySprite->set_flip_h(true);
@@ -156,19 +156,4 @@ void Warrior::neutralizeSecondEffect()
 {
 	static_cast<Sprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnSprite"))->set_visible(false);
 	getOwner()->damageFactor_ = 1;
-}
-
-bool Warrior::entanglingBallsOnCooldown()
-{
-	return static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->get_time_left() > 0;
-}
-
-bool Warrior::chargeOnCooldown()
-{
-	return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0;
-}
-
-bool Warrior::stoneSkinOnCooldown()
-{
-	return static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->get_time_left() > 0;
 }

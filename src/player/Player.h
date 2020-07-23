@@ -57,7 +57,8 @@ namespace godot
 		void setNodeName(int64_t nodeName) { nodeName_ = nodeName; }
 
 		void inflictDamage(int64_t damage);
-		void inflictSlow(int64_t slowAmount, int64_t slowTime);
+		void inflictSlow(int64_t newSpeed, int64_t slowTime);
+		void immobilize(int64_t immobilizeTime);
 		void applyThrowback(Vector2 direction, int64_t throwbackPower = DEFAULT_THROWBACK_POWER);
 
     private:
@@ -66,6 +67,7 @@ namespace godot
 		void _move(int64_t direction);
 		void _die();
 		void _on_SlowTimer_timeout();
+		void _on_ImmobilizeTimer_timeout();
 		void _on_RespawnTimer_timeout();
 		void _on_FirstAbilityCooldown_timeout() { static_cast<Timer*>(get_node("FirstAbilityCooldown"))->stop(); }
 		void _on_SecondAbilityCooldown_timeout() { static_cast<Timer*>(get_node("SecondAbilityCooldown"))->stop(); }
@@ -93,6 +95,8 @@ namespace godot
 		void updateHealthBar();
 		void updateMovementSpeed(int64_t newMovementSpeed);
 		void setSlowTime(int64_t slowTime);
+		void setImmobilizeTime(int64_t immobilizeTime);
+		void setImmobilize(bool value) { immobilized_ = value; }
 		void updateAimingDirection();
 		void playBodyHitSound();
 
@@ -137,6 +141,7 @@ namespace godot
 		Array alreadyAttackedPlayers_;
 		Vector2 throwbackVelocity_;
 		bool applyThrowback_;
+		bool immobilized_;
 
 		ResourceLoader* resourceLoader_;
     };
