@@ -21,10 +21,13 @@ namespace godot
 		void useFourthAbility();
 		void useAdditionalAbility();
 
+		void neutralizeFirstEffect();
+
 	private:
 		void switchWeapon();
 		void switchAmmoType();
 		void placeTrap();
+		void rapidFire();
 		void updateArmRotation();
 
 		bool trapOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0; }
@@ -38,7 +41,5 @@ namespace godot
 		const static int64_t TRAP_COOLDOWN = 10;
 		const static int64_t RAPID_FIRE_COOLDOWN = 20;
 		const static int64_t RAPID_FIRE_DURATION = 8;
-
-		int64_t currentBoltCooldown_;
 	};
 }

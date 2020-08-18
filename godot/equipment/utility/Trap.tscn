@@ -23,6 +23,8 @@ animations = [ {
 } ]
 
 [node name="Trap" type="KinematicBody2D"]
+collision_layer = 2
+collision_mask = 2
 script = ExtResource( 1 )
 
 [node name="TrapCollisionPolygon2D" type="CollisionPolygon2D" parent="."]
@@ -31,7 +33,7 @@ polygon = PoolVector2Array( -15.3895, 10.8706, 17.4639, 11.0025, 17.332, 8.82551
 [node name="TriggerArea" type="Area2D" parent="."]
 
 [node name="TriggerCollisionPolygon2D" type="CollisionPolygon2D" parent="TriggerArea"]
-polygon = PoolVector2Array( -16.643, 7.63803, 18.4535, 7.50609, 13.2335, -8.16597, -11.5353, -8.04183 )
+polygon = PoolVector2Array( -16.2865, 10.821, 18.9398, 10.9463, 13.2335, -8.16597, -11.5353, -8.04183 )
 
 [node name="TrapAnimatedSprite" type="AnimatedSprite" parent="."]
 z_index = 5

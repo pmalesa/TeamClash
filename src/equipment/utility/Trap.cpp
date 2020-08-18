@@ -23,7 +23,7 @@ void Trap::_register_methods()
 	register_method("_process", &Trap::_process, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_PlacementTimer_timeout", &Trap::_on_PlacementTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_LifeAfterTriggerTimer_timeout", &Trap::_on_LifeAfterTriggerTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("collisionDetected", &Trap::collisionDetected, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("playerCollisionDetected", &Trap::playerCollisionDetected, GODOT_METHOD_RPC_MODE_DISABLED);
 
 	register_property<Trap, Vector2>("initialPosition_", &Trap::initialPosition_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
 }
@@ -51,8 +51,7 @@ void Trap::init(String ownerNodeName, Vector2 initialPosition)
 
 void Trap::_physics_process(float delta)
 {
-	if (currentState_ == TrapState::PLACEMENT)
-		processMovement();
+	processMovement();
 }
 
 void Trap::_process(float delta)
@@ -61,7 +60,7 @@ void Trap::_process(float delta)
 	{
 		setup();
 	}
-	else if (currentState_ == TrapState::ARMED && collisionDetected())
+	else if (currentState_ == TrapState::ARMED && playerCollisionDetected())
 	{
 		processTrigger();
 	}
@@ -83,7 +82,9 @@ void Trap::_on_LifeAfterTriggerTimer_timeout()
 
 void Trap::processMovement()
 {
-	if (velocity_.y < MAX_FALLING_SPEED)
+	if (is_on_floor())
+		velocity_.y = 0;
+	else if (!is_on_floor() && velocity_.y < MAX_FALLING_SPEED)
 		velocity_.y += GRAVITY_PULL;
 
 	move_and_slide(velocity_, Vector2(0, -1));
@@ -93,7 +94,6 @@ void Trap::setup()
 {
 	currentState_ = TrapState::SETUP;
 	static_cast<Timer*>(get_node("PlacementTimer"))->start();
-	static_cast<CollisionPolygon2D*>(get_node("TrapCollisionPolygon2D"))->set_disabled(true);
 	static_cast<AnimatedSprite*>(get_node("TrapAnimatedSprite"))->play("placement");
 	static_cast<AudioStreamPlayer*>(get_node("PlacementSound"))->play();
 }
@@ -116,71 +116,9 @@ void Trap::processTrigger()
 	}
 }
 
-bool Trap::collisionDetected()
+bool Trap::playerCollisionDetected()
 {
 	return !static_cast<Area2D*>(get_node("TriggerArea"))->get_overlapping_bodies().empty();
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// processImpact(); Below's version of that function does not work properly, however I do not yet know why.
-
-/*
-Array overlapingBodies = static_cast<Area2D*>(get_node("BoltArea"))->get_overlapping_bodies();
-Node* overlappedNode;
-if (overlapingBodies.empty())
-	return;
-else
-	overlappedNode = static_cast<Node*>(overlapingBodies.front());
-
-if (overlappedNode->is_in_group("Player"))
-{
-
-	Player* shotPlayer = static_cast<Player*>(overlappedNode);
-	Variant shooterNodeName = shooterNodeName_;
-	if (shotPlayer->get_name() != String(shooterNodeName))
-	{
-		if (shotPlayer->is_network_master())
-			shotPlayer->inflictDamage(damage_);
-	}
-	queue_free();
-}
-else
-{
-	velocity_ = Vector2(0, 0);
-	static_cast<Timer*>(get_node("BoltLifeAfterHitTimer"))->start();
-}
-*/

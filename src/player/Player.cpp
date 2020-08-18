@@ -239,17 +239,15 @@ void Player::_move(int64_t direction)
 
 void Player::inflictDamage(int64_t value)
 {
-	// Moze jednak zrob wywoluj te funkcje po rpc (ale jeszcze potestuj zachowanie)
-	// !!!
 	healthPoints_ -= damageFactor_ * value;
 	if (healthPoints_ < 0)
 		healthPoints_ = 0;
 
-	playBodyHitSound();
-	updateHealthPoints(healthPoints_);
-	updateHealthBar();
+	rpc("playBodyHitSound");
+	rpc("updateHealthPoints", healthPoints_);
+	rpc("updateHealthBar");
 	if (healthPoints_ == 0)
-		_die();
+		rpc("_die");
 }
 
 void Player::inflictSlow(int64_t newSpeed, int64_t slowTime)
