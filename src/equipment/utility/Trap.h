@@ -30,7 +30,7 @@ namespace godot
 		void processMovement();
 		void setup();
 		void processTrigger();
-		bool collisionDetected();
+		bool playerCollisionDetected();
 
 		const static int64_t MAX_FALLING_SPEED = 1500;
 		const static int64_t GRAVITY_PULL = 20;

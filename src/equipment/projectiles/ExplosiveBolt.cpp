@@ -89,8 +89,11 @@ void ExplosiveBolt::processImpact()
 		if (overlappedNode->is_in_group("Player"))
 		{
 			Player* shotPlayer = static_cast<Player*>(explosionOverlapingBodies[i]);
-			shotPlayer->inflictDamage(damage_);
-			shotPlayer->applyThrowback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
+			if (shotPlayer->is_network_master())
+			{
+				shotPlayer->inflictDamage(damage_);
+				shotPlayer->applyThrowback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
+			}
 		}
 	}
 	objectHit_ = true;

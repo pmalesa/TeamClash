@@ -37,7 +37,8 @@ Warrior::Warrior(Player* newOwner) : Role(newOwner)
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeAnimatedSprite"))->set_frame(0);
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeOnAnimatedSprite"))->set_frame(0);
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->set_frame(0);
-	static_cast<Sprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnSprite"))->set_visible(false);
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnAnimatedSprite"))->set_frame(0);
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnAnimatedSprite"))->set_visible(false);
 }
 
 void Warrior::setUI()
@@ -137,8 +138,9 @@ void Warrior::useFourthAbility()
 	{
 		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->set_frame(1);
 		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinAnimatedSprite"))->play("stoneskin");
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnAnimatedSprite"))->set_visible(true);
+		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnAnimatedSprite"))->play("on_effect");
 		static_cast<AudioStreamPlayer*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinSound"))->play();
-		static_cast<Sprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnSprite"))->set_visible(true);
 		getOwner()->damageFactor_ = 0.25;
 		static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->start();
 		static_cast<Timer*>(getOwner()->get_node("SecondEffectTimer"))->start();
@@ -154,6 +156,7 @@ void Warrior::neutralizeFirstEffect()
 
 void Warrior::neutralizeSecondEffect()
 {
-	static_cast<Sprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnSprite"))->set_visible(false);
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnAnimatedSprite"))->stop();
+	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnAnimatedSprite"))->set_visible(false);
 	getOwner()->damageFactor_ = 1;
 }

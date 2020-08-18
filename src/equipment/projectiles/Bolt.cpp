@@ -78,7 +78,7 @@ void Bolt::processImpact()
 		if (overlappedNode->is_in_group("Player"))
 		{
 			Player* shotPlayer = static_cast<Player*>(overlapingBodies[i]);
-			if (shotPlayer->get_name() != shooterNodeName_)
+			if (shotPlayer->get_name() != shooterNodeName_ && shotPlayer->is_network_master())
 				shotPlayer->inflictDamage(damage_);
 			queue_free();
 		}

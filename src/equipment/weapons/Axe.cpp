@@ -66,7 +66,7 @@ void Axe::_process(float delta)
 			else
 			{
 				Player* attackedPlayer = static_cast<Player*>(overlapingBodies[i]);
-				if (attackedPlayer->get_name() != getOwner()->get_name() && !(alreadyAttackedPlayers_.has(attackedPlayer)))
+				if (attackedPlayer->get_name() != getOwner()->get_name() && !(alreadyAttackedPlayers_.has(attackedPlayer)) && attackedPlayer->is_network_master())
 				{
 					attackedPlayer->inflictDamage(getDamage());
 					if (attackedPlayer->getHealthPoints() > 0)
