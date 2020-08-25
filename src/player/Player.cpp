@@ -108,7 +108,8 @@ void Player::_ready()
 {
 	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
 	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
-	ui_ = static_cast<Control*>(get_node("/root/Game/UI/PlayerUI"));
+	if (is_network_master())
+		ui_ = static_cast<Control*>(get_node("UI/PlayerUI"));
 	currentMovementSpeed_ = DEFAULT_MOVEMENT_SPEED;
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();

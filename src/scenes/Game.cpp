@@ -15,6 +15,7 @@
 #include <RectangleShape2D.hpp>
 #include <Ref.hpp>
 #include <Variant.hpp>
+#include <Input.hpp>
 
 #include <iostream>
 using std::cout;
@@ -35,6 +36,9 @@ void Game::_register_methods()
 	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideRespawnWindow", &Game::hideRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_ResumeButton_pressed", &Game::_on_ResumeButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_MainMenuButton_pressed", &Game::_on_MainMenuButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("_on_ExitGameButton_pressed", &Game::_on_ExitGameButton_pressed, GODOT_METHOD_RPC_MODE_DISABLED);
 
 	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
@@ -52,7 +56,9 @@ void Game::_ready()
     get_tree()->connect("network_peer_disconnected", this, "_on_player_disconnected");
     get_tree()->connect("server_disconnected", this, "_on_server_disconnected");
 	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindow"));
+	menuWindow_ = static_cast<Node2D*>(get_node("MenuWindow"));
 	hideRespawnWindow();
+	hideMenuWindow();
 	preconfigureGame();
 	Godot::print("[GAME] Game is ready.");
 }
@@ -113,10 +119,24 @@ void Game::postconfigureGame()
 
 void Game::_process(float delta)
 {
-    Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
-	Control* ui = static_cast<Control*>(get_node("UI/PlayerUI"));
-    camera->set_position(Vector2(player_->get_position().x, player_->get_position().y));
-	ui->set_position(Vector2(player_->get_position().x - 220, player_->get_position().y + 400));
+	Input* input = Input::get_singleton();
+	Camera* camera = static_cast<Camera*>(get_node("/root/Game/Camera2D"));
+	camera->set_position(player_->get_position());
+	menuWindow_->set_position(Vector2(player_->get_position().x - 960, player_->get_position().y - 540));
+
+	if (input->is_action_just_pressed("escape"))
+	{
+		if (menuWindow_->is_visible())
+		{
+			hideMenuWindow();
+			player_->set_process(true);
+		}
+		else
+		{
+			showMenuWindow();
+			player_->set_process(false);
+		}
+	}
 
 	if (respawnWindow_->is_visible())
 	{
@@ -153,6 +173,18 @@ void Game::hideRespawnWindow()
 	respawnWindow_->set_visible(false);
 }
 
+void Game::showMenuWindow()
+{
+	Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
+	menuWindow_->set_position(Vector2(camera->get_position().x - 960, camera->get_position().y - 540));
+	menuWindow_->set_visible(true);
+}
+
+void Game::hideMenuWindow()
+{
+	menuWindow_->set_visible(false);
+}
+
 void Game::printAllConnectedPeers()
 {
 	Array ids = connectedPlayersInfo_.keys();
@@ -174,4 +206,22 @@ void Game::printAllConnectedPeersNodeNames()
 		Player* p = players_[ids[i]];
 		Godot::print("#### " + p->get_name());
 	}
+}
+
+void Game::_on_ResumeButton_pressed()
+{
+	hideMenuWindow();
+	player_->set_process(true);
+}
+
+void Game::_on_MainMenuButton_pressed()
+{
+	get_node("/root/Network")->call("closeNetwork");
+	get_tree()->change_scene("res://scenes/MainMenu.tscn");
+}
+
+void Game::_on_ExitGameButton_pressed()
+{
+	get_node("/root/Network")->call("closeNetwork");
+	get_tree()->quit();
 }

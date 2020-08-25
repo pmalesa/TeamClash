@@ -5,6 +5,9 @@
 
 #include "../equipment/weapons/Weapon.h"
 #include "../equipment/weapons/Crossbow.h"
+
+#include "../camera/Camera.h"
+
 #include "HealthBar.h"
 #include <Sprite.hpp>
 #include <Timer.hpp>
@@ -115,6 +118,7 @@ namespace godot
 
 		shared_ptr<Role> role_;
 
+		Camera* camera_;
 		Label* nicknameLabel_;
 		Vector2 velocity_;
 		Vector2 facingDirection_;

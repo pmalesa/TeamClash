@@ -32,10 +32,16 @@ namespace godot
 
 		void showRespawnWindow();
 		void hideRespawnWindow();
+		void showMenuWindow();
+		void hideMenuWindow();
 
 	private:
 		void printAllConnectedPeers();
 		void printAllConnectedPeersNodeNames();
+
+		void _on_ResumeButton_pressed();
+		void _on_MainMenuButton_pressed();
+		void _on_ExitGameButton_pressed();
 
 		Ref<PackedScene> playerScene_;
 		Ref<PackedScene> worldScene_;
@@ -48,5 +54,6 @@ namespace godot
 		int64_t selfPeerId_;
 
 		Node2D* respawnWindow_;
+		Node2D* menuWindow_;
 	};
 }
