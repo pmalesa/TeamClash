@@ -1,53 +1,52 @@
-[gd_scene load_steps=28 format=2]
+[gd_scene load_steps=27 format=2]
 
 [ext_resource path="res://player/Player.gdns" type="Script" id=1]
-[ext_resource path="res://sprites/celadon_team/celadon_human_basic/idle.png" type="Texture" id=2]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/idle.png" type="Texture" id=3]
-[ext_resource path="res://sprites/celadon_team/celadon_human_basic/walk1.png" type="Texture" id=4]
-[ext_resource path="res://sprites/celadon_team/celadon_human_basic/walk2.png" type="Texture" id=5]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/walk1.png" type="Texture" id=6]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/walk2.png" type="Texture" id=7]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/idle.png" type="Texture" id=2]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/walk1.png" type="Texture" id=3]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/walk2.png" type="Texture" id=4]
+[ext_resource path="res://sprites/celadon_team/celadon_human_basic/idle.png" type="Texture" id=5]
+[ext_resource path="res://sprites/celadon_team/celadon_human_basic/walk1.png" type="Texture" id=6]
+[ext_resource path="res://sprites/celadon_team/celadon_human_basic/walk2.png" type="Texture" id=7]
 [ext_resource path="res://sprites/effects/entanglement.png" type="Texture" id=8]
 [ext_resource path="res://sprites/celadon_team/celadon_human_basic/hand_attack1.png" type="Texture" id=9]
 [ext_resource path="res://sprites/celadon_team/celadon_human_basic/hand_attack2.png" type="Texture" id=10]
 [ext_resource path="res://sprites/celadon_team/celadon_human_basic/hand_idle.png" type="Texture" id=11]
-[ext_resource path="res://sprites/celadon_team/celadon_human_basic/hand_idle_ranged_weapon.png" type="Texture" id=12]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_idle_ranged_weapon.png" type="Texture" id=13]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_idle.png" type="Texture" id=14]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_walk1.png" type="Texture" id=12]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_idle.png" type="Texture" id=13]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_walk2.png" type="Texture" id=14]
 [ext_resource path="res://sprites/celadon_team/celadon_human_basic/hand_walk1.png" type="Texture" id=15]
 [ext_resource path="res://sprites/celadon_team/celadon_human_basic/hand_walk2.png" type="Texture" id=16]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_walk1.png" type="Texture" id=17]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_walk2.png" type="Texture" id=18]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_attack1.png" type="Texture" id=19]
-[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_attack2.png" type="Texture" id=20]
-[ext_resource path="res://player/PlayerUI.tscn" type="PackedScene" id=21]
-[ext_resource path="res://player/HealthBar.tscn" type="PackedScene" id=22]
-[ext_resource path="res://sounds/Body_hit.ogg" type="AudioStream" id=23]
-[ext_resource path="res://sounds/Death.ogg" type="AudioStream" id=24]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_idle_ranged_weapon.png" type="Texture" id=17]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_attack1.png" type="Texture" id=18]
+[ext_resource path="res://sprites/crimson_team/crimson_human_basic/hand_attack2.png" type="Texture" id=19]
+[ext_resource path="res://sprites/celadon_team/celadon_human_basic/hand_idle_ranged_weapon.png" type="Texture" id=20]
+[ext_resource path="res://player/HealthBar.tscn" type="PackedScene" id=21]
+[ext_resource path="res://sounds/Body_hit.ogg" type="AudioStream" id=22]
+[ext_resource path="res://sounds/Death.ogg" type="AudioStream" id=23]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 12.9671, 30.8344 )
 
 [sub_resource type="SpriteFrames" id=2]
 animations = [ {
-"frames": [ ExtResource( 2 ) ],
+"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 2 ), ExtResource( 4 ) ],
 "loop": true,
-"name": "idle_celadon",
+"name": "walk_crimson",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 3 ) ],
-"loop": true,
-"name": "idle_crimson",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 2 ), ExtResource( 4 ), ExtResource( 2 ), ExtResource( 5 ) ],
+"frames": [ ExtResource( 5 ), ExtResource( 6 ), ExtResource( 5 ), ExtResource( 7 ) ],
 "loop": true,
 "name": "walk_celadon",
 "speed": 10.0
 }, {
-"frames": [ ExtResource( 3 ), ExtResource( 6 ), ExtResource( 3 ), ExtResource( 7 ) ],
+"frames": [ ExtResource( 5 ) ],
 "loop": true,
-"name": "walk_crimson",
+"name": "idle_celadon",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 2 ) ],
+"loop": true,
+"name": "idle_crimson",
 "speed": 5.0
 } ]
 
@@ -58,24 +57,9 @@ animations = [ {
 "name": "melee_attack_celadon",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 12 ) ],
+"frames": [ ExtResource( 12 ), ExtResource( 13 ), ExtResource( 14 ), ExtResource( 13 ) ],
 "loop": true,
-"name": "idle_ranged_weapon_celadon",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 13 ) ],
-"loop": true,
-"name": "idle_ranged_weapon_crimson",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 11 ) ],
-"loop": true,
-"name": "idle_celadon",
-"speed": 5.0
-}, {
-"frames": [ ExtResource( 14 ) ],
-"loop": true,
-"name": "idle_crimson",
+"name": "walk_crimson",
 "speed": 5.0
 }, {
 "frames": [ ExtResource( 15 ), ExtResource( 11 ), ExtResource( 16 ), ExtResource( 11 ) ],
@@ -83,14 +67,29 @@ animations = [ {
 "name": "walk_celadon",
 "speed": 7.0
 }, {
-"frames": [ ExtResource( 17 ), ExtResource( 14 ), ExtResource( 18 ), ExtResource( 14 ) ],
+"frames": [ ExtResource( 11 ) ],
 "loop": true,
-"name": "walk_crimson",
+"name": "idle_celadon",
 "speed": 5.0
 }, {
-"frames": [ ExtResource( 19 ), ExtResource( 20 ), ExtResource( 14 ) ],
+"frames": [ ExtResource( 13 ) ],
+"loop": true,
+"name": "idle_crimson",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 17 ) ],
+"loop": true,
+"name": "idle_ranged_weapon_crimson",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 18 ), ExtResource( 19 ), ExtResource( 13 ) ],
 "loop": true,
 "name": "melee_attack_crimson",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 20 ) ],
+"loop": true,
+"name": "idle_ranged_weapon_celadon",
 "speed": 5.0
 } ]
 
@@ -141,19 +140,9 @@ frames = SubResource( 3 )
 animation = "idle_celadon"
 offset = Vector2( 0, 2 )
 
-[node name="UI" type="Node2D" parent="."]
-z_index = 90
-
-[node name="PlayerUI" parent="UI" instance=ExtResource( 21 )]
-margin_left = -220.0
-margin_top = 400.0
-margin_right = -180.0
-margin_bottom = 440.0
-
 [node name="HealthBar" type="Node2D" parent="."]
-editor/display_folded = true
 
-[node name="HealthBar" parent="HealthBar" instance=ExtResource( 22 )]
+[node name="HealthBar" parent="HealthBar" instance=ExtResource( 21 )]
 margin_left = -16.4632
 margin_top = -45.1386
 margin_right = 23.5368
@@ -190,11 +179,11 @@ wait_time = 10.0
 wait_time = 5.0
 
 [node name="BodyHitSound" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 23 )
+stream = ExtResource( 22 )
 volume_db = -15.0
 
 [node name="DeathSound" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 24 )
+stream = ExtResource( 23 )
 volume_db = 10.0
 
 [node name="FirstEffectTimer" type="Timer" parent="."]

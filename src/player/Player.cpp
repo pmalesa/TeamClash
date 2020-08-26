@@ -24,6 +24,7 @@
 #include <Viewport.hpp>
 #include <PackedScene.hpp>
 #include <ResourceLoader.hpp>
+#include <CanvasLayer.hpp>
 
 using namespace godot;
 
@@ -108,8 +109,6 @@ void Player::_ready()
 {
 	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
 	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
-	if (is_network_master())
-		ui_ = static_cast<Control*>(get_node("UI/PlayerUI"));
 	currentMovementSpeed_ = DEFAULT_MOVEMENT_SPEED;
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
@@ -145,6 +144,7 @@ void Player::_process(float delta)
         processInput();
 		updateAimingDirection();
 		rset("aimingDirection_", aimingDirection_);
+		//ui_->set_position(Vector2(get_position().x - 220, get_position().y + 400));
 	}
     else
     {

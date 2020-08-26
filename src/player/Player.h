@@ -23,6 +23,7 @@ namespace godot
 	class ResourceLoader;
 	class PackedScene;
 	class Control;
+	class CanvasLayer;
 
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
 	enum class MovementState : int64_t { NONE, JUMPED, FALLING, THROWBACK };
@@ -112,7 +113,6 @@ namespace godot
 
 		bool initialized_;
 
-		Control* ui_;
 		String nickname_;
 		RoleType roleType_;
 

@@ -5,6 +5,8 @@
 
 namespace godot
 {
+	class CanvasLayer;
+
 	class Warrior : public Role
 	{
 	public:
@@ -26,6 +28,7 @@ namespace godot
 		bool chargeOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0; }
 		bool stoneSkinOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->get_time_left() > 0; }
 
+		CanvasLayer* ui_;
 		Ref<PackedScene> entanglingBallsScene_;
 		const static int64_t ENTANGLING_BALLS_COOLDOWN = 10;
 		const static int64_t CHARGE_COOLDOWN = 10;

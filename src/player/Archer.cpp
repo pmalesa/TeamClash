@@ -13,6 +13,7 @@
 #include <AnimatedSprite.hpp>
 #include <AnimationPlayer.hpp>
 #include <AudioStreamPlayer.hpp>
+#include <CanvasLayer.hpp>
 
 #include <iostream>
 using std::cout;
@@ -31,6 +32,7 @@ Archer::Archer(Player* newOwner) : Role(newOwner)
 	getOwner()->currentWeapon_ = static_cast<Crossbow*>(getOwner()->weapons_[1]);
 	setProjectileTypeTo(ProjectileType::BOLT);
 	trapScene_ = getOwner()->resourceLoader_->load("res://equipment/utility/Trap.tscn");
+	ui_ = static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/PlayerUI"));
 	static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("BoltCooldown"))->set_wait_time(DEFAULT_BOLT_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(TRAP_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->set_wait_time(RAPID_FIRE_COOLDOWN);
@@ -43,14 +45,14 @@ Archer::Archer(Player* newOwner) : Role(newOwner)
 
 void Archer::setUI()
 {
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/dagger_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/trap_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot4/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/rapidfire_icon.png"));
-	static_cast<CanvasItem*>(getOwner()->ui_->get_node("Slot2/Subslot1"))->set_visible(true);
-	static_cast<CanvasItem*>(getOwner()->ui_->get_node("Slot2/Subslot2"))->set_visible(true);
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Highlight"))->set_visible(true);
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
+	static_cast<TextureRect*>(ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/dagger_icon.png"));
+	static_cast<TextureRect*>(ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
+	static_cast<TextureRect*>(ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/trap_icon.png"));
+	static_cast<TextureRect*>(ui_->get_node("Slot4/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/rapidfire_icon.png"));
+	static_cast<CanvasItem*>(ui_->get_node("Slot2/Subslot1"))->set_visible(true);
+	static_cast<CanvasItem*>(ui_->get_node("Slot2/Subslot2"))->set_visible(true);
+	static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
+	static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
 }
 
 void Archer::updateSprite()
@@ -162,8 +164,8 @@ void Archer::switchWeapon()
 		static_cast<AnimatedSprite*>(getOwner()->get_node("right_hand_sprite"))->set_rotation(0);
 		if (getOwner()->is_network_master())
 		{
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Highlight"))->set_visible(true);
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Highlight"))->set_visible(false);
+			static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(true);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(false);
 			getOwner()->currentWeapon_->playDrawSound();
 		}
 	}
@@ -174,8 +176,8 @@ void Archer::switchWeapon()
 		static_cast<Node2D*>(getOwner()->get_node("ranged_weapon_node"))->set_visible(true);
 		if (getOwner()->is_network_master())
 		{
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Highlight"))->set_visible(false);
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Highlight"))->set_visible(true);
+			static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(false);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
 			getOwner()->currentWeapon_->playDrawSound();
 		}
 	}
@@ -188,8 +190,8 @@ void Archer::switchAmmoType()
 		setProjectileTypeTo(ProjectileType::EXPLOSIVE_BOLT);
 		if (getOwner()->is_network_master())
 		{
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(false);
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Subslot2/Highlight"))->set_visible(true);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(false);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot2/Highlight"))->set_visible(true);
 		}
 	}
 	else if (static_cast<Crossbow*>(getOwner()->weapons_[1])->getAmmoType() == ProjectileType::EXPLOSIVE_BOLT)
@@ -197,8 +199,8 @@ void Archer::switchAmmoType()
 		setProjectileTypeTo(ProjectileType::BOLT);
 		if (getOwner()->is_network_master())
 		{
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
-			static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Subslot2/Highlight"))->set_visible(false);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
+			static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot2/Highlight"))->set_visible(false);
 		}
 	}
 }

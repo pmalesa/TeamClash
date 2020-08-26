@@ -1,11 +1,10 @@
-[gd_scene load_steps=10 format=2]
+[gd_scene load_steps=9 format=2]
 
 [ext_resource path="res://scenes/Game.gdns" type="Script" id=1]
 [ext_resource path="res://fonts/dirtyoldtown.ttf" type="DynamicFontData" id=2]
 [ext_resource path="res://soundtracks/TeamClash_short .ogg" type="AudioStream" id=3]
-[ext_resource path="res://scenes/LineEditFont/LineEditFont.tres" type="DynamicFont" id=4]
-[ext_resource path="res://scenes/ButtonTheme/ButtonTheme.tres" type="Theme" id=5]
-[ext_resource path="res://scenes/ButtonFont/MainMenu.tres" type="DynamicFont" id=6]
+[ext_resource path="res://scenes/MenuWindow.tscn" type="PackedScene" id=4]
+[ext_resource path="res://player/PlayerUI.tscn" type="PackedScene" id=5]
 
 [sub_resource type="DynamicFont" id=1]
 size = 40
@@ -92,69 +91,12 @@ drag_margin_top = 0.0
 drag_margin_right = 0.0
 drag_margin_bottom = 0.0
 
-[node name="MenuWindow" type="Node2D" parent="."]
+[node name="MenuWindow" parent="." instance=ExtResource( 4 )]
 z_index = 101
 
-[node name="Background" type="ColorRect" parent="MenuWindow"]
-margin_right = 1920.0
-margin_bottom = 1080.0
-color = Color( 0, 0, 0, 0.878431 )
+[node name="UI" type="Node2D" parent="."]
+z_index = 80
 
-[node name="Foreground_2" type="ColorRect" parent="MenuWindow"]
-margin_left = 656.964
-margin_top = 236.531
-margin_right = 1295.96
-margin_bottom = 822.531
-color = Color( 0.458824, 0, 0.105882, 1 )
-
-[node name="Foreground" type="ColorRect" parent="MenuWindow"]
-margin_left = 708.617
-margin_top = 279.49
-margin_right = 1241.62
-margin_bottom = 779.49
-color = Color( 0.0431373, 0.0156863, 0.0235294, 1 )
-
-[node name="MenuLabel" type="Label" parent="MenuWindow/Foreground"]
-margin_left = 210.892
-margin_top = 52.8946
-margin_right = 388.892
-margin_bottom = 118.895
-rect_scale = Vector2( 2, 2 )
-custom_fonts/font = ExtResource( 4 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
-custom_colors/font_outline_modulate = Color( 1, 1, 1, 1 )
-custom_colors/font_color_shadow = Color( 0.0862745, 0, 0, 1 )
-text = "Menu"
-
-[node name="ResumeButton" type="Button" parent="MenuWindow"]
-margin_left = 890.0
-margin_top = 440.0
-margin_right = 1070.0
-margin_bottom = 490.0
-theme = ExtResource( 5 )
-custom_fonts/font = ExtResource( 6 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
-text = "Resume"
-
-[node name="MainMenuButton" type="Button" parent="MenuWindow"]
-margin_left = 890.0
-margin_top = 520.0
-margin_right = 1070.0
-margin_bottom = 570.0
-theme = ExtResource( 5 )
-custom_fonts/font = ExtResource( 6 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
-text = "Main Menu"
-
-[node name="ExitGameButton" type="Button" parent="MenuWindow"]
-margin_left = 890.0
-margin_top = 598.892
-margin_right = 1070.0
-margin_bottom = 648.892
-theme = ExtResource( 5 )
-custom_fonts/font = ExtResource( 6 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
-text = "Exit Game"
-[connection signal="pressed" from="MenuWindow/ResumeButton" to="." method="_on_ResumeButton_pressed"]
-[connection signal="pressed" from="MenuWindow/MainMenuButton" to="." method="_on_MainMenuButton_pressed"]
-[connection signal="pressed" from="MenuWindow/ExitGameButton" to="." method="_on_ExitGameButton_pressed"]
+[node name="PlayerUI" parent="UI" instance=ExtResource( 5 )]
+offset = Vector2( 750, 950 )
+transform = Transform2D( 1, 0, 0, 1, 750, 950 )

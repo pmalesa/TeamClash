@@ -5,6 +5,8 @@
 
 namespace godot
 {
+	class CanvasLayer;
+
 	class Archer : public Role
 	{
 	public:
@@ -35,6 +37,7 @@ namespace godot
 
 		void setProjectileTypeTo(ProjectileType newProjectileType);
 
+		CanvasLayer* ui_;
 		Ref<PackedScene> trapScene_;
 		const static int64_t DEFAULT_BOLT_COOLDOWN = 1;
 		const static int64_t EXPLOSIVE_BOLT_COOLDOWN = 5;

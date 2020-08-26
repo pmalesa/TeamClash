@@ -141,6 +141,9 @@
     <ClCompile Include="equipment\utility\Trap.cpp">
       <Filter>Source Files\equipment\utility</Filter>
     </ClCompile>
+    <ClCompile Include="scenes\MenuWindow.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -214,6 +217,9 @@
     </ClInclude>
     <ClInclude Include="equipment\utility\Trap.h">
       <Filter>Header Files\equipment\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\MenuWindow.h">
+      <Filter>Header Files\scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

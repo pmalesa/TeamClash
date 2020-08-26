@@ -12,6 +12,7 @@
 #include <Sprite.hpp>
 #include <AnimationPlayer.hpp>
 #include <AudioStreamPlayer.hpp>
+#include <CanvasLayer.hpp>
 
 #include <Godot.hpp>
 #include <iostream>
@@ -26,6 +27,7 @@ Warrior::Warrior(Player* newOwner) : Role(newOwner)
 	getOwner()->weapons_.push_back(static_cast<Axe*>(static_cast<Ref<PackedScene>>(getOwner()->resourceLoader_->load("res://equipment/weapons/Axe.tscn"))->instance()));
 	getOwner()->get_node("melee_weapon_node")->add_child(getOwner()->weapons_[0]);
 	getOwner()->currentWeapon_ = static_cast<Axe*>(getOwner()->weapons_[0]);
+	ui_ = static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/PlayerUI"));
 	entanglingBallsScene_ = getOwner()->resourceLoader_->load("res://equipment/utility/EntanglingBalls.tscn");
 	static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->set_wait_time(ENTANGLING_BALLS_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(CHARGE_COOLDOWN);
@@ -43,11 +45,11 @@ Warrior::Warrior(Player* newOwner) : Role(newOwner)
 
 void Warrior::setUI()
 {
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/axe_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/entangling_balls_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/charge_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot4/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/stoneskin_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Highlight"))->set_visible(true);
+	static_cast<TextureRect*>(ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/axe_icon.png"));
+	static_cast<TextureRect*>(ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/entangling_balls_icon.png"));
+	static_cast<TextureRect*>(ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/charge_icon.png"));
+	static_cast<TextureRect*>(ui_->get_node("Slot4/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/stoneskin_icon.png"));
+	static_cast<TextureRect*>(ui_->get_node("Slot1/Highlight"))->set_visible(true);
 }
 
 void Warrior::updateSprite()

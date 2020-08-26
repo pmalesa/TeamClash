@@ -39,9 +39,6 @@ namespace godot
 		void printAllConnectedPeers();
 		void printAllConnectedPeersNodeNames();
 
-		void _on_ResumeButton_pressed();
-		void _on_MainMenuButton_pressed();
-		void _on_ExitGameButton_pressed();
 
 		Ref<PackedScene> playerScene_;
 		Ref<PackedScene> worldScene_;
@@ -55,5 +52,7 @@ namespace godot
 
 		Node2D* respawnWindow_;
 		Node2D* menuWindow_;
+
+		CanvasLayer* ui_;
 	};
 }
