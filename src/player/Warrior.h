@@ -5,7 +5,7 @@
 
 namespace godot
 {
-	class CanvasLayer;
+	class PlayerUI;
 
 	class Warrior : public Role
 	{
@@ -14,7 +14,7 @@ namespace godot
 		Warrior(Player* newOwner);
 		~Warrior() = default;
 
-		void setUI();
+		void setupUI();
 		void updateSprite();
 
 		void useSecondAbility();
@@ -23,12 +23,12 @@ namespace godot
 		void neutralizeFirstEffect();
 		void neutralizeSecondEffect();
 
-	private:
 		bool entanglingBallsOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->get_time_left() > 0; }
 		bool chargeOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0; }
 		bool stoneSkinOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->get_time_left() > 0; }
 
-		CanvasLayer* ui_;
+	private:
+		WarriorUI* ui_;
 		Ref<PackedScene> entanglingBallsScene_;
 		const static int64_t ENTANGLING_BALLS_COOLDOWN = 10;
 		const static int64_t CHARGE_COOLDOWN = 10;

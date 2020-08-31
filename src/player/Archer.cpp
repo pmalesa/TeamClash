@@ -1,5 +1,7 @@
 #include "Archer.h"
 
+#include "ui/ArcherUI.h"
+
 #include "../equipment/weapons/Dagger.h"
 #include "../equipment/weapons/Crossbow.h"
 #include "../equipment/utility/Trap.h"
@@ -29,30 +31,29 @@ Archer::Archer(Player* newOwner) : Role(newOwner)
 	getOwner()->get_node("melee_weapon_node")->add_child(getOwner()->weapons_[0]);
 	getOwner()->get_node("ranged_weapon_node")->add_child(getOwner()->weapons_[1]);
 	static_cast<Node2D*>(getOwner()->get_node("melee_weapon_node"))->set_visible(false);
+
 	getOwner()->currentWeapon_ = static_cast<Crossbow*>(getOwner()->weapons_[1]);
 	setProjectileTypeTo(ProjectileType::BOLT);
 	trapScene_ = getOwner()->resourceLoader_->load("res://equipment/utility/Trap.tscn");
-	ui_ = static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/PlayerUI"));
+
 	static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("BoltCooldown"))->set_wait_time(DEFAULT_BOLT_COOLDOWN);
+	static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("ExplosiveBoltCooldown"))->set_wait_time(DEFAULT_EXPLOSIVE_BOLT_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(TRAP_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->set_wait_time(RAPID_FIRE_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("FirstEffectTimer"))->set_wait_time(RAPID_FIRE_DURATION);
+
 	Ref<PackedScene> archerEffectsScene = getOwner()->resourceLoader_->load("res://player/ArcherEffects.tscn");
 	getOwner()->get_node("ClassEffects")->add_child(static_cast<Node2D*>(archerEffectsScene->instance()));
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Archer/RapidFire/RapidFireAnimatedSprite"))->set_frame(0);
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Archer/RapidFire/RapidFireAnimatedSprite"))->set_visible(false);
 }
 
-void Archer::setUI()
+void Archer::setupUI()
 {
-	static_cast<TextureRect*>(ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/dagger_icon.png"));
-	static_cast<TextureRect*>(ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/crossbow_icon.png"));
-	static_cast<TextureRect*>(ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/trap_icon.png"));
-	static_cast<TextureRect*>(ui_->get_node("Slot4/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/rapidfire_icon.png"));
-	static_cast<CanvasItem*>(ui_->get_node("Slot2/Subslot1"))->set_visible(true);
-	static_cast<CanvasItem*>(ui_->get_node("Slot2/Subslot2"))->set_visible(true);
-	static_cast<TextureRect*>(ui_->get_node("Slot2/Highlight"))->set_visible(true);
-	static_cast<TextureRect*>(ui_->get_node("Slot2/Subslot1/Highlight"))->set_visible(true);
+	Ref<PackedScene> ArcherUIScene = getOwner()->resourceLoader_->load("res://player/ui/ArcherUI.tscn");
+	getOwner()->get_node("/root/Game/UI")->add_child(static_cast<ArcherUI*>(ArcherUIScene->instance()));
+	static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/ArcherUI"))->set_offset(Vector2(750, 950));
+	ui_ = static_cast<ArcherUI*>(getOwner()->get_node("/root/Game/UI/ArcherUI"));
 }
 
 void Archer::updateSprite()
@@ -147,8 +148,8 @@ void Archer::useAdditionalAbility()
 
 void Archer::neutralizeFirstEffect()
 {
-	static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("BoltCooldown"))->stop();
 	static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("BoltCooldown"))->set_wait_time(DEFAULT_BOLT_COOLDOWN);
+	static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("ExplosiveBoltCooldown"))->set_wait_time(DEFAULT_EXPLOSIVE_BOLT_COOLDOWN);
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Archer/RapidFire/RapidFireAnimatedSprite"))->set_visible(false);
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Archer/RapidFire/RapidFireAnimatedSprite"))->stop();
 }
@@ -226,6 +227,8 @@ void Archer::rapidFire()
 		static_cast<Timer*>(getOwner()->get_node("FirstEffectTimer"))->start();
 		static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("BoltCooldown"))->stop();
 		static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("BoltCooldown"))->set_wait_time(0.2);
+		static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("ExplosiveBoltCooldown"))->stop();
+		static_cast<Timer*>(static_cast<Crossbow*>(getOwner()->weapons_[1])->get_node("ExplosiveBoltCooldown"))->set_wait_time(1);
 		static_cast<AudioStreamPlayer*>(getOwner()->get_node("ClassEffects/Archer/RapidFire/RapidFireSound"))->play();
 		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Archer/RapidFire/RapidFireAnimatedSprite"))->set_visible(true);
 		static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Archer/RapidFire/RapidFireAnimatedSprite"))->play();

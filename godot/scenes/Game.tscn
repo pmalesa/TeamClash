@@ -1,10 +1,9 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=8 format=2]
 
 [ext_resource path="res://scenes/Game.gdns" type="Script" id=1]
 [ext_resource path="res://fonts/dirtyoldtown.ttf" type="DynamicFontData" id=2]
 [ext_resource path="res://soundtracks/TeamClash_short .ogg" type="AudioStream" id=3]
 [ext_resource path="res://scenes/MenuWindow.tscn" type="PackedScene" id=4]
-[ext_resource path="res://player/PlayerUI.tscn" type="PackedScene" id=5]
 
 [sub_resource type="DynamicFont" id=1]
 size = 40
@@ -92,11 +91,6 @@ drag_margin_right = 0.0
 drag_margin_bottom = 0.0
 
 [node name="MenuWindow" parent="." instance=ExtResource( 4 )]
-z_index = 101
 
 [node name="UI" type="Node2D" parent="."]
 z_index = 80
-
-[node name="PlayerUI" parent="UI" instance=ExtResource( 5 )]
-offset = Vector2( 750, 950 )
-transform = Transform2D( 1, 0, 0, 1, 750, 950 )

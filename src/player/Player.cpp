@@ -45,7 +45,7 @@ void Player::_register_methods()
 	register_method("_on_SecondEffectTimer_timeout", &Player::_on_SecondEffectTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("setTeam", &Player::setTeam, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("setRole", &Player::setRole, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
-	register_method("setUI", &Player::setUI, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setupUI", &Player::setupUI, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("setSpawnPoint", &Player::setSpawnPoint, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("useFirstAbility", &Player::useFirstAbility, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("useSecondAbility", &Player::useSecondAbility, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
@@ -144,7 +144,6 @@ void Player::_process(float delta)
         processInput();
 		updateAimingDirection();
 		rset("aimingDirection_", aimingDirection_);
-		//ui_->set_position(Vector2(get_position().x - 220, get_position().y + 400));
 	}
     else
     {
@@ -158,6 +157,9 @@ void Player::_move(int64_t direction)
 {
 	if (immobilized_)
 		return;
+
+	if (!is_processing())
+		movementState_ = MovementState::NONE;
 
     MoveDirection moveDirection = static_cast<MoveDirection>(direction);
 	if (applyThrowback_)
@@ -430,7 +432,7 @@ void Player::init(int64_t chosenTeam, int64_t chosenRole)
 {
 	rpc("setTeam", chosenTeam);
 	rpc("setRole", chosenRole);
-	setUI();
+	setupUI();
 	if (Team::CELADON == static_cast<Team>(chosenTeam))
 		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint"));
 	else
@@ -462,9 +464,9 @@ void Player::setRole(int64_t role)
 	initialized_ = true;
 }
 
-void Player::setUI()
+void Player::setupUI()
 {
-	role_->setUI();
+	role_->setupUI();
 }
 
 void Player::useFirstAbility()

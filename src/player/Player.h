@@ -8,7 +8,7 @@
 
 #include "../camera/Camera.h"
 
-#include "HealthBar.h"
+#include "ui/HealthBar.h"
 #include <Sprite.hpp>
 #include <Timer.hpp>
 
@@ -36,6 +36,9 @@ namespace godot
 		friend class Role;
 		friend class Warrior;
 		friend class Archer;
+		friend class UI;
+		friend class WarriorUI;
+		friend class ArcherUI;
 
         GODOT_CLASS(Player, KinematicBody2D)
 
@@ -73,16 +76,18 @@ namespace godot
 		void _on_SlowTimer_timeout();
 		void _on_ImmobilizeTimer_timeout();
 		void _on_RespawnTimer_timeout();
+
 		void _on_FirstAbilityCooldown_timeout() { static_cast<Timer*>(get_node("FirstAbilityCooldown"))->stop(); }
 		void _on_SecondAbilityCooldown_timeout() { static_cast<Timer*>(get_node("SecondAbilityCooldown"))->stop(); }
 		void _on_ThirdAbilityCooldown_timeout() { static_cast<Timer*>(get_node("ThirdAbilityCooldown"))->stop(); }
 		void _on_FourthAbilityCooldown_timeout() { static_cast<Timer*>(get_node("FourthAbilityCooldown"))->stop(); }
+
 		void _on_FirstEffectTimer_timeout();
 		void _on_SecondEffectTimer_timeout();
 
 		void setTeam(int64_t team);
 		void setRole(int64_t role);
-		void setUI();
+		void setupUI();
 		void setSpawnPoint(Vector2 newSpawnPoint) { spawnPoint_ = newSpawnPoint; }
 
 		void useFirstAbility();

@@ -37,6 +37,7 @@ void Game::_register_methods()
 	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideRespawnWindow", &Game::hideRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideMenuWindow", &Game::hideMenuWindow, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getSelfPlayer", &Game::getSelfPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 
 	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -59,7 +60,6 @@ void Game::_ready()
 	hideRespawnWindow();
 	hideMenuWindow();
 	preconfigureGame();
-	ui_ = static_cast<CanvasLayer*>(get_node("UI/PlayerUI"));
 	Godot::print("[GAME] Game is ready.");
 }
 

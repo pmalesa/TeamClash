@@ -28,6 +28,7 @@ namespace godot
 		void _on_player_disconnected(int64_t id);
 		void _on_server_disconnected(int64_t id);
 
+		Player* getSelfPlayer() const { return player_; }
 		Player* getPlayer(int64_t nodeName) const { return players_[nodeName]; }
 
 		void showRespawnWindow();
@@ -52,7 +53,5 @@ namespace godot
 
 		Node2D* respawnWindow_;
 		Node2D* menuWindow_;
-
-		CanvasLayer* ui_;
 	};
 }

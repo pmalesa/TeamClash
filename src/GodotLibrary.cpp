@@ -5,7 +5,10 @@
 #include "scenes/Lobby.h"
 #include "scenes/MenuWindow.h"
 #include "player/Player.h"
-#include "player/HealthBar.h"
+#include "player/ui/HealthBar.h"
+#include "player/ui/UI.h"
+#include "player/ui/WarriorUI.h"
+#include "player/ui/ArcherUI.h"
 #include "camera/Camera.h"
 #include "equipment/weapons/Weapon.h"
 #include "equipment/weapons/Dagger.h"
@@ -46,6 +49,9 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
 	godot::register_class<godot::Game>();
 	godot::register_class<godot::Player>();
 	godot::register_class<godot::HealthBar>();
+	godot::register_class<godot::UI>();
+	godot::register_class<godot::WarriorUI>();
+	godot::register_class<godot::ArcherUI>();
 	godot::register_class<godot::Network>();
 	godot::register_class<godot::Camera>();
 	godot::register_class<godot::Weapon>();

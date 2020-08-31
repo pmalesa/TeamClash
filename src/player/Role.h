@@ -4,10 +4,6 @@
 #include <PackedScene.hpp>
 #include <memory>
 
-using std::shared_ptr;
-using std::make_shared;
-using godot::Player;
-
 namespace godot
 {
 	class Role
@@ -17,7 +13,7 @@ namespace godot
 		Role(Player* newOwner) { owner_ = newOwner; }
 		virtual ~Role() = default;
 
-		virtual void setUI() {}
+		virtual void setupUI() {}
 		virtual void updateSprite() {}
 
 		virtual void useFirstAbility() {}

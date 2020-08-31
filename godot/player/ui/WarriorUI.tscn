@@ -1,0 +1,195 @@
+[gd_scene load_steps=7 format=2]
+
+[ext_resource path="res://player/ui/WarriorUI.gdns" type="Script" id=1]
+[ext_resource path="res://sprites/player_ui/icon_frame.png" type="Texture" id=2]
+[ext_resource path="res://sprites/player_ui/highlighted_icon_frame.png" type="Texture" id=3]
+[ext_resource path="res://sprites/icons/empty_icon.png" type="Texture" id=4]
+[ext_resource path="res://scenes/UiFont/UiFont.tres" type="DynamicFont" id=5]
+[ext_resource path="res://sprites/player_ui/CooldownProgressBar.png" type="Texture" id=6]
+
+[node name="WarriorUI" type="CanvasLayer"]
+script = ExtResource( 1 )
+
+[node name="Slot1" type="TextureRect" parent="."]
+margin_right = 64.0
+margin_bottom = 64.0
+texture = ExtResource( 2 )
+
+[node name="Highlight" type="TextureRect" parent="Slot1"]
+visible = false
+margin_right = 64.0
+margin_bottom = 64.0
+texture = ExtResource( 3 )
+
+[node name="Icon" type="TextureRect" parent="Slot1"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="Slot1"]
+margin_left = 9.0
+margin_top = 6.0
+margin_right = 49.0
+margin_bottom = 27.0
+custom_fonts/font = ExtResource( 5 )
+text = "1"
+
+[node name="CooldownProgress" type="TextureProgress" parent="Slot1"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture_progress = ExtResource( 6 )
+fill_mode = 3
+
+[node name="Slot2" type="TextureRect" parent="."]
+margin_left = 64.0
+margin_top = 0.135
+margin_right = 128.0
+margin_bottom = 64.135
+texture = ExtResource( 2 )
+
+[node name="Highlight" type="TextureRect" parent="Slot2"]
+visible = false
+margin_right = 64.0
+margin_bottom = 64.0
+texture = ExtResource( 3 )
+
+[node name="Icon" type="TextureRect" parent="Slot2"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="Slot2"]
+margin_left = 9.0
+margin_top = 6.0
+margin_right = 49.0
+margin_bottom = 24.0
+custom_fonts/font = ExtResource( 5 )
+text = "2"
+
+[node name="CooldownProgress" type="TextureProgress" parent="Slot2"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture_progress = ExtResource( 6 )
+fill_mode = 3
+
+[node name="Slot3" type="TextureRect" parent="."]
+margin_left = 128.0
+margin_right = 192.0
+margin_bottom = 64.0
+texture = ExtResource( 2 )
+
+[node name="Highlight" type="TextureRect" parent="Slot3"]
+visible = false
+margin_right = 64.0
+margin_bottom = 64.0
+texture = ExtResource( 3 )
+
+[node name="Icon" type="TextureRect" parent="Slot3"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="Slot3"]
+margin_left = 9.0
+margin_top = 6.0
+margin_right = 49.0
+margin_bottom = 24.0
+custom_fonts/font = ExtResource( 5 )
+text = "3"
+
+[node name="CooldownProgress" type="TextureProgress" parent="Slot3"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture_progress = ExtResource( 6 )
+fill_mode = 3
+
+[node name="Slot4" type="TextureRect" parent="."]
+margin_left = 192.0
+margin_right = 256.0
+margin_bottom = 64.0
+texture = ExtResource( 2 )
+
+[node name="Highlight" type="TextureRect" parent="Slot4"]
+visible = false
+margin_right = 64.0
+margin_bottom = 64.0
+texture = ExtResource( 3 )
+
+[node name="Icon" type="TextureRect" parent="Slot4"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="Slot4"]
+margin_left = 9.0
+margin_top = 6.0
+margin_right = 49.0
+margin_bottom = 24.0
+custom_fonts/font = ExtResource( 5 )
+text = "4"
+
+[node name="CooldownProgress" type="TextureProgress" parent="Slot4"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture_progress = ExtResource( 6 )
+fill_mode = 3
+
+[node name="SlotQ" type="TextureRect" parent="."]
+editor/display_folded = true
+margin_left = 300.0
+margin_right = 364.0
+margin_bottom = 64.0
+texture = ExtResource( 2 )
+
+[node name="Icon" type="TextureRect" parent="SlotQ"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 58.0
+margin_bottom = 58.0
+texture = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="SlotQ"]
+margin_left = 9.0
+margin_top = 6.0
+margin_right = 49.0
+margin_bottom = 20.0
+custom_fonts/font = ExtResource( 5 )
+text = "Q"
+
+[node name="SlotE" type="TextureRect" parent="."]
+editor/display_folded = true
+margin_left = 364.0
+margin_right = 428.0
+margin_bottom = 64.0
+texture = ExtResource( 2 )
+
+[node name="Icon" type="TextureRect" parent="SlotE"]
+margin_left = 6.0
+margin_top = 6.0
+margin_right = 46.0
+margin_bottom = 46.0
+texture = ExtResource( 4 )
+
+[node name="Label" type="Label" parent="SlotE"]
+margin_left = 9.0
+margin_top = 6.0
+margin_right = 49.0
+margin_bottom = 24.0
+custom_fonts/font = ExtResource( 5 )
+text = "E"

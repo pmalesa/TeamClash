@@ -28,13 +28,13 @@
 [sub_resource type="SpriteFrames" id=1]
 animations = [ {
 "frames": [ null, ExtResource( 1 ), ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), null ],
-"loop": false,
-"name": "charge",
+"loop": true,
+"name": "charge_on",
 "speed": 20.0
 }, {
 "frames": [ null, ExtResource( 1 ), ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ), null ],
-"loop": true,
-"name": "charge_on",
+"loop": false,
+"name": "charge",
 "speed": 20.0
 } ]
 
