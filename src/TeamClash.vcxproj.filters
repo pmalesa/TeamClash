@@ -67,6 +67,12 @@
     <Filter Include="Source Files\equipment\weapons">
       <UniqueIdentifier>{8d3b00eb-fd3e-4c6a-a475-575f13ec660e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\player\ui">
+      <UniqueIdentifier>{a6c8a7fa-12f4-49a5-b738-0bcc0e504269}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\player\ui">
+      <UniqueIdentifier>{1c40c401-8ca3-4319-9969-181db0d5772c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
@@ -108,9 +114,6 @@
     <ClCompile Include="network\NetworkOld.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="player\HealthBar.cpp">
-      <Filter>Source Files\player</Filter>
-    </ClCompile>
     <ClCompile Include="equipment\projectiles\Bolt.cpp">
       <Filter>Source Files\equipment\projectiles</Filter>
     </ClCompile>
@@ -140,6 +143,21 @@
     </ClCompile>
     <ClCompile Include="equipment\utility\Trap.cpp">
       <Filter>Source Files\equipment\utility</Filter>
+    </ClCompile>
+    <ClCompile Include="scenes\MenuWindow.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="player\ui\HealthBar.cpp">
+      <Filter>Source Files\player\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="player\ui\UI.cpp">
+      <Filter>Source Files\player\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="player\ui\WarriorUI.cpp">
+      <Filter>Source Files\player\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="player\ui\ArcherUI.cpp">
+      <Filter>Source Files\player\ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -179,9 +197,6 @@
     <ClInclude Include="network\NetworkOld.h">
       <Filter>Header Files\network</Filter>
     </ClInclude>
-    <ClInclude Include="player\HealthBar.h">
-      <Filter>Header Files\player</Filter>
-    </ClInclude>
     <ClInclude Include="equipment\projectiles\Bolt.h">
       <Filter>Header Files\equipment\projectiles</Filter>
     </ClInclude>
@@ -214,6 +229,21 @@
     </ClInclude>
     <ClInclude Include="equipment\utility\Trap.h">
       <Filter>Header Files\equipment\utility</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\MenuWindow.h">
+      <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="player\ui\HealthBar.h">
+      <Filter>Header Files\player\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="player\ui\ArcherUI.h">
+      <Filter>Header Files\player\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="player\ui\UI.h">
+      <Filter>Header Files\player\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="player\ui\WarriorUI.h">
+      <Filter>Header Files\player\ui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

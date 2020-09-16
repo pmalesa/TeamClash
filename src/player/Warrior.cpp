@@ -1,10 +1,13 @@
 #include "Warrior.h"
 
+#include "ui/WarriorUI.h"
+
 #include "../equipment/weapons/Axe.h"
 #include "../equipment/utility/EntanglingBalls.h"
 
 #include <Ref.hpp>
 #include <ResourceLoader.hpp>
+#include <SceneTree.hpp>
 #include <PackedScene.hpp>
 #include <TextureRect.hpp>
 #include <Texture.hpp>
@@ -12,6 +15,7 @@
 #include <Sprite.hpp>
 #include <AnimationPlayer.hpp>
 #include <AudioStreamPlayer.hpp>
+#include <CanvasLayer.hpp>
 
 #include <Godot.hpp>
 #include <iostream>
@@ -27,11 +31,13 @@ Warrior::Warrior(Player* newOwner) : Role(newOwner)
 	getOwner()->get_node("melee_weapon_node")->add_child(getOwner()->weapons_[0]);
 	getOwner()->currentWeapon_ = static_cast<Axe*>(getOwner()->weapons_[0]);
 	entanglingBallsScene_ = getOwner()->resourceLoader_->load("res://equipment/utility/EntanglingBalls.tscn");
+
 	static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->set_wait_time(ENTANGLING_BALLS_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->set_wait_time(CHARGE_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->set_wait_time(STONE_SKIN_COOLDOWN);
 	static_cast<Timer*>(getOwner()->get_node("FirstEffectTimer"))->set_wait_time(CHARGE_DURATION);
 	static_cast<Timer*>(getOwner()->get_node("SecondEffectTimer"))->set_wait_time(STONE_SKIN_DURATION);
+
 	Ref<PackedScene> warriorEffectsScene = getOwner()->resourceLoader_->load("res://player/WarriorEffects.tscn");
 	getOwner()->get_node("ClassEffects")->add_child(static_cast<Node2D*>(warriorEffectsScene->instance()));
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/Charge/ChargeAnimatedSprite"))->set_frame(0);
@@ -41,13 +47,12 @@ Warrior::Warrior(Player* newOwner) : Role(newOwner)
 	static_cast<AnimatedSprite*>(getOwner()->get_node("ClassEffects/Warrior/StoneSkin/StoneSkinOnAnimatedSprite"))->set_visible(false);
 }
 
-void Warrior::setUI()
+void Warrior::setupUI()
 {
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/axe_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot2/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/entangling_balls_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot3/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/charge_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot4/Icon"))->set_texture(getOwner()->resourceLoader_->load("res://sprites/icons/stoneskin_icon.png"));
-	static_cast<TextureRect*>(getOwner()->ui_->get_node("Slot1/Highlight"))->set_visible(true);
+	Ref<PackedScene> WarriorUIScene = getOwner()->resourceLoader_->load("res://player/ui/WarriorUI.tscn");
+	getOwner()->get_node("/root/Game/UI")->add_child(static_cast<WarriorUI*>(WarriorUIScene->instance()));
+	static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/WarriorUI"))->set_offset(Vector2(750, 950));
+	ui_ = static_cast<WarriorUI*>(getOwner()->get_node("/root/Game/UI/WarriorUI"));
 }
 
 void Warrior::updateSprite()
@@ -108,12 +113,17 @@ void Warrior::useSecondAbility()
 {
 	if (!entanglingBallsOnCooldown())
 	{
-		EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(entanglingBallsScene_->instance());
-		Vector2 initialPosition = getOwner()->get_position() + 40 * getOwner()->aimingDirection_;
-		entanglingBalls->init(getOwner()->getNodeName(), initialPosition, getOwner()->aimingDirection_);
-		getOwner()->get_node("/root/Game/World")->add_child(entanglingBalls);
+		if (getOwner()->get_tree()->is_network_server())
+		{
+			EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(getOwner()->get_node("/root/Game")->call("takeEntanglingBallsFromStack"));
+			if (!entanglingBalls)
+				return;
+			Vector2 direction = getOwner()->getAimingDirection();
+			Vector2 initialPosition = getOwner()->get_position() + 40 * direction;
+			getOwner()->get_node("/root/Game")->rpc("activateEntanglingBalls", entanglingBalls->get_name(), getOwner()->getNodeName(), initialPosition, direction);
+			entanglingBalls->rpc("playAttackSound");
+		}
 		static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->start();
-		Godot::print("ENTANGLING BALLS THROWN!");
 	}
 }
 

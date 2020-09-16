@@ -24,6 +24,7 @@
 #include <Viewport.hpp>
 #include <PackedScene.hpp>
 #include <ResourceLoader.hpp>
+#include <CanvasLayer.hpp>
 
 using namespace godot;
 
@@ -44,7 +45,7 @@ void Player::_register_methods()
 	register_method("_on_SecondEffectTimer_timeout", &Player::_on_SecondEffectTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("setTeam", &Player::setTeam, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("setRole", &Player::setRole, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
-	register_method("setUI", &Player::setUI, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setupUI", &Player::setupUI, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("setSpawnPoint", &Player::setSpawnPoint, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("useFirstAbility", &Player::useFirstAbility, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
 	register_method("useSecondAbility", &Player::useSecondAbility, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
@@ -66,9 +67,10 @@ void Player::_register_methods()
 	register_method("setSlowTime", &Player::setSlowTime, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("setImmobilizeTime", &Player::setImmobilizeTime, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("setImmobilize", &Player::setImmobilize, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("throwback", &Player::throwback, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("updateHealthBar", &Player::updateHealthBar, GODOT_METHOD_RPC_MODE_REMOTESYNC);
-	register_method("showEntanglementEffect", &Player::showEntanglementEffect, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
-	register_method("hideEntanglementEffect", &Player::hideEntanglementEffect, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+	register_method("showEntanglementEffect", &Player::showEntanglementEffect, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("hideEntanglementEffect", &Player::hideEntanglementEffect, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	
 	register_property<Player, int64_t>("healthPoints_", &Player::healthPoints_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
     register_property<Player, Vector2>("slavePosition", &Player::slavePosition, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
@@ -108,7 +110,6 @@ void Player::_ready()
 {
 	nicknameLabel_ = static_cast<Label*>(get_node("NicknameBar/Nickname"));
 	healthBar_ = static_cast<HealthBar*>(get_node("HealthBar/HealthBar"));
-	ui_ = static_cast<Control*>(get_node("/root/Game/UI/PlayerUI"));
 	currentMovementSpeed_ = DEFAULT_MOVEMENT_SPEED;
 	nicknameLabel_->set_text(get_node("/root/Network")->call("getConnectedPlayerNickname", nodeName_));
 	updateHealthBar();
@@ -124,7 +125,6 @@ void Player::_physics_process(float delta)
 	{
 		rset_unreliable("slavePosition", get_position());
 		rset("slaveMovement", static_cast<int64_t>(moveDirection_));
-        rset("slaveWeaponState", static_cast<int64_t>(currentWeapon_->getWeaponState()));
 		_move(static_cast<int64_t>(moveDirection_));
 	}
 	else
@@ -143,6 +143,7 @@ void Player::_process(float delta)
     {
         processInput();
 		updateAimingDirection();
+		rset("slaveWeaponState", static_cast<int64_t>(currentWeapon_->getWeaponState()));
 		rset("aimingDirection_", aimingDirection_);
 	}
     else
@@ -157,6 +158,9 @@ void Player::_move(int64_t direction)
 {
 	if (immobilized_)
 		return;
+
+	if (!is_processing())
+		movementState_ = MovementState::NONE;
 
     MoveDirection moveDirection = static_cast<MoveDirection>(direction);
 	if (applyThrowback_)
@@ -271,21 +275,14 @@ void Player::playBodyHitSound()
 
 void Player::applyThrowback(Vector2 direction, int64_t throwbackPower)
 {
-	Vector2 throwbackVelocity = Vector2(0, 0);
-	if (direction.x > 0)
-		throwbackVelocity.x = throwbackPower;
-	else
-		throwbackVelocity.x = -throwbackPower;
-	if (direction.y > 0)
-		throwbackVelocity.y = throwbackPower;
-	else
-		throwbackVelocity.y = -throwbackPower;
-	throwbackVelocity_ = throwbackVelocity;
-	applyThrowback_ = true;
+	rpc("throwback", direction, throwbackPower);
 }
 
 void Player::processInput()
 {
+	if (healthPoints_ == 0)
+		return;
+
 	moveDirection_ = MoveDirection::NONE;
 	Input* input = Input::get_singleton();
 	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("melee_weapon_node/Weapon/melee_weapon_animation"));
@@ -427,13 +424,14 @@ void Player::_on_SecondEffectTimer_timeout()
 
 void Player::init(int64_t chosenTeam, int64_t chosenRole)
 {
-	rpc("setTeam", chosenTeam);
-	rpc("setRole", chosenRole);
-	setUI();
+	setTeam(chosenTeam);
+	setRole(chosenRole);
+	if (is_network_master())
+		setupUI();
 	if (Team::CELADON == static_cast<Team>(chosenTeam))
-		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint"));
+		setSpawnPoint(get_node("/root/Game/World")->call("getCeladonTeamSpawnPoint"));
 	else
-		rpc("setSpawnPoint", get_node("/root/Game/World")->call("getCrimsonTeamSpawnPoint"));
+		setSpawnPoint(get_node("/root/Game/World")->call("getCrimsonTeamSpawnPoint"));
 	set_position(spawnPoint_);
 }
 
@@ -461,9 +459,9 @@ void Player::setRole(int64_t role)
 	initialized_ = true;
 }
 
-void Player::setUI()
+void Player::setupUI()
 {
-	role_->setUI();
+	role_->setupUI();
 }
 
 void Player::useFirstAbility()
@@ -519,6 +517,21 @@ void Player::setImmobilizeTime(int64_t immobilizeTime)
 {
 	static_cast<Timer*>(get_node("ImmobilizeTimer"))->set_wait_time(immobilizeTime);
 	static_cast<Timer*>(get_node("ImmobilizeTimer"))->start();
+}
+
+void Player::throwback(Vector2 direction, int64_t throwbackPower)
+{
+	Vector2 throwbackVelocity = Vector2(0, 0);
+	if (direction.x > 0)
+		throwbackVelocity.x = throwbackPower;
+	else
+		throwbackVelocity.x = -throwbackPower;
+	if (direction.y > 0)
+		throwbackVelocity.y = throwbackPower;
+	else
+		throwbackVelocity.y = -throwbackPower;
+	throwbackVelocity_ = throwbackVelocity;
+	applyThrowback_ = true;
 }
 
 void Player::updateAimingDirection()

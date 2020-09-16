@@ -5,7 +5,10 @@
 
 #include "../equipment/weapons/Weapon.h"
 #include "../equipment/weapons/Crossbow.h"
-#include "HealthBar.h"
+
+#include "../camera/Camera.h"
+
+#include "ui/HealthBar.h"
 #include <Sprite.hpp>
 #include <Timer.hpp>
 
@@ -20,6 +23,7 @@ namespace godot
 	class ResourceLoader;
 	class PackedScene;
 	class Control;
+	class CanvasLayer;
 
     enum class MoveDirection : int64_t { LEFT, RIGHT, NONE };
 	enum class MovementState : int64_t { NONE, JUMPED, FALLING, THROWBACK };
@@ -32,6 +36,9 @@ namespace godot
 		friend class Role;
 		friend class Warrior;
 		friend class Archer;
+		friend class UI;
+		friend class WarriorUI;
+		friend class ArcherUI;
 
         GODOT_CLASS(Player, KinematicBody2D)
 
@@ -69,16 +76,18 @@ namespace godot
 		void _on_SlowTimer_timeout();
 		void _on_ImmobilizeTimer_timeout();
 		void _on_RespawnTimer_timeout();
+
 		void _on_FirstAbilityCooldown_timeout() { static_cast<Timer*>(get_node("FirstAbilityCooldown"))->stop(); }
 		void _on_SecondAbilityCooldown_timeout() { static_cast<Timer*>(get_node("SecondAbilityCooldown"))->stop(); }
 		void _on_ThirdAbilityCooldown_timeout() { static_cast<Timer*>(get_node("ThirdAbilityCooldown"))->stop(); }
 		void _on_FourthAbilityCooldown_timeout() { static_cast<Timer*>(get_node("FourthAbilityCooldown"))->stop(); }
+
 		void _on_FirstEffectTimer_timeout();
 		void _on_SecondEffectTimer_timeout();
 
 		void setTeam(int64_t team);
 		void setRole(int64_t role);
-		void setUI();
+		void setupUI();
 		void setSpawnPoint(Vector2 newSpawnPoint) { spawnPoint_ = newSpawnPoint; }
 
 		void useFirstAbility();
@@ -91,12 +100,17 @@ namespace godot
 		void hideEntanglementEffect() { static_cast<Sprite*>(get_node("body_sprite/Entanglement"))->set_visible(false); }
 		void processInput();
 		void updateSprite();
+
 		void updateHealthPoints(int64_t newHealthPoints);
 		void updateHealthBar();
+
 		void updateMovementSpeed(int64_t newMovementSpeed);
 		void setSlowTime(int64_t slowTime);
 		void setImmobilizeTime(int64_t immobilizeTime);
 		void setImmobilize(bool value) { immobilized_ = value; }
+
+		void throwback(Vector2 direction, int64_t throwbackPower);
+
 		void updateAimingDirection();
 		void playBodyHitSound();
 
@@ -109,12 +123,12 @@ namespace godot
 
 		bool initialized_;
 
-		Control* ui_;
 		String nickname_;
 		RoleType roleType_;
 
 		shared_ptr<Role> role_;
 
+		Camera* camera_;
 		Label* nicknameLabel_;
 		Vector2 velocity_;
 		Vector2 facingDirection_;

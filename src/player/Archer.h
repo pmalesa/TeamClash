@@ -5,6 +5,8 @@
 
 namespace godot
 {
+	class PlayerUI;
+
 	class Archer : public Role
 	{
 	public:
@@ -12,7 +14,7 @@ namespace godot
 		Archer(Player* newOwner);
 		~Archer() = default;
 
-		void setUI();
+		void setupUI();
 		void updateSprite();
 
 		void useFirstAbility();
@@ -23,6 +25,9 @@ namespace godot
 
 		void neutralizeFirstEffect();
 
+		bool trapOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0; }
+		bool rapidFireOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->get_time_left() > 0; }
+
 	private:
 		void switchWeapon();
 		void switchAmmoType();
@@ -30,14 +35,12 @@ namespace godot
 		void rapidFire();
 		void updateArmRotation();
 
-		bool trapOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->get_time_left() > 0; }
-		bool rapidFireOnCooldown() { return static_cast<Timer*>(getOwner()->get_node("FourthAbilityCooldown"))->get_time_left() > 0; }
-
 		void setProjectileTypeTo(ProjectileType newProjectileType);
 
+		ArcherUI* ui_;
 		Ref<PackedScene> trapScene_;
 		const static int64_t DEFAULT_BOLT_COOLDOWN = 1;
-		const static int64_t EXPLOSIVE_BOLT_COOLDOWN = 5;
+		const static int64_t DEFAULT_EXPLOSIVE_BOLT_COOLDOWN = 5;
 		const static int64_t TRAP_COOLDOWN = 10;
 		const static int64_t RAPID_FIRE_COOLDOWN = 20;
 		const static int64_t RAPID_FIRE_DURATION = 8;

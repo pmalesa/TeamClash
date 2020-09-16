@@ -1,0 +1,8 @@
+[gd_resource type="NativeScript" load_steps=2 format=2]
+
+[ext_resource path="res://TeamClash.gdnlib" type="GDNativeLibrary" id=1]
+
+[resource]
+resource_name = "MenuWindow"
+class_name = "MenuWindow"
+library = ExtResource( 1 )

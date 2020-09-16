@@ -4,8 +4,6 @@
 #include <KinematicBody2D.hpp>
 #include "../../player/Player.h"
 
-#include <iostream>
-
 namespace godot
 {
     class ExplosiveBolt : public KinematicBody2D
@@ -19,18 +17,19 @@ namespace godot
         ~ExplosiveBolt() = default;
 
         void _init();
-        void _ready();
-		void init(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
+		void activate(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
 
 	private:
 		void _physics_process(float delta);
 		void _process(float delta);
 		void processImpact();
-		void processBoltMovement();
+		void processMovement();
 		void _on_ExplosiveBoltMaximumLifeTimer_timeout();
 		void _on_ExplosiveBoltAfterExplosionLifeTime_timeout();
 
+		void deactivate();
 		bool collisionDetected();
+		void playExplosionAnimation();
 
 		const static int64_t damage_ = 75;
 		const static int64_t INITIAL_PROJECTILE_SPEED = 1300;
@@ -41,6 +40,11 @@ namespace godot
 		Vector2 velocity_;
 		Vector2 initialDirection_;
 		String shooterNodeName_;
+
+		Vector2 slavePosition_;
+		real_t slaveRotation_;
+
+		bool activated_;
 		bool objectHit_;
 
     };

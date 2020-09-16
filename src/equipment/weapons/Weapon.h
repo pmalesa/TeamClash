@@ -22,8 +22,8 @@ namespace godot
         Weapon() = default;
         virtual ~Weapon() = default;
 
-		virtual void _init() {};
-		virtual void _ready() {};
+		virtual void _init() {}
+		virtual void _ready() {}
 
 
 		Player* getOwner() const { return owner_; }
@@ -38,12 +38,17 @@ namespace godot
 		void setDamage(int64_t newDamage) { damage_ = newDamage; }
 		bool isRanged() const { return weaponType_ == WeaponType::CROSSBOW; }
 
-		virtual void playDrawSound() {};
-		virtual void playAttackSound() {};
+		virtual void playDrawSound() {}
+		virtual void playAttackSound() {}
+
+	protected:
+		void processMeleeAttack();
+
+		Array alreadyAttackedPlayers_;
 
 	private:
-		virtual void _physics_process(float delta) {};
-		virtual void _process(float delta) {};
+		virtual void _physics_process(float delta) {}
+		virtual void _process(float delta) {}
 
 		Player* owner_;
 		WeaponType weaponType_;

@@ -14,17 +14,14 @@ namespace godot
 		Axe() = default;
 		~Axe() = default;
 
-		void _init();
-		void _ready();
+		void _init() override;
+		void _ready() override;
 
-		void playDrawSound();
-		void playAttackSound();
+		void playDrawSound() override;
+		void playAttackSound() override;
 
 	private:
-		void _physics_process(float delta);
-		void _process(float delta);
-
-		Array alreadyAttackedPlayers_;
-
+		void _physics_process(float delta) override;
+		void _process(float delta) override;
     };
 }

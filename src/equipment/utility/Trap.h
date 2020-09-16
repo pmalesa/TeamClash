@@ -5,7 +5,7 @@
 
 namespace godot
 {
-	enum class TrapState : int64_t { PLACEMENT, SETUP, ARMED, TRIGGERED };
+	enum class TrapState : int64_t {DEACTIVATED, PLACEMENT, SETUP, ARMED, TRIGGERED };
 
     class Trap : public KinematicBody2D
     {
@@ -19,7 +19,8 @@ namespace godot
 
         void _init();
         void _ready();
-		void init(String ownerNodeName, Vector2 initialPosition);
+		void activate(String ownerNodeName, Vector2 initialPosition);
+		void deactivate();
 
 	private:
 		void _physics_process(float delta);
@@ -31,14 +32,19 @@ namespace godot
 		void setup();
 		void processTrigger();
 		bool playerCollisionDetected();
+		void playTriggerAnimation();
 
 		const static int64_t MAX_FALLING_SPEED = 1500;
 		const static int64_t GRAVITY_PULL = 20;
 		const static int64_t IMMOBILIZE_TIME = 3;
 
-		String ownerNodeName_;
 		Vector2 velocity_;
 		Vector2 initialPosition_;
+		String ownerNodeName_;
 		TrapState currentState_;
+
+		Vector2 slavePosition_;
+
+		bool activated_;
     };
 }

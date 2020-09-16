@@ -24,11 +24,11 @@ margin_bottom = 1080.0
 rect_pivot_offset = Vector2( 380, 402.051 )
 
 [node name="ColorRect" type="ColorRect" parent="LobbyPanel"]
-margin_left = 121.641
-margin_top = 100.0
-margin_right = 1801.64
-margin_bottom = 980.0
-color = Color( 0.45098, 0.2, 0.270588, 1 )
+margin_left = 102.354
+margin_top = 96.0552
+margin_right = 1782.35
+margin_bottom = 976.055
+color = Color( 0.490196, 0.490196, 0.490196, 1 )
 
 [node name="ConfigWindow" type="Node2D" parent="LobbyPanel"]
 position = Vector2( 1094.99, 140 )
@@ -175,10 +175,9 @@ margin_right = 1100.0
 margin_bottom = 400.0
 
 [node name="ConnectedPlayersDisplay" type="TextEdit" parent="LobbyPanel/ConnectedPlayersPanel"]
-margin_left = 6.15161
-margin_top = 2.05054
-margin_right = 856.152
-margin_bottom = 252.051
+margin_left = 3.0
+margin_right = 849.0
+margin_bottom = 248.0
 readonly = true
 
 [node name="ConnectedPlayersLabel" type="Label" parent="LobbyPanel/ConnectedPlayersPanel"]

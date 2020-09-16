@@ -1,7 +1,7 @@
 [gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://scenes/JoinGameScene.gdns" type="Script" id=1]
-[ext_resource path="res://sprites/MenuBackground.png" type="Texture" id=2]
+[ext_resource path="res://sprites/MenuGradient.tres" type="Texture" id=2]
 [ext_resource path="res://scenes/ButtonTheme/ButtonTheme.tres" type="Theme" id=3]
 [ext_resource path="res://scenes/ButtonFont/MainMenu.tres" type="DynamicFont" id=4]
 [ext_resource path="res://scenes/LineEditTheme/LineEditTheme.tres" type="Theme" id=5]
@@ -14,6 +14,7 @@ script = ExtResource( 1 )
 margin_right = 1920.0
 margin_bottom = 1080.0
 texture = ExtResource( 2 )
+expand = true
 
 [node name="JoinGameButton" type="Button" parent="."]
 margin_left = 815.0
@@ -23,8 +24,8 @@ margin_bottom = 520.0
 rect_pivot_offset = Vector2( 370, 79 )
 theme = ExtResource( 3 )
 custom_fonts/font = ExtResource( 4 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
-custom_colors/font_color_hover = Color( 0.780392, 0.337255, 0.423529, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.623529, 0.623529, 0.623529, 1 )
 text = "Join"
 
 [node name="IpAddress" type="LineEdit" parent="."]
@@ -34,7 +35,7 @@ margin_right = 1115.0
 margin_bottom = 290.455
 theme = ExtResource( 5 )
 custom_fonts/font = ExtResource( 6 )
-custom_colors/font_color = Color( 0.780392, 0.337255, 0.423529, 1 )
+custom_colors/font_color = Color( 0.768627, 0.768627, 0.768627, 1 )
 
 [node name="IpAddressLabel" type="Label" parent="IpAddress"]
 margin_left = 74.0835
@@ -42,7 +43,7 @@ margin_top = -34.3
 margin_right = 229.083
 margin_bottom = 31.7001
 custom_fonts/font = ExtResource( 4 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
 text = "Ip address"
 
 [node name="PlayerName" type="LineEdit" parent="."]
@@ -52,15 +53,15 @@ margin_right = 1115.0
 margin_bottom = 393.127
 theme = ExtResource( 5 )
 custom_fonts/font = ExtResource( 6 )
-custom_colors/font_color = Color( 0.780392, 0.337255, 0.423529, 1 )
+custom_colors/font_color = Color( 0.768627, 0.768627, 0.768627, 1 )
 
 [node name="PlayerNameLabel" type="Label" parent="PlayerName"]
 margin_left = 55.4237
-margin_top = -33.8202
+margin_top = -31.9696
 margin_right = 244.424
-margin_bottom = 32.1798
+margin_bottom = 34.0304
 custom_fonts/font = ExtResource( 4 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
 text = "Player name"
 
 [node name="BackButton" type="Button" parent="."]
@@ -71,8 +72,8 @@ margin_bottom = 650.0
 rect_pivot_offset = Vector2( 370, 79 )
 theme = ExtResource( 3 )
 custom_fonts/font = ExtResource( 4 )
-custom_colors/font_color = Color( 0.780392, 0.109804, 0.235294, 1 )
-custom_colors/font_color_hover = Color( 0.780392, 0.337255, 0.423529, 1 )
+custom_colors/font_color = Color( 1, 1, 1, 1 )
+custom_colors/font_color_hover = Color( 0.623529, 0.623529, 0.623529, 1 )
 text = "Back"
 [connection signal="pressed" from="JoinGameButton" to="." method="_on_JoinGameButton_pressed"]
 [connection signal="text_changed" from="IpAddress" to="." method="_on_IpAddress_text_changed"]

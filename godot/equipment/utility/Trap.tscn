@@ -1,11 +1,11 @@
 [gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://equipment/utility/Trap.gdns" type="Script" id=1]
-[ext_resource path="res://sprites/trap_animation/trap_5.png" type="Texture" id=2]
-[ext_resource path="res://sprites/trap_animation/trap_4.png" type="Texture" id=3]
+[ext_resource path="res://sprites/trap_animation/trap_1.png" type="Texture" id=2]
+[ext_resource path="res://sprites/trap_animation/trap_2.png" type="Texture" id=3]
 [ext_resource path="res://sprites/trap_animation/trap_3.png" type="Texture" id=4]
-[ext_resource path="res://sprites/trap_animation/trap_2.png" type="Texture" id=5]
-[ext_resource path="res://sprites/trap_animation/trap_1.png" type="Texture" id=6]
+[ext_resource path="res://sprites/trap_animation/trap_4.png" type="Texture" id=5]
+[ext_resource path="res://sprites/trap_animation/trap_5.png" type="Texture" id=6]
 [ext_resource path="res://sounds/trap_placement.ogg" type="AudioStream" id=7]
 [ext_resource path="res://sounds/trap_closing.ogg" type="AudioStream" id=8]
 
@@ -13,13 +13,13 @@
 animations = [ {
 "frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 4 ), ExtResource( 5 ), ExtResource( 6 ) ],
 "loop": false,
-"name": "placement",
-"speed": 15.0
+"name": "trigger",
+"speed": 30.0
 }, {
 "frames": [ ExtResource( 6 ), ExtResource( 5 ), ExtResource( 4 ), ExtResource( 3 ), ExtResource( 2 ) ],
 "loop": false,
-"name": "trigger",
-"speed": 30.0
+"name": "placement",
+"speed": 15.0
 } ]
 
 [node name="Trap" type="KinematicBody2D"]

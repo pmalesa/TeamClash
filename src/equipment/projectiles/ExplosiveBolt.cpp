@@ -10,78 +10,78 @@
 #include <AnimatedSprite.hpp>
 #include <AudioStreamPlayer.hpp>
 
-#include <iostream>
-using std::cout;
-using std::endl;
-
 using namespace godot;
 
 void ExplosiveBolt::_register_methods()
 {
 	register_method("_init", &ExplosiveBolt::_init, GODOT_METHOD_RPC_MODE_DISABLED);
-    register_method("_ready", &ExplosiveBolt::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("init", &ExplosiveBolt::init, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_physics_process", &ExplosiveBolt::_physics_process, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_process", &ExplosiveBolt::_process, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("processImpact", &ExplosiveBolt::processImpact, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("processBoltMovement", &ExplosiveBolt::processBoltMovement, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("processMovement", &ExplosiveBolt::processMovement, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_ExplosiveBoltMaximumLifeTimer_timeout", &ExplosiveBolt::_on_ExplosiveBoltMaximumLifeTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_ExplosiveBoltAfterExplosionLifeTime_timeout", &ExplosiveBolt::_on_ExplosiveBoltAfterExplosionLifeTime_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("collisionDetected", &ExplosiveBolt::collisionDetected, GODOT_METHOD_RPC_MODE_DISABLED);
 
+	register_method("activate", &ExplosiveBolt::activate, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("deactivate", &ExplosiveBolt::deactivate, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("playExplosionAnimation", &ExplosiveBolt::playExplosionAnimation, GODOT_METHOD_RPC_MODE_PUPPETSYNC);
+
 	register_property<ExplosiveBolt, Vector2>("velocity_", &ExplosiveBolt::velocity_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<ExplosiveBolt, Vector2>("initialDirection_", &ExplosiveBolt::initialDirection_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
 	register_property<ExplosiveBolt, String>("shooterNodeName_", &ExplosiveBolt::shooterNodeName_, String(), GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<ExplosiveBolt, Vector2>("slavePosition_", &ExplosiveBolt::slavePosition_, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
+	register_property<ExplosiveBolt, real_t>("slaveRotation_", &ExplosiveBolt::slaveRotation_, 0, GODOT_METHOD_RPC_MODE_PUPPET);
+	register_property<ExplosiveBolt, bool>("activated_", &ExplosiveBolt::activated_, false, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void ExplosiveBolt::_init()
 {
+	activated_ = false;
 	objectHit_ = false;
-	Godot::print("[BOLT] Initialized.");
-}
-
-void ExplosiveBolt::_ready()
-{
-	static_cast<CanvasItem*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_visible(false);
-	set_physics_process(true);
-	static_cast<Timer*>(get_node("ExplosiveBoltMaximumLifeTimer"))->start();
-	static_cast<AudioStreamPlayer*>(get_node("ExplosiveBoltShootSound"))->play();
-	Godot::print("[BOLT] Ready and fired.");
-}
-
-void ExplosiveBolt::init(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
-{
-	set_position(initialPosition);
-	set_rotation(-initialDirection.angle_to(Vector2(1, 0)));
-	set("velocity_", Vector2(initialDirection.x * INITIAL_PROJECTILE_SPEED, initialDirection.y * INITIAL_PROJECTILE_SPEED));
-	set("shooterNodeName_", shooterNodeName);
-	set("initialDirection_", initialDirection);
+	shooterNodeName_ = String();
+	slavePosition_ = Vector2();
+	slaveRotation_ = 0;
+	objectHit_ = false;
 }
 
 void ExplosiveBolt::_physics_process(float delta)
 {
-	if (!collisionDetected())
-		processBoltMovement();
+	if (!activated_)
+		return;
+	if (is_network_master())
+	{
+		if (!collisionDetected())
+			processMovement();
+
+		rset_unreliable("slavePosition_", get_position());
+		rset_unreliable("slaveRotation_", get_rotation());
+	}
+	else
+	{
+		set_position(slavePosition_);
+		set_rotation(slaveRotation_);
+	}
 }
 
 void ExplosiveBolt::_process(float delta)
 {
-	if (!objectHit_ && collisionDetected())
-		processImpact();
+	if (!activated_)
+		return;
+	if (is_network_master())
+	{
+		if (!objectHit_ && collisionDetected())
+			processImpact();
+	}
 }
 
 
 void ExplosiveBolt::processImpact()
 {
-	Godot::print("[BOLT] Collision detected / object hit.");
+	rpc("playExplosionAnimation");
+	objectHit_ = true;
 	velocity_ = Vector2(0, 0);
-	Node2D* explosionNode = static_cast<Node2D*>(get_node("Explosion"));
-	explosionNode->set_rotation(explosionNode->get_rotation() - get_rotation());
-	static_cast<CanvasItem*>(get_node("explosive_bolt_sprite"))->set_visible(false);
-	static_cast<CanvasItem*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_visible(true);
-	static_cast<AudioStreamPlayer*>(get_node("Explosion/ExplosionSound"))->play();
-	static_cast<AnimatedSprite*>(get_node("Explosion/ExplosionAnimatedSprite"))->play("explosion");
 	static_cast<Timer*>(get_node("ExplosiveBoltAfterExplosionLifeTime"))->start();
-	
 	Array explosionOverlapingBodies = static_cast<Area2D*>(get_node("Explosion"))->get_overlapping_bodies();
 	for (unsigned int i = 0; i < explosionOverlapingBodies.size(); ++i)
 	{
@@ -89,17 +89,13 @@ void ExplosiveBolt::processImpact()
 		if (overlappedNode->is_in_group("Player"))
 		{
 			Player* shotPlayer = static_cast<Player*>(explosionOverlapingBodies[i]);
-			if (shotPlayer->is_network_master())
-			{
-				shotPlayer->inflictDamage(damage_);
-				shotPlayer->applyThrowback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
-			}
+			shotPlayer->inflictDamage(damage_);
+			shotPlayer->applyThrowback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
 		}
 	}
-	objectHit_ = true;
 }
 
-void ExplosiveBolt::processBoltMovement()
+void ExplosiveBolt::processMovement()
 {
 	if (velocity_.x > 0)
 		velocity_.x -= AIR_RESISTANCE;
@@ -122,13 +118,56 @@ void ExplosiveBolt::processBoltMovement()
 void ExplosiveBolt::_on_ExplosiveBoltMaximumLifeTimer_timeout()
 {
 	static_cast<Timer*>(get_node("ExplosiveBoltMaximumLifeTimer"))->stop();
-	queue_free();
+	if (is_network_master())
+		rpc("deactivate");
 }
 
 void ExplosiveBolt::_on_ExplosiveBoltAfterExplosionLifeTime_timeout()
 {
+	static_cast<Timer*>(get_node("ExplosiveBoltMaximumLifeTimer"))->stop();
 	static_cast<Timer*>(get_node("ExplosiveBoltAfterExplosionLifeTime"))->stop();
-	queue_free();
+	if (is_network_master())
+		rpc("deactivate");
+}
+
+void ExplosiveBolt::activate(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+{
+	static_cast<CollisionPolygon2D*>(get_node("ExplosiveBoltArea/CollisionPolygon2D"))->set_disabled(false);
+	static_cast<AnimatedSprite*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_frame(0);
+	static_cast<AnimatedSprite*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_visible(false);
+	static_cast<CanvasItem*>(get_node("explosive_bolt_sprite"))->set_visible(true);
+	set_position(initialPosition);
+	set_rotation(-initialDirection.angle_to(Vector2(1, 0)));
+	set("velocity_", Vector2(initialDirection.x * INITIAL_PROJECTILE_SPEED, initialDirection.y * INITIAL_PROJECTILE_SPEED));
+	set("shooterNodeName_", shooterNodeName);
+	set("initialDirection_", initialDirection);
+	set_process(true);
+	set_physics_process(true);
+	set_visible(true);
+	activated_ = true;
+	static_cast<Timer*>(get_node("ExplosiveBoltMaximumLifeTimer"))->start();
+	static_cast<AudioStreamPlayer*>(get_node("ExplosiveBoltShootSound"))->play();
+	if (is_network_master())
+		get_node("/root/Game")->call("setExplosiveBoltToActivated", this);
+}
+
+void ExplosiveBolt::deactivate()
+{
+	activated_ = false;
+	set_visible(false);
+	set_process(false);
+	set_physics_process(false);
+	static_cast<CanvasItem*>(get_node("explosive_bolt_sprite"))->set_visible(false);
+	static_cast<CollisionPolygon2D*>(get_node("ExplosiveBoltArea/CollisionPolygon2D"))->set_disabled(true);
+	static_cast<CanvasItem*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_visible(false);
+	set_position(Vector2(0, 0));
+	set_rotation(0);
+	objectHit_ = false;
+	if (is_network_master())
+	{
+		get_node("/root/Game")->call("setExplosiveBoltToDeactivated", this);
+		get_node("/root/Game")->call("putExplosiveBoltOnStack", this);
+	}
 }
 
 bool ExplosiveBolt::collisionDetected()
@@ -136,6 +175,16 @@ bool ExplosiveBolt::collisionDetected()
 	return !static_cast<Area2D*>(get_node("ExplosiveBoltArea"))->get_overlapping_bodies().empty();
 }
 
+void ExplosiveBolt::playExplosionAnimation()
+{
+	Node2D* explosionNode = static_cast<Node2D*>(get_node("Explosion"));
+	explosionNode->set_rotation(explosionNode->get_rotation() - get_rotation());
+	static_cast<CanvasItem*>(get_node("explosive_bolt_sprite"))->set_visible(false);
+	static_cast<AudioStreamPlayer*>(get_node("Explosion/ExplosionSound"))->play();
+	static_cast<AnimatedSprite*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_frame(0);
+	static_cast<AnimatedSprite*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_visible(true);
+	static_cast<AnimatedSprite*>(get_node("Explosion/ExplosionAnimatedSprite"))->play("explosion");
+}
 
 
 
