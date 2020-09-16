@@ -100,12 +100,17 @@ namespace godot
 		void hideEntanglementEffect() { static_cast<Sprite*>(get_node("body_sprite/Entanglement"))->set_visible(false); }
 		void processInput();
 		void updateSprite();
+
 		void updateHealthPoints(int64_t newHealthPoints);
 		void updateHealthBar();
+
 		void updateMovementSpeed(int64_t newMovementSpeed);
 		void setSlowTime(int64_t slowTime);
 		void setImmobilizeTime(int64_t immobilizeTime);
 		void setImmobilize(bool value) { immobilized_ = value; }
+
+		void throwback(Vector2 direction, int64_t throwbackPower);
+
 		void updateAimingDirection();
 		void playBodyHitSound();
 

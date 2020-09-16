@@ -127,6 +127,7 @@ void Lobby::_on_BackButton_pressed()
 {
 	get_node("/root/Network")->call("closeNetwork");
 	get_tree()->change_scene("res://scenes/MainMenu.tscn");
+	queue_free();
 }
 
 void Lobby::_on_SendButton_pressed()
@@ -145,6 +146,7 @@ void Lobby::_on_EnterGameButton_pressed()
 	{
 		get_tree()->set_refuse_new_network_connections(true);
 		rpc("startGame");
+		queue_free();
 	}
 }
 

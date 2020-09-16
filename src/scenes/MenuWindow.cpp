@@ -3,6 +3,7 @@
 #include <iostream>
 #include <SceneTree.hpp>
 #include <Node2D.hpp>
+#include <AudioStreamPlayer.hpp>
 
 using namespace godot;
 
@@ -25,12 +26,14 @@ void MenuWindow::_on_ResumeButton_pressed()
 
 void MenuWindow::_on_MainMenuButton_pressed()
 {
+	get_node("/root/Game")->queue_free();
 	get_node("/root/Network")->call("closeNetwork");
 	get_tree()->change_scene("res://scenes/MainMenu.tscn");
 }
 
 void MenuWindow::_on_ExitGameButton_pressed()
 {
+	get_node("/root/Game")->queue_free();
 	get_node("/root/Network")->call("closeNetwork");
 	get_tree()->quit();
 }

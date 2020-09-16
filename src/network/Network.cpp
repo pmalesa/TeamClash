@@ -26,7 +26,6 @@ void Network::_register_methods()
 	register_method("getChosenRole", &Network::getChosenRole, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("sendConnectedPlayersInfo", &Network::sendConnectedPlayersInfo, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("updateConnectedPlayers", &Network::updateConnectedPlayers, GODOT_METHOD_RPC_MODE_REMOTE);
-
 	register_method("_player_connected", &Network::_player_connected, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_player_disconnected", &Network::_player_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_connection_successful", &Network::_connection_successful, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -57,6 +56,7 @@ void Network::_ready()
 
 bool Network::createServer(String nickname)
 {
+	get_tree()->set_network_peer(nullptr);
 	peer_ = make_unique<NetworkedMultiplayerENet>(*NetworkedMultiplayerENet::_new());
 	Error err = peer_->create_server(SERVER_PORT, MAX_PLAYERS);
 	if (err == Error::ERR_ALREADY_IN_USE)
@@ -87,6 +87,7 @@ bool Network::createServer(String nickname)
 
 bool Network::joinServer(String nickname, String ip)
 {
+	get_tree()->set_network_peer(nullptr);
 	peer_ = make_unique<NetworkedMultiplayerENet>(*NetworkedMultiplayerENet::_new());
 	Error err = peer_->create_client(ip, SERVER_PORT);
 	if (err == Error::ERR_CANT_CONNECT)
@@ -116,7 +117,6 @@ bool Network::joinServer(String nickname, String ip)
 
 void Network::closeNetwork()
 {
-	get_tree()->set_network_peer(nullptr);
 	peer_.reset();
 	Godot::print("[NETWORK] Server terminated.");
 }

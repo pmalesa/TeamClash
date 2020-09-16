@@ -8,15 +8,19 @@
 #include <AudioStreamPlayer.hpp>
 #include <Timer.hpp>
 
+#include <AnimatedSprite.hpp>
 #include <Sprite.hpp>
 #include <Texture.hpp>
 #include <Shape.hpp>
 #include <CollisionShape2D.hpp>
+#include <CollisionPolygon2D.hpp>
 #include <RectangleShape2D.hpp>
 #include <Ref.hpp>
 #include <Variant.hpp>
 #include <Input.hpp>
 #include <CanvasLayer.hpp>
+
+#include <OS.hpp>
 
 #include <iostream>
 using std::cout;
@@ -32,6 +36,7 @@ void Game::_register_methods()
     register_method("preconfigureGame", &Game::preconfigureGame, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("donePreconfiguring", &Game::donePreconfiguring, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("postconfigureGame", &Game::postconfigureGame, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("initiatizeCharacter", &Game::initiatizeCharacter, GODOT_METHOD_RPC_MODE_REMOTESYNC);
     register_method("_on_player_disconnected", &Game::_on_player_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_on_server_disconnected", &Game::_on_server_disconnected, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -39,6 +44,39 @@ void Game::_register_methods()
 	register_method("hideMenuWindow", &Game::hideMenuWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getSelfPlayer", &Game::getSelfPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
+
+
+	register_method("takeBoltFromStack", &Game::takeBoltFromStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("putBoltOnStack", &Game::putBoltOnStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("takeEarliestActivatedBolt", &Game::takeEarliestActivatedBolt, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setBoltToActivated", &Game::setBoltToActivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setBoltToDeactivated", &Game::setBoltToDeactivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getBolt", &Game::getBolt, GODOT_METHOD_RPC_MODE_DISABLED);
+
+	register_method("takeExplosiveBoltFromStack", &Game::takeExplosiveBoltFromStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("putExplosiveBoltOnStack", &Game::putExplosiveBoltOnStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("takeEarliestActivatedExplosiveBolt", &Game::takeEarliestActivatedExplosiveBolt, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setExplosiveBoltToActivated", &Game::setExplosiveBoltToActivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setExplosiveBoltToDeactivated", &Game::setExplosiveBoltToDeactivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getExplosiveBolt", &Game::getExplosiveBolt, GODOT_METHOD_RPC_MODE_DISABLED);
+
+	register_method("takeEntanglingBallsFromStack", &Game::takeEntanglingBallsFromStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("putEntanglingBallsOnStack", &Game::putEntanglingBallsOnStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("takeEarliestActivatedEntanglingBalls", &Game::takeEarliestActivatedEntanglingBalls, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setEntanglingBallsToActivated", &Game::setEntanglingBallsToActivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setEntanglingBallsToDeactivated", &Game::setEntanglingBallsToDeactivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getEntanglingBalls", &Game::getEntanglingBalls, GODOT_METHOD_RPC_MODE_DISABLED);
+
+	register_method("takeTrapFromStack", &Game::takeTrapFromStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("putTrapOnStack", &Game::putTrapOnStack, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("takeEarliestActivatedTrap", &Game::takeEarliestActivatedTrap, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setTrapToActivated", &Game::setTrapToActivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setTrapToDeactivated", &Game::setTrapToDeactivated, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getTrap", &Game::getTrap, GODOT_METHOD_RPC_MODE_DISABLED);
+
+
+	register_method("activateEntanglingBalls", &Game::activateEntanglingBalls, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("activateTrap", &Game::activateTrap, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 
 	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
@@ -48,6 +86,10 @@ void Game::_init()
 	ResourceLoader* resourceLoader = ResourceLoader::get_singleton();
 	worldScene_ = resourceLoader->load("res://world/World.tscn");
 	playerScene_ = resourceLoader->load("res://player/Player.tscn");
+	boltScene_ = resourceLoader->load("res://equipment/projectiles/Bolt.tscn");
+	explosiveBoltScene_ = resourceLoader->load("res://equipment/projectiles/ExplosiveBolt.tscn");
+	entanglingBallsScene_ = resourceLoader->load("res://equipment/utility/EntanglingBalls.tscn");
+	trapScene_ = resourceLoader->load("res://equipment/utility/Trap.tscn");
 	Godot::print("[GAME] Game initialized.");
 }
 
@@ -60,6 +102,12 @@ void Game::_ready()
 	hideRespawnWindow();
 	hideMenuWindow();
 	preconfigureGame();
+
+	if (get_tree()->is_network_server())
+		OS::get_singleton()->set_window_title(godot::String("Server - Team Clash"));
+	else
+		OS::get_singleton()->set_window_title(godot::String("Client - Team Clash"));
+
 	Godot::print("[GAME] Game is ready.");
 }
 
@@ -87,6 +135,7 @@ void Game::preconfigureGame()
 		}
 	}
 	player_ = static_cast<Player*>(players_[selfPeerId_]);
+	initializeEquipmentNodes();
 	if (!get_tree()->is_network_server())
 		rpc_id(1, "donePreconfiguring", selfPeerId_);
 	else
@@ -111,10 +160,15 @@ void Game::donePreconfiguring(int64_t peerId)
 
 void Game::postconfigureGame()
 {
-	player_->init(get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
+	rpc("initiatizeCharacter", selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
 	get_tree()->set_pause(false);
 	Godot::print("[GAME] Every player has been preconfigured.\n[GAME] The game has started.");
 	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
+}
+
+void Game::initiatizeCharacter(int64_t peerId, int64_t chosenTeam, int64_t chosenRole)
+{
+	static_cast<Player*>(players_[peerId])->init(chosenTeam, chosenRole);
 }
 
 void Game::_process(float delta)
@@ -179,6 +233,275 @@ void Game::hideMenuWindow()
 	if (player_) player_->set_process(true);
 }
 
+void Game::initializeEquipmentNodes()
+{
+	initalizeBolts();
+	initializeExplosiveBolts();
+	initializeEntanglingBalls();
+	initializeTraps();
+}
+
+void Game::initalizeBolts()
+{
+	Godot::print("[GAME] Initializing bolt nodes...");
+	for (unsigned int i = 0; i < MAX_BOLTS_COUNT; ++i)
+	{
+		Variant boltID = i;
+		Bolt* bolt = static_cast<Bolt*>(boltScene_->instance());
+		bolt->set_name(String(boltID));
+		bolt->set_network_master(1);
+		bolt->set_position(Vector2(0, 0));
+		bolt->set_rotation(0);
+		static_cast<CollisionPolygon2D*>(bolt->get_node("BoltArea/CollisionPolygon2D"))->set_disabled(true);
+		bolt->set_process(false);
+		bolt->set_physics_process(false);
+		bolt->set_visible(false);
+		static_cast<Node2D*>(get_node("Bolts"))->add_child(bolt);
+		if (get_tree()->is_network_server())
+			boltStack_.push(bolt);
+		boltVector_.push_back(bolt);
+	}
+	Godot::print("[GAME] Bolt nodes initialized.");
+}
+
+void Game::initializeExplosiveBolts()
+{
+	Godot::print("[GAME] Initializing explosive bolt nodes...");
+	for (unsigned int i = 0; i < MAX_EXPLOSIVE_BOLTS_COUNT; ++i)
+	{
+		Variant explosiveBoltID = i;
+		ExplosiveBolt* explosiveBolt = static_cast<ExplosiveBolt*>(explosiveBoltScene_->instance());
+		explosiveBolt->set_name(String(explosiveBoltID));
+		explosiveBolt->set_network_master(1);
+		explosiveBolt->set_position(Vector2(0, 0));
+		explosiveBolt->set_rotation(0);
+		static_cast<CollisionPolygon2D*>(explosiveBolt->get_node("ExplosiveBoltArea/CollisionPolygon2D"))->set_disabled(true);
+		explosiveBolt->set_process(false);
+		explosiveBolt->set_physics_process(false);
+		explosiveBolt->set_visible(false);
+		static_cast<Node2D*>(get_node("ExplosiveBolts"))->add_child(explosiveBolt);
+		if (get_tree()->is_network_server())
+			explosiveBoltStack_.push(explosiveBolt);
+		explosiveBoltVector_.push_back(explosiveBolt);
+	}
+	Godot::print("[GAME] Explosive bolt nodes initialized.");
+}
+
+void Game::initializeEntanglingBalls()
+{
+	Godot::print("[GAME] Initializing entangling balls nodes...");
+
+	for (unsigned int i = 0; i < MAX_ENTANGLING_BALLS_COUNT; ++i)
+	{
+		Variant entanglingBallsID = i;
+		EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(entanglingBallsScene_->instance());
+		entanglingBalls->set_name(String(entanglingBallsID));
+		entanglingBalls->set_network_master(1);
+		entanglingBalls->set_position(Vector2(0, 0));
+		entanglingBalls->set_rotation(0);
+		static_cast<CollisionPolygon2D*>(entanglingBalls->get_node("Area/CollisionPolygon2D"))->set_disabled(true);
+		entanglingBalls->set_process(false);
+		entanglingBalls->set_physics_process(false);
+		entanglingBalls->set_visible(false);
+		static_cast<Node2D*>(get_node("EntanglingBalls"))->add_child(entanglingBalls);
+		if (get_tree()->is_network_server())
+			entanglingBallsStack_.push(entanglingBalls);
+		entanglingBallsVector_.push_back(entanglingBalls);
+	}
+	Godot::print("[GAME] Entangling balls nodes initialized.");
+}
+
+void Game::initializeTraps()
+{
+	Godot::print("[GAME] Initializing trap nodes...");
+	for (unsigned int i = 0; i < MAX_TRAPS_COUNT; ++i)
+	{
+		Variant trapID = i;
+		Trap* trap = static_cast<Trap*>(trapScene_->instance());
+		trap->set_name(String(trapID));
+		trap->set_network_master(1);
+		static_cast<AnimatedSprite*>(trap->get_node("TrapAnimatedSprite"))->set_visible(false);
+		static_cast<AnimatedSprite*>(trap->get_node("TrapAnimatedSprite"))->stop();
+		static_cast<AnimatedSprite*>(trap->get_node("TrapAnimatedSprite"))->set_animation("placement");
+		static_cast<AnimatedSprite*>(trap->get_node("TrapAnimatedSprite"))->set_frame(0);
+		static_cast<CollisionPolygon2D*>(trap->get_node("TrapCollisionPolygon2D"))->set_disabled(true);
+		static_cast<CollisionPolygon2D*>(trap->get_node("TriggerArea/TriggerCollisionPolygon2D"))->set_disabled(true);
+		trap->set_process(false);
+		trap->set_physics_process(false);
+		trap->set_visible(false);
+		trap->set_position(Vector2(0, 0));
+		static_cast<Node2D*>(get_node("Traps"))->add_child(trap);
+		if (get_tree()->is_network_server())
+			trapStack_.push(trap);
+		trapVector_.push_back(trap);
+	}
+	Godot::print("[GAME] Trap nodes initialized.");
+}
+
+void Game::activateEntanglingBalls(String nodeName, int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+{
+	Variant var = nodeName;
+	int64_t id = static_cast<int64_t>(var);
+	EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(get_node("/root/Game")->call("getEntanglingBalls", id));
+	if (!entanglingBalls)
+		return;
+	entanglingBalls->activate(shooterNodeName, initialPosition, initialDirection);
+}
+
+void Game::activateTrap(String nodeName, String ownerNodeName, Vector2 initialPosition)
+{
+	Variant var = nodeName;
+	int64_t id = static_cast<int64_t>(var);
+	Trap* trap = static_cast<Trap*>(get_node("/root/Game")->call("getTrap", id));
+	if (!trap)
+		return;
+	trap->activate(ownerNodeName, initialPosition);
+}
+
+Bolt* Game::takeBoltFromStack()
+{
+	if (boltStack_.empty())
+		takeEarliestActivatedBolt()->rpc("deactivate");
+	Bolt* topBolt = boltStack_.top();
+	boltStack_.pop();
+	return topBolt;
+}
+
+void Game::putBoltOnStack(Bolt* newBolt)
+{
+	boltStack_.push(newBolt);
+}
+
+Bolt* Game::takeEarliestActivatedBolt()
+{
+	return activatedBoltsList_.back();
+}
+
+void Game::setBoltToActivated(Bolt* bolt)
+{
+	activatedBoltsList_.push_front(bolt);
+	activatedBoltsMap_.insert(std::pair<Bolt*, list<Bolt*>::iterator>(bolt, activatedBoltsList_.begin()));
+}
+
+void Game::setBoltToDeactivated(Bolt* bolt)
+{
+	activatedBoltsList_.erase(activatedBoltsMap_[bolt]);
+	activatedBoltsMap_.erase(bolt);
+}
+
+ExplosiveBolt* Game::takeExplosiveBoltFromStack()
+{
+	if (explosiveBoltStack_.empty())
+		takeEarliestActivatedExplosiveBolt()->rpc("deactivate");
+	ExplosiveBolt* topExplosiveBolt = explosiveBoltStack_.top();
+	explosiveBoltStack_.pop();
+	return topExplosiveBolt;
+}
+
+void Game::putExplosiveBoltOnStack(ExplosiveBolt* newExplosiveBolt)
+{
+	explosiveBoltStack_.push(newExplosiveBolt);
+}
+
+ExplosiveBolt* Game::takeEarliestActivatedExplosiveBolt()
+{
+	return activatedExplosiveBoltsList_.back();
+}
+
+void Game::setExplosiveBoltToActivated(ExplosiveBolt* explosiveBolt)
+{
+	activatedExplosiveBoltsList_.push_front(explosiveBolt);
+	activatedExplosiveBoltsMap_.insert(std::pair<ExplosiveBolt*, list<ExplosiveBolt*>::iterator>(explosiveBolt, activatedExplosiveBoltsList_.begin()));
+}
+
+void Game::setExplosiveBoltToDeactivated(ExplosiveBolt* explosiveBolt)
+{
+	activatedExplosiveBoltsList_.erase(activatedExplosiveBoltsMap_[explosiveBolt]);
+	activatedExplosiveBoltsMap_.erase(explosiveBolt);
+}
+
+EntanglingBalls* Game::takeEntanglingBallsFromStack()
+{
+	if (entanglingBallsStack_.empty())
+		takeEarliestActivatedEntanglingBalls()->rpc("deactivate");
+	EntanglingBalls* topEntanglingBalls = entanglingBallsStack_.top();
+	entanglingBallsStack_.pop();
+	return topEntanglingBalls;
+}
+void Game::putEntanglingBallsOnStack(EntanglingBalls* newEntanglingBalls)
+{
+	entanglingBallsStack_.push(newEntanglingBalls);
+}
+
+EntanglingBalls* Game::takeEarliestActivatedEntanglingBalls()
+{
+	return activatedEntanglingBallsList_.back();
+}
+
+void Game::setEntanglingBallsToActivated(EntanglingBalls* entanglingBalls)
+{
+	activatedEntanglingBallsList_.push_front(entanglingBalls);
+	activatedEntanglingBallsMap_.insert(std::pair<EntanglingBalls*, list<EntanglingBalls*>::iterator>(entanglingBalls, activatedEntanglingBallsList_.begin()));
+}
+
+void Game::setEntanglingBallsToDeactivated(EntanglingBalls* entanglingBalls)
+{
+	activatedEntanglingBallsList_.erase(activatedEntanglingBallsMap_[entanglingBalls]);
+	activatedEntanglingBallsMap_.erase(entanglingBalls);
+}
+
+Trap* Game::takeTrapFromStack()
+{
+	if (trapStack_.empty())
+		takeEarliestActivatedTrap()->rpc("deactivate");
+	Trap* topTrap = trapStack_.top();
+	trapStack_.pop();
+	return topTrap;
+}
+void Game::putTrapOnStack(Trap* newTrap)
+{
+	trapStack_.push(newTrap);
+}
+
+Trap* Game::takeEarliestActivatedTrap()
+{
+	return activatedTrapsList_.back();
+}
+
+void Game::setTrapToActivated(Trap* trap)
+{
+	activatedTrapsList_.push_front(trap);
+	activatedTrapsMap_.insert(std::pair<Trap*, list<Trap*>::iterator>(trap, activatedTrapsList_.begin()));
+}
+
+void Game::setTrapToDeactivated(Trap* trap)
+{
+	activatedTrapsList_.erase(activatedTrapsMap_[trap]);
+	activatedTrapsMap_.erase(trap);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* METHODS TO BE REMOVED */
 void Game::printAllConnectedPeers()
 {
 	Array ids = connectedPlayersInfo_.keys();
@@ -201,4 +524,4 @@ void Game::printAllConnectedPeersNodeNames()
 		Godot::print("#### " + p->get_name());
 	}
 }
-
+/*-------------------------*/

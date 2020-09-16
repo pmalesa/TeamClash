@@ -7,6 +7,7 @@
 
 #include <Ref.hpp>
 #include <ResourceLoader.hpp>
+#include <SceneTree.hpp>
 #include <PackedScene.hpp>
 #include <TextureRect.hpp>
 #include <Texture.hpp>
@@ -112,10 +113,16 @@ void Warrior::useSecondAbility()
 {
 	if (!entanglingBallsOnCooldown())
 	{
-		EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(entanglingBallsScene_->instance());
-		Vector2 initialPosition = getOwner()->get_position() + 40 * getOwner()->aimingDirection_;
-		entanglingBalls->init(getOwner()->getNodeName(), initialPosition, getOwner()->aimingDirection_);
-		getOwner()->get_node("/root/Game/World")->add_child(entanglingBalls);
+		if (getOwner()->get_tree()->is_network_server())
+		{
+			EntanglingBalls* entanglingBalls = static_cast<EntanglingBalls*>(getOwner()->get_node("/root/Game")->call("takeEntanglingBallsFromStack"));
+			if (!entanglingBalls)
+				return;
+			Vector2 direction = getOwner()->getAimingDirection();
+			Vector2 initialPosition = getOwner()->get_position() + 40 * direction;
+			getOwner()->get_node("/root/Game")->rpc("activateEntanglingBalls", entanglingBalls->get_name(), getOwner()->getNodeName(), initialPosition, direction);
+			entanglingBalls->rpc("playAttackSound");
+		}
 		static_cast<Timer*>(getOwner()->get_node("SecondAbilityCooldown"))->start();
 	}
 }

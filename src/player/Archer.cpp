@@ -8,6 +8,7 @@
 
 #include <Godot.hpp>
 #include <Ref.hpp>
+#include <SceneTree.hpp>
 #include <ResourceLoader.hpp>
 #include <PackedScene.hpp>
 #include <TextureRect.hpp>
@@ -210,12 +211,15 @@ void Archer::placeTrap()
 {
 	if (!trapOnCooldown())
 	{
-		Trap* trap = static_cast<Trap*>(trapScene_->instance());
-		Vector2 initialPosition = getOwner()->get_position() +  60 * getOwner()->facingDirection_;
-		trap->init(getOwner()->get_name(), initialPosition - Vector2(0, 40));
-		getOwner()->get_node("/root/Game/World")->add_child(trap);
+		if (getOwner()->get_tree()->is_network_server())
+		{
+			Trap* trap = static_cast<Trap*>(getOwner()->get_node("/root/Game")->call("takeTrapFromStack"));
+			if (!trap)
+				return;
+			Vector2 initialPosition = getOwner()->get_position() +  60 * getOwner()->facingDirection_;
+			getOwner()->get_node("/root/Game")->rpc("activateTrap", trap->get_name(), getOwner()->get_name(), initialPosition - Vector2(0, 40));
+		}
 		static_cast<Timer*>(getOwner()->get_node("ThirdAbilityCooldown"))->start();
-		Godot::print("TRAP PLACED!");
 	}
 }
 

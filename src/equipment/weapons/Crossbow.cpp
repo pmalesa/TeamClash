@@ -4,6 +4,7 @@
 #include "../projectiles/Bolt.h"
 #include "../projectiles/ExplosiveBolt.h"
 
+#include <SceneTree.hpp>
 #include <PackedScene.hpp>
 #include <ResourceLoader.hpp>
 #include <AudioStreamPlayer.hpp>
@@ -18,9 +19,13 @@ void Crossbow::_register_methods()
 	register_method("_process", &Crossbow::_process, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_BoltCooldown_timeout", &Crossbow::_on_BoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_ExplosiveBoltCooldown_timeout", &Crossbow::_on_ExplosiveBoltCooldown_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("shoot", &Crossbow::shoot, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("shootBolt", &Crossbow::shootBolt, GODOT_METHOD_RPC_MODE_DISABLED);
-	register_method("shootExplosiveBolt", &Crossbow::shootExplosiveBolt, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("processRangedAttack", &Crossbow::processRangedAttack, GODOT_METHOD_RPC_MODE_REMOTE);
+
+	register_method("activateBolt", &Crossbow::activateBolt, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("activateExplosiveBolt", &Crossbow::activateExplosiveBolt, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("shootBolt", &Crossbow::shootBolt, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("shootExplosiveBolt", &Crossbow::shootExplosiveBolt, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+	register_method("playAttackSound", &Crossbow::playAttackSound, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
 void Crossbow::_init()
@@ -64,39 +69,64 @@ void Crossbow::_physics_process(float delta)
 
 void Crossbow::_process(float delta)
 {
-	if (getWeaponState() == WeaponState::SHOOTING) shoot();
+	if (is_network_master())
+	{
+		if (get_tree()->is_network_server())
+			processRangedAttack();
+ 		else
+			rpc_id(1, "processRangedAttack");
+	}
 }
 
-void Crossbow::shoot()
+void Crossbow::processRangedAttack()
 {
-	if (currentAmmoType_ == ProjectileType::BOLT) shootBolt();
-	else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT) shootExplosiveBolt();
+	if (getWeaponState() == WeaponState::SHOOTING)
+	{
+		if (currentAmmoType_ == ProjectileType::BOLT && !boltOnCooldown())
+			shootBolt();
+		else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT && !explosiveBoltOnCooldown())
+			shootExplosiveBolt();
+	}
+}
+
+void Crossbow::activateBolt(String boltNodeName, String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+{
+	Variant var = boltNodeName;
+	int64_t id = static_cast<int64_t>(var);
+	Bolt* bolt = static_cast<Bolt*>(get_node("/root/Game")->call("getBolt", id));
+	if (!bolt)
+		return;
+	bolt->activate(shooterNodeName, initialPosition, initialDirection);
+}
+
+void Crossbow::activateExplosiveBolt(String explosiveBoltNodeName, String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+{
+	Variant var = explosiveBoltNodeName;
+	int64_t id = static_cast<int64_t>(var);
+	ExplosiveBolt* explosiveBolt = static_cast<ExplosiveBolt*>(get_node("/root/Game")->call("getExplosiveBolt", id));
+	if (!explosiveBolt)
+		return;
+	explosiveBolt->activate(shooterNodeName, initialPosition, initialDirection);
 }
 
 void Crossbow::shootBolt()
 {
-	if (!boltOnCooldown())
-	{
-		Bolt* bolt = static_cast<Bolt*>(boltScene_->instance());
-		Vector2 direction = getOwner()->getAimingDirection();
-		Vector2 boltInitialPosition = getOwnerPosition() + 20 * direction;
-		bolt->init(getOwner()->get_name(), boltInitialPosition, direction);
-		playAttackSound();
-		get_node("/root/Game/World")->add_child(bolt);
-		static_cast<Timer*>(get_node("BoltCooldown"))->start();
-	}
+	Bolt* bolt = static_cast<Bolt*>(get_node("/root/Game")->call("takeBoltFromStack"));
+	if (!bolt)
+		return;
+	Vector2 direction = getOwner()->getAimingDirection();
+	Vector2 initialPosition = getOwnerPosition() + 20 * direction;
+	rpc("activateBolt", bolt->get_name(), getOwner()->get_name(), initialPosition, direction);
+	static_cast<Timer*>(get_node("BoltCooldown"))->start();
 }
 
 void Crossbow::shootExplosiveBolt()
 {
-	if (!explosiveBoltOnCooldown())
-	{
-		ExplosiveBolt* explosiveBolt = static_cast<ExplosiveBolt*>(explosiveBoltScene_->instance());
-		Vector2 direction = getOwner()->getAimingDirection();
-		Vector2 boltInitialPosition = getOwnerPosition() + 20 * direction;
-		explosiveBolt->init(getOwner()->get_name(), boltInitialPosition, direction);
-		playAttackSound();
-		get_node("/root/Game/World")->add_child(explosiveBolt);
-		static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->start();
-	}
+	ExplosiveBolt* explosiveBolt = static_cast<ExplosiveBolt*>(get_node("/root/Game")->call("takeExplosiveBoltFromStack"));
+	if (!explosiveBolt)
+		return;
+	Vector2 direction = getOwner()->getAimingDirection();
+	Vector2 initialPosition = getOwnerPosition() + 20 * direction;
+	rpc("activateExplosiveBolt", explosiveBolt->get_name(), getOwner()->get_name(), initialPosition, direction);
+	static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->start();
 }

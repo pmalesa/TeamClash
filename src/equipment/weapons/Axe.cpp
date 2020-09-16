@@ -2,6 +2,7 @@
 
 #include "../../player/Player.h"
 
+#include <SceneTree.hpp>
 #include <AudioStreamPlayer.hpp>
 #include <Node2D.hpp>
 
@@ -13,6 +14,8 @@ void Axe::_register_methods()
     register_method("_ready", &Axe::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_physics_process", &Axe::_physics_process, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_process", &Axe::_process, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("processMeleeAttack", &Axe::processMeleeAttack, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("playAttackSound", &Axe::playAttackSound, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 }
 
 void Axe::_init()
@@ -50,35 +53,12 @@ void Axe::_physics_process(float delta)
 
 void Axe::_process(float delta)
 {
-	if (getWeaponState() == WeaponState::ATTACKING)
+	if (is_network_master())
 	{
-		playAttackSound();
-		set_physics_process(true);
-		Array overlapingBodies = get_overlapping_bodies();
-		if (overlapingBodies.empty())
-			return;
-
-		for (unsigned int i = 0; i < overlapingBodies.size(); ++i)
-		{
-			Node* overlappedNode = static_cast<Node*>(overlapingBodies[i]);
-			if (!overlappedNode->is_in_group("Player"))
-				continue;
-			else
-			{
-				Player* attackedPlayer = static_cast<Player*>(overlapingBodies[i]);
-				if (attackedPlayer->get_name() != getOwner()->get_name() && !(alreadyAttackedPlayers_.has(attackedPlayer)) && attackedPlayer->is_network_master())
-				{
-					attackedPlayer->inflictDamage(getDamage());
-					if (attackedPlayer->getHealthPoints() > 0)
-						attackedPlayer->applyThrowback(attackedPlayer->get_position() - getOwnerPosition());
-					alreadyAttackedPlayers_.push_front(attackedPlayer);
-				}
-			}
-		}
-		set_physics_process(false);
+		if (get_tree()->is_network_server())
+			processMeleeAttack();
+		else
+			rpc_id(1, "processMeleeAttack");
 	}
-	else if (!alreadyAttackedPlayers_.empty())
-		alreadyAttackedPlayers_.clear();
 }
-
 
