@@ -27,7 +27,7 @@ void JoinGameScene::_on_JoinGameButton_pressed(Variant body)
 	std::cout << "Join game button pressed." << std::endl;
 	if (playerName_ == "")
 		playerName_ = "Unnamed";
-	if (bool(get_node("/root/Network")->call("joinServer", playerName_, serverIp_)))
+	if (serverIp_.is_valid_ip_address() && static_cast<bool>(get_node("/root/Network")->call("joinServer", playerName_, serverIp_)))
 		get_tree()->change_scene("res://scenes/Lobby.tscn");
 }
 

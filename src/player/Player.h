@@ -57,13 +57,14 @@ namespace godot
 		int64_t getHealthPoints() const { return healthPoints_; }
 		int64_t getNodeName() const { return nodeName_; }
 		Vector2 getAimingDirection() const { return aimingDirection_; }
+		Team getTeam() const { return team_; }
 
 		void setNickname(String newNickname) { nickname_ = newNickname; }
 		void setVelocity(Vector2 velocity) { velocity_ = velocity; }
 		void addVelocity(Vector2 velocity) { velocity_ += velocity; }
 		void setNodeName(int64_t nodeName) { nodeName_ = nodeName; }
 
-		void inflictDamage(int64_t damage);
+		void inflictDamage(int64_t damage, Player* attacker = nullptr);
 		void inflictSlow(int64_t newSpeed, int64_t slowTime);
 		void immobilize(int64_t immobilizeTime);
 		void applyThrowback(Vector2 direction, int64_t throwbackPower = DEFAULT_THROWBACK_POWER);
@@ -72,7 +73,7 @@ namespace godot
 		void _physics_process(float delta);
 		void _process(float delta);
 		void _move(int64_t direction);
-		void _die();
+		void _die(Player* killer);
 		void _on_SlowTimer_timeout();
 		void _on_ImmobilizeTimer_timeout();
 		void _on_RespawnTimer_timeout();
@@ -124,6 +125,7 @@ namespace godot
 		bool initialized_;
 
 		String nickname_;
+		Team team_;
 		RoleType roleType_;
 
 		shared_ptr<Role> role_;

@@ -45,7 +45,6 @@ void Game::_register_methods()
 	register_method("getSelfPlayer", &Game::getSelfPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 
-
 	register_method("takeBoltFromStack", &Game::takeBoltFromStack, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("putBoltOnStack", &Game::putBoltOnStack, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("takeEarliestActivatedBolt", &Game::takeEarliestActivatedBolt, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -78,6 +77,11 @@ void Game::_register_methods()
 	register_method("activateEntanglingBalls", &Game::activateEntanglingBalls, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("activateTrap", &Game::activateTrap, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 
+	register_method("removePlayerFromServer", &Game::removePlayerFromServer, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("removePlayer", &Game::removePlayer, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+
+	register_method("createScoreboardRecord", &Game::createScoreboardRecord, GODOT_METHOD_RPC_MODE_REMOTE);
+
 	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
@@ -99,8 +103,10 @@ void Game::_ready()
     get_tree()->connect("server_disconnected", this, "_on_server_disconnected");
 	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindow"));
 	menuWindow_ = static_cast<Node2D*>(get_node("MenuWindow"));
+	scoreboard_ = static_cast<Scoreboard*>(get_node("ScoreboardLayer/Scoreboard"));
 	hideRespawnWindow();
 	hideMenuWindow();
+	scoreboard_->hide();
 	preconfigureGame();
 
 	if (get_tree()->is_network_server())
@@ -127,6 +133,7 @@ void Game::preconfigureGame()
 		{
 			Godot::print("[GAME] Initializing player " + String(connectedPlayersInfo_[playerNetworkIds[i]]) + " in progress...");
 			Player* player = static_cast<Player*>(playerScene_->instance());
+			Dictionary playerRecord;
 			player->set_name(String(playerNetworkIds[i]));
 			player->set("nodeName_", playerNetworkIds[i]);
 			player->set_network_master(playerNetworkIds[i]);
@@ -161,6 +168,10 @@ void Game::donePreconfiguring(int64_t peerId)
 void Game::postconfigureGame()
 {
 	rpc("initiatizeCharacter", selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
+	if (get_tree()->is_network_server())
+		createScoreboardRecord(selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
+	else
+		rpc_id(1, "createScoreboardRecord", selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
 	get_tree()->set_pause(false);
 	Godot::print("[GAME] Every player has been preconfigured.\n[GAME] The game has started.");
 	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
@@ -186,6 +197,14 @@ void Game::_process(float delta)
 			showMenuWindow();
 	}
 
+	if (!menuWindow_->is_visible())
+	{
+		if (input->is_action_pressed("tab"))
+			scoreboard_->show();
+		else
+			scoreboard_->hide();
+	}
+
 	if (respawnWindow_->is_visible())
 	{
 		Variant timeLeft = int(static_cast<Timer*>(player_->get_node("RespawnTimer"))->get_time_left());
@@ -196,11 +215,14 @@ void Game::_process(float delta)
 void Game::_on_player_disconnected(int64_t id)
 {
 	Dictionary connectedPlayers = get_node("/root/Network")->call("getConnectedPlayers");
+	removePlayerFromServer(id);
 	get_node("/root/Network")->call("removePlayer", id);
     if (get_node(godot::NodePath(String(id))))
     {
         get_node(godot::NodePath(String(id)))->queue_free();
     }
+	if (get_tree()->is_network_server())
+		scoreboard_->rpc("remove", id);
 	Godot::print("Player disconnected.");
 }
 
@@ -336,6 +358,11 @@ void Game::initializeTraps()
 		trapVector_.push_back(trap);
 	}
 	Godot::print("[GAME] Trap nodes initialized.");
+}
+
+void Game::createScoreboardRecord(int64_t playerNodeName, int64_t team, int64_t role)
+{
+	scoreboard_->rpc("add", playerNodeName, get_node("/root/Network")->call("getConnectedPlayerNickname", playerNodeName), 0, 0, team, role);
 }
 
 void Game::activateEntanglingBalls(String nodeName, int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
@@ -480,6 +507,16 @@ void Game::setTrapToDeactivated(Trap* trap)
 	activatedTrapsMap_.erase(trap);
 }
 
+void Game::removePlayerFromServer(int64_t playerID)
+{
+	rpc("removePlayer", playerID);
+}
+
+void Game::removePlayer(int64_t playerID)
+{
+	static_cast<Player*>(players_[playerID])->queue_free();
+	players_.erase(playerID);
+}
 
 
 

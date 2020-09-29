@@ -171,6 +171,7 @@
     <ClCompile Include="scenes\Lobby.cpp" />
     <ClCompile Include="scenes\MainMenu.cpp" />
     <ClCompile Include="scenes\MenuWindow.cpp" />
+    <ClCompile Include="scenes\Scoreboard.cpp" />
     <ClCompile Include="world\Biome.cpp" />
     <ClCompile Include="world\Block.cpp" />
     <ClCompile Include="world\World.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="scenes\Lobby.h" />
     <ClInclude Include="scenes\MainMenu.h" />
     <ClInclude Include="scenes\MenuWindow.h" />
+    <ClInclude Include="scenes\Scoreboard.h" />
     <ClInclude Include="world\Biome.h" />
     <ClInclude Include="world\Block.h" />
     <ClInclude Include="world\World.h" />

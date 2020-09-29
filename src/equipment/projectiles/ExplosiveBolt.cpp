@@ -29,7 +29,7 @@ void ExplosiveBolt::_register_methods()
 
 	register_property<ExplosiveBolt, Vector2>("velocity_", &ExplosiveBolt::velocity_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
 	register_property<ExplosiveBolt, Vector2>("initialDirection_", &ExplosiveBolt::initialDirection_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
-	register_property<ExplosiveBolt, String>("shooterNodeName_", &ExplosiveBolt::shooterNodeName_, String(), GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<ExplosiveBolt, Player*>("shooter_", &ExplosiveBolt::shooter_, nullptr, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_property<ExplosiveBolt, Vector2>("slavePosition_", &ExplosiveBolt::slavePosition_, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<ExplosiveBolt, real_t>("slaveRotation_", &ExplosiveBolt::slaveRotation_, 0, GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<ExplosiveBolt, bool>("activated_", &ExplosiveBolt::activated_, false, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -39,7 +39,7 @@ void ExplosiveBolt::_init()
 {
 	activated_ = false;
 	objectHit_ = false;
-	shooterNodeName_ = String();
+	shooter_ = nullptr;
 	slavePosition_ = Vector2();
 	slaveRotation_ = 0;
 	objectHit_ = false;
@@ -89,7 +89,7 @@ void ExplosiveBolt::processImpact()
 		if (overlappedNode->is_in_group("Player"))
 		{
 			Player* shotPlayer = static_cast<Player*>(explosionOverlapingBodies[i]);
-			shotPlayer->inflictDamage(damage_);
+			shotPlayer->inflictDamage(damage_, shooter_);
 			shotPlayer->applyThrowback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
 		}
 	}
@@ -130,7 +130,7 @@ void ExplosiveBolt::_on_ExplosiveBoltAfterExplosionLifeTime_timeout()
 		rpc("deactivate");
 }
 
-void ExplosiveBolt::activate(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+void ExplosiveBolt::activate(Player* shooter, Vector2 initialPosition, Vector2 initialDirection)
 {
 	static_cast<CollisionPolygon2D*>(get_node("ExplosiveBoltArea/CollisionPolygon2D"))->set_disabled(false);
 	static_cast<AnimatedSprite*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_frame(0);
@@ -139,7 +139,7 @@ void ExplosiveBolt::activate(String shooterNodeName, Vector2 initialPosition, Ve
 	set_position(initialPosition);
 	set_rotation(-initialDirection.angle_to(Vector2(1, 0)));
 	set("velocity_", Vector2(initialDirection.x * INITIAL_PROJECTILE_SPEED, initialDirection.y * INITIAL_PROJECTILE_SPEED));
-	set("shooterNodeName_", shooterNodeName);
+	shooter_ = shooter;
 	set("initialDirection_", initialDirection);
 	set_process(true);
 	set_physics_process(true);
@@ -162,7 +162,9 @@ void ExplosiveBolt::deactivate()
 	static_cast<CanvasItem*>(get_node("Explosion/ExplosionAnimatedSprite"))->set_visible(false);
 	set_position(Vector2(0, 0));
 	set_rotation(0);
+	static_cast<Node2D*>(get_node("Explosion"))->set_rotation(0);
 	objectHit_ = false;
+	shooter_ = nullptr;
 	if (is_network_master())
 	{
 		get_node("/root/Game")->call("setExplosiveBoltToDeactivated", this);

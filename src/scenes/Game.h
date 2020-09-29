@@ -5,6 +5,7 @@
 #include "../player/Player.h"
 #include "../world/World.h"
 #include "../camera/Camera.h"
+#include "Scoreboard.h"
 
 #include "../equipment/projectiles/Bolt.h"
 #include "../equipment/projectiles/ExplosiveBolt.h"
@@ -24,7 +25,6 @@ using std::unordered_map;
 namespace godot
 {
 	class Node2D;
-	class Control;
 
 	class Game : public Node
 	{
@@ -46,6 +46,7 @@ namespace godot
 
 		Player* getSelfPlayer() const { return player_; }
 		Player* getPlayer(int64_t nodeName) const { return players_[nodeName]; }
+		int64_t getSelfPeerID() const { return selfPeerId_; }
 
 		void showRespawnWindow();
 		void hideRespawnWindow();
@@ -64,10 +65,15 @@ namespace godot
 		void initializeEntanglingBalls();
 		void initializeTraps();
 
+		void createScoreboardRecord(int64_t playerNodeName, int64_t team, int64_t role);
+
 		void activateEntanglingBalls(String nodeName, int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
 		void activateTrap(String nodeName, String ownerNodeName, Vector2 initialPosition);
 
 		/* Server methods */
+		void removePlayerFromServer(int64_t playerID);
+		void removePlayer(int64_t playerID);
+
 		Bolt* takeBoltFromStack();
 		void putBoltOnStack(Bolt* newBolt);
 		Bolt* takeEarliestActivatedBolt();
@@ -97,6 +103,7 @@ namespace godot
 		void printAllConnectedPeers();
 		void printAllConnectedPeersNodeNames();
 		/*------------------------------*/
+		
 
 		Ref<PackedScene> playerScene_;
 		Ref<PackedScene> worldScene_;
@@ -142,5 +149,6 @@ namespace godot
 
 		Node2D* respawnWindow_;
 		Node2D* menuWindow_;
+		Scoreboard* scoreboard_;
 	};
 }

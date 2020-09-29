@@ -35,9 +35,9 @@ void Weapon::processMeleeAttack()
 			else
 			{
 				Player* attackedPlayer = static_cast<Player*>(overlapingBodies[i]);
-				if (attackedPlayer->get_name() != getOwner()->get_name() && !(alreadyAttackedPlayers_.has(attackedPlayer))/* && attackedPlayer->is_network_master() */)
+				if (attackedPlayer->get_name() != getOwner()->get_name() && !(alreadyAttackedPlayers_.has(attackedPlayer)))
 				{
-					attackedPlayer->inflictDamage(getDamage());
+					attackedPlayer->inflictDamage(getDamage(), owner_);
 					if (attackedPlayer->getHealthPoints() > 0)
 						attackedPlayer->applyThrowback(attackedPlayer->get_position() - getOwnerPosition());
 					alreadyAttackedPlayers_.push_front(attackedPlayer);

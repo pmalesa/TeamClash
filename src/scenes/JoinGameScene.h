@@ -28,6 +28,5 @@ namespace godot
 
 		String playerName_;
 		String serverIp_;
-
 	};
 }

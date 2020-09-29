@@ -159,6 +159,9 @@
     <ClCompile Include="player\ui\ArcherUI.cpp">
       <Filter>Source Files\player\ui</Filter>
     </ClCompile>
+    <ClCompile Include="scenes\Scoreboard.cpp">
+      <Filter>Source Files\scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -244,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="player\ui\WarriorUI.h">
       <Filter>Header Files\player\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="scenes\Scoreboard.h">
+      <Filter>Header Files\scenes</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
