@@ -53,7 +53,7 @@ void Archer::setupUI()
 {
 	Ref<PackedScene> ArcherUIScene = getOwner()->resourceLoader_->load("res://player/ui/ArcherUI.tscn");
 	getOwner()->get_node("/root/Game/UI")->add_child(static_cast<ArcherUI*>(ArcherUIScene->instance()));
-	static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/ArcherUI"))->set_offset(Vector2(750, 950));
+	static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/ArcherUI"))->set_offset(Vector2(846, 950));
 	ui_ = static_cast<ArcherUI*>(getOwner()->get_node("/root/Game/UI/ArcherUI"));
 }
 
@@ -160,6 +160,8 @@ void Archer::switchWeapon()
 	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(getOwner()->get_node("melee_weapon_node/Weapon/melee_weapon_animation"));
 	if (getOwner()->currentWeapon_->getWeaponType() == WeaponType::CROSSBOW)
 	{
+		if (getOwner()->currentWeapon_->getWeaponState() == WeaponState::SHOOTING)
+			getOwner()->currentWeapon_->setWeaponState(WeaponState::IDLE);
 		getOwner()->currentWeapon_ = getOwner()->weapons_[0];
 		static_cast<Node2D*>(getOwner()->get_node("melee_weapon_node"))->set_visible(true);
 		static_cast<Node2D*>(getOwner()->get_node("ranged_weapon_node"))->set_visible(false);

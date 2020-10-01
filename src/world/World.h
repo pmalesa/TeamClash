@@ -48,7 +48,7 @@ namespace godot
 		const int worldLengthInBlocks_ = 300;
 		const int worldSurfaceLevel_ = 640;
 		const double degToRadCoefficient = Math_PI / 180;
-		const int worldDepth_ = 30;
+		const int worldDepth_ = 45;
 		const int baseWidthInBlocks_ = 15;
 		Vector2 celadonTeamSpawnPoint_;
 		Vector2 crimsonTeamSpawnPoint_;

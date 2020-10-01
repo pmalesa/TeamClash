@@ -133,7 +133,7 @@ void World::createBase(Team team, real_t startingCoordinateX, BaseOrientation ba
 
 		/* Creating the back wall of the base */
 		currentPosition = Vector2(utmostBlockPosition.x, maxTerrainLevel - blockSize_);
-		for (unsigned int i = 0; i < 10; ++i)
+		for (unsigned int i = 0; i < 15; ++i)
 			placeBlock(BlockType::MARBLE, Vector2(currentPosition.x, currentPosition.y - i * blockSize_));
 
 		baseGeneratedCorrectly = true;

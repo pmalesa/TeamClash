@@ -51,7 +51,7 @@ void Warrior::setupUI()
 {
 	Ref<PackedScene> WarriorUIScene = getOwner()->resourceLoader_->load("res://player/ui/WarriorUI.tscn");
 	getOwner()->get_node("/root/Game/UI")->add_child(static_cast<WarriorUI*>(WarriorUIScene->instance()));
-	static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/WarriorUI"))->set_offset(Vector2(750, 950));
+	static_cast<CanvasLayer*>(getOwner()->get_node("/root/Game/UI/WarriorUI"))->set_offset(Vector2(846, 950));
 	ui_ = static_cast<WarriorUI*>(getOwner()->get_node("/root/Game/UI/WarriorUI"));
 }
 

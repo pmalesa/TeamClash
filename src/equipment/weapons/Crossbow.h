@@ -23,7 +23,7 @@ namespace godot
 
 		void _init();
 		void _ready();
-
+		
 		void setAmmoType(ProjectileType ammoType) { currentAmmoType_ = ammoType; }
 		ProjectileType getAmmoType() const { return currentAmmoType_; }
 
@@ -41,8 +41,8 @@ namespace godot
 		void _on_BoltCooldown_timeout() { static_cast<Timer*>(get_node("BoltCooldown"))->stop(); };
 		void _on_ExplosiveBoltCooldown_timeout() { static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->stop(); };
 
-		void activateBolt(String boltNodeName, String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
-		void activateExplosiveBolt(String boltNodeName, String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
+		void activateBolt(String boltNodeName, Vector2 initialPosition, Vector2 initialDirection);
+		void activateExplosiveBolt(String boltNodeName, Vector2 initialPosition, Vector2 initialDirection);
 
 		void shootBolt();
 		void shootExplosiveBolt();

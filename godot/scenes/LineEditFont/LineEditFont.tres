@@ -3,6 +3,7 @@
 [ext_resource path="res://fonts/coolvetica.ttf" type="DynamicFontData" id=1]
 
 [resource]
-size = 30
+size = 28
+outline_color = Color( 0, 0, 0, 1 )
 use_filter = true
 font_data = ExtResource( 1 )

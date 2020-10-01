@@ -17,7 +17,7 @@ namespace godot
         ~ExplosiveBolt() = default;
 
         void _init();
-		void activate(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
+		void activate(Player* shooter, Vector2 initialPosition, Vector2 initialDirection);
 
 	private:
 		void _physics_process(float delta);
@@ -39,7 +39,7 @@ namespace godot
 		const static int64_t EXPLOSION_THROWBACK = 1000;
 		Vector2 velocity_;
 		Vector2 initialDirection_;
-		String shooterNodeName_;
+		Player* shooter_;
 
 		Vector2 slavePosition_;
 		real_t slaveRotation_;

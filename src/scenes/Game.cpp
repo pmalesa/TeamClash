@@ -45,7 +45,6 @@ void Game::_register_methods()
 	register_method("getSelfPlayer", &Game::getSelfPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 
-
 	register_method("takeBoltFromStack", &Game::takeBoltFromStack, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("putBoltOnStack", &Game::putBoltOnStack, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("takeEarliestActivatedBolt", &Game::takeEarliestActivatedBolt, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -78,6 +77,11 @@ void Game::_register_methods()
 	register_method("activateEntanglingBalls", &Game::activateEntanglingBalls, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("activateTrap", &Game::activateTrap, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 
+	register_method("removePlayerFromServer", &Game::removePlayerFromServer, GODOT_METHOD_RPC_MODE_REMOTE);
+	register_method("removePlayer", &Game::removePlayer, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+
+	register_method("createScoreboardRecord", &Game::createScoreboardRecord, GODOT_METHOD_RPC_MODE_REMOTE);
+
 	register_property<Game, int64_t>("selfPeerId_", &Game::selfPeerId_, 0, GODOT_METHOD_RPC_MODE_DISABLED);
 }
 
@@ -97,10 +101,12 @@ void Game::_ready()
 {
     get_tree()->connect("network_peer_disconnected", this, "_on_player_disconnected");
     get_tree()->connect("server_disconnected", this, "_on_server_disconnected");
-	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindow"));
-	menuWindow_ = static_cast<Node2D*>(get_node("MenuWindow"));
+	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindowLayer/RespawnWindow"));
+	menuWindow_ = static_cast<Node2D*>(get_node("MenuWindowLayer/MenuWindow"));
+	scoreboard_ = static_cast<Scoreboard*>(get_node("ScoreboardLayer/Scoreboard"));
 	hideRespawnWindow();
 	hideMenuWindow();
+	scoreboard_->hide();
 	preconfigureGame();
 
 	if (get_tree()->is_network_server())
@@ -127,6 +133,7 @@ void Game::preconfigureGame()
 		{
 			Godot::print("[GAME] Initializing player " + String(connectedPlayersInfo_[playerNetworkIds[i]]) + " in progress...");
 			Player* player = static_cast<Player*>(playerScene_->instance());
+			Dictionary playerRecord;
 			player->set_name(String(playerNetworkIds[i]));
 			player->set("nodeName_", playerNetworkIds[i]);
 			player->set_network_master(playerNetworkIds[i]);
@@ -161,9 +168,14 @@ void Game::donePreconfiguring(int64_t peerId)
 void Game::postconfigureGame()
 {
 	rpc("initiatizeCharacter", selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
+	if (get_tree()->is_network_server())
+		createScoreboardRecord(selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
+	else
+		rpc_id(1, "createScoreboardRecord", selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
 	get_tree()->set_pause(false);
 	Godot::print("[GAME] Every player has been preconfigured.\n[GAME] The game has started.");
-	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
+	get_node("/root/MusicModule")->call("stopPlayingMusic");
+	get_node("/root/MusicModule")->call("playInGameMusic");
 }
 
 void Game::initiatizeCharacter(int64_t peerId, int64_t chosenTeam, int64_t chosenRole)
@@ -175,32 +187,48 @@ void Game::_process(float delta)
 {
 	Input* input = Input::get_singleton();
 	Camera* camera = static_cast<Camera*>(get_node("/root/Game/Camera2D"));
-	menuWindow_->set_position(player_->get_position() - Vector2(960, 540));
 	camera->set_position(player_->get_position());
 
 	if (input->is_action_just_pressed("escape"))
 	{
 		if (menuWindow_->is_visible())
+		{
 			hideMenuWindow();
+		}
 		else
+		{
 			showMenuWindow();
+			if (player_ != nullptr)
+				player_->set_process(false);
+		}
+	}
+
+	if (!menuWindow_->is_visible())
+	{
+		if (input->is_action_pressed("tab"))
+			scoreboard_->show();
+		else
+			scoreboard_->hide();
 	}
 
 	if (respawnWindow_->is_visible())
 	{
 		Variant timeLeft = int(static_cast<Timer*>(player_->get_node("RespawnTimer"))->get_time_left());
-		static_cast<Label*>(get_node("RespawnWindow/RespawnWindowBox/CountdownLabel"))->set_text(String(timeLeft));
+		static_cast<Label*>(respawnWindow_->get_node("RespawnWindowBox/CountdownLabel"))->set_text(String(timeLeft));
 	}
 }
 
 void Game::_on_player_disconnected(int64_t id)
 {
 	Dictionary connectedPlayers = get_node("/root/Network")->call("getConnectedPlayers");
+	removePlayerFromServer(id);
 	get_node("/root/Network")->call("removePlayer", id);
     if (get_node(godot::NodePath(String(id))))
     {
         get_node(godot::NodePath(String(id)))->queue_free();
     }
+	if (get_tree()->is_network_server())
+		scoreboard_->rpc("remove", id);
 	Godot::print("Player disconnected.");
 }
 
@@ -211,8 +239,6 @@ void Game::_on_server_disconnected(int64_t id)
 
 void Game::showRespawnWindow()
 {
-	Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
-	respawnWindow_->set_position(Vector2(camera->get_position().x - 960, camera->get_position().y - 540));
 	respawnWindow_->set_visible(true);
 }
 
@@ -224,7 +250,6 @@ void Game::hideRespawnWindow()
 void Game::showMenuWindow()
 {
 	menuWindow_->set_visible(true);
-	if (player_) player_->set_process(false);
 }
 
 void Game::hideMenuWindow()
@@ -336,6 +361,11 @@ void Game::initializeTraps()
 		trapVector_.push_back(trap);
 	}
 	Godot::print("[GAME] Trap nodes initialized.");
+}
+
+void Game::createScoreboardRecord(int64_t playerNodeName, int64_t team, int64_t role)
+{
+	scoreboard_->rpc("add", playerNodeName, get_node("/root/Network")->call("getConnectedPlayerNickname", playerNodeName), 0, 0, team, role);
 }
 
 void Game::activateEntanglingBalls(String nodeName, int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
@@ -480,6 +510,16 @@ void Game::setTrapToDeactivated(Trap* trap)
 	activatedTrapsMap_.erase(trap);
 }
 
+void Game::removePlayerFromServer(int64_t playerID)
+{
+	rpc("removePlayer", playerID);
+}
+
+void Game::removePlayer(int64_t playerID)
+{
+	static_cast<Player*>(players_[playerID])->queue_free();
+	players_.erase(playerID);
+}
 
 
 

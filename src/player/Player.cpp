@@ -34,6 +34,7 @@ void Player::_register_methods()
 	register_method("_process", &Player::_process, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_ready", &Player::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
     register_method("_init", &Player::_init, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setVelocity", &Player::setVelocity, GODOT_METHOD_RPC_MODE_REMOTESYNC);
 	register_method("_on_SlowTimer_timeout", &Player::_on_SlowTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_ImmobilizeTimer_timeout", &Player::_on_ImmobilizeTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_on_RespawnTimer_timeout", &Player::_on_RespawnTimer_timeout, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -160,7 +161,7 @@ void Player::_move(int64_t direction)
 		return;
 
 	if (!is_processing())
-		movementState_ = MovementState::NONE;
+		moveDirection_ = MoveDirection::NONE;
 
     MoveDirection moveDirection = static_cast<MoveDirection>(direction);
 	if (applyThrowback_)
@@ -241,7 +242,7 @@ void Player::_move(int64_t direction)
 	move_and_slide(velocity_, Vector2(0, -1));
 }
 
-void Player::inflictDamage(int64_t value)
+void Player::inflictDamage(int64_t value, Player* attacker)
 {
 	healthPoints_ -= damageFactor_ * value;
 	if (healthPoints_ < 0)
@@ -251,7 +252,7 @@ void Player::inflictDamage(int64_t value)
 	rpc("updateHealthPoints", healthPoints_);
 	rpc("updateHealthBar");
 	if (healthPoints_ == 0)
-		rpc("_die");
+		rpc("_die", attacker);
 }
 
 void Player::inflictSlow(int64_t newSpeed, int64_t slowTime)
@@ -266,6 +267,9 @@ void Player::immobilize(int64_t immobilizeTime)
 {
 	rpc("setImmobilize", true);
 	rpc("setImmobilizeTime", immobilizeTime);
+	rset("applyThrowback_", false);
+	rpc("throwback", Vector2(0, 0), 0);
+	rpc("setVelocity", Vector2(0, 0));
 }
 
 void Player::playBodyHitSound()
@@ -275,14 +279,14 @@ void Player::playBodyHitSound()
 
 void Player::applyThrowback(Vector2 direction, int64_t throwbackPower)
 {
-	rpc("throwback", direction, throwbackPower);
+	if (!immobilized_)
+		rpc("throwback", direction, throwbackPower);
 }
 
 void Player::processInput()
 {
 	if (healthPoints_ == 0)
 		return;
-
 	moveDirection_ = MoveDirection::NONE;
 	Input* input = Input::get_singleton();
 	AnimationPlayer* weaponAnimation = static_cast<AnimationPlayer*>(get_node("melee_weapon_node/Weapon/melee_weapon_animation"));
@@ -322,7 +326,7 @@ void Player::processInput()
 
 	if (currentWeapon_->isRanged())
 	{
-		if (input->is_action_just_pressed("basic_attack"))
+		if (input->is_action_pressed("basic_attack"))
 		{
 			currentWeapon_->setWeaponState(WeaponState::SHOOTING);
 		}
@@ -349,17 +353,26 @@ void Player::updateSprite()
 	role_->updateSprite();
 }
 
-void Player::_die()
+void Player::_die(Player* killer)
 {
-	if (is_network_master())
-		get_node("/root/Game")->call("showRespawnWindow");
-		
+	if (get_tree()->is_network_server())
+	{
+		if (killer != nullptr)
+		{
+			if (killer->getTeam() == this->getTeam() || killer == this)
+				get_node("/root/Game/ScoreboardLayer/Scoreboard")->call("decrementKillCount", killer->getNodeName());
+			else
+				get_node("/root/Game/ScoreboardLayer/Scoreboard")->call("incrementKillCount", killer->getNodeName());
+		}
+		get_node("/root/Game/ScoreboardLayer/Scoreboard")->call("incrementDeathCount", this->getNodeName());
+	}
 	static_cast<AudioStreamPlayer*>(get_node("DeathSound"))->play();
     static_cast<Timer*>(get_node("RespawnTimer"))->start();
 	currentWeapon_->setWeaponState(WeaponState::IDLE);
 	movementState_ = MovementState::NONE;
+	static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(true);
     set_physics_process(false);
-
+	set_process(false);
     for (unsigned int i = 0; i < get_child_count(); i++)
     {
         if (get_child(i)->has_method("hide"))
@@ -367,7 +380,12 @@ void Player::_die()
             get_child(i)->call("hide");
         }
     }
-    static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(true);
+	if (is_network_master())
+		get_node("/root/Game")->call("showRespawnWindow");
+	if (get_tree()->is_network_server())
+	{
+		// Update scoreboard's data and serve it across all peers
+	}
 }
 
 void Player::_on_SlowTimer_timeout()
@@ -384,30 +402,29 @@ void Player::_on_ImmobilizeTimer_timeout()
 }
 
 void Player::_on_RespawnTimer_timeout()
-{
-	if(is_network_master())
-		get_node("/root/Game")->call("hideRespawnWindow");
-	
+{	
 	static_cast<Timer*>(get_node("RespawnTimer"))->stop();
 	set_position(spawnPoint_);
-    set_physics_process(true);
-
-    for (unsigned int i = 0; i < get_child_count(); i++)
-    {
-        if (get_child(i)->has_method("show"))
-        {
-            get_child(i)->call("show");
-        }
-    }
-	if (currentWeapon_->isRanged())
-		static_cast<Node2D*>(get_node("melee_weapon_node"))->set_visible(false);
-	else
-		static_cast<Node2D*>(get_node("ranged_weapon_node"))->set_visible(false);
-    static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(false);
 	throwbackVelocity_ = Vector2(0, 0);
 	applyThrowback_ = false;
     healthPoints_ = MAX_HP;
 	updateHealthBar();
+	for (unsigned int i = 0; i < get_child_count(); i++)
+	{
+		if (get_child(i)->has_method("show"))
+		{
+			get_child(i)->call("show");
+		}
+	}
+	if (currentWeapon_->isRanged())
+		static_cast<Node2D*>(get_node("melee_weapon_node"))->set_visible(false);
+	else
+		static_cast<Node2D*>(get_node("ranged_weapon_node"))->set_visible(false);
+	static_cast<CollisionShape2D*>(get_node("CollisionShape2D"))->set_disabled(false);
+	set_physics_process(true);
+	set_process(true);
+	if (is_network_master())
+		get_node("/root/Game")->call("hideRespawnWindow");
 }
 
 void Player::_on_FirstEffectTimer_timeout()
@@ -437,6 +454,7 @@ void Player::init(int64_t chosenTeam, int64_t chosenRole)
 
 void Player::setTeam(int64_t team)
 {
+	team_ = static_cast<Team>(team);
 	if (Team::CELADON == static_cast<Team>(team))
 	{
 		add_to_group("Celadon");

@@ -30,7 +30,7 @@ void Bolt::_register_methods()
 
 	register_property<Bolt, Vector2>("velocity_", &Bolt::velocity_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
 	register_property<Bolt, Vector2>("initialDirection_", &Bolt::initialDirection_, Vector2(), GODOT_METHOD_RPC_MODE_DISABLED);
-	register_property<Bolt, String>("shooterNodeName_", &Bolt::shooterNodeName_, String(), GODOT_METHOD_RPC_MODE_DISABLED);
+	register_property<Bolt, Player*>("shooter_", &Bolt::shooter_, nullptr, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_property<Bolt, Vector2>("slavePosition_", &Bolt::slavePosition_, Vector2(), GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<Bolt, real_t>("slaveRotation_", &Bolt::slaveRotation_, 0, GODOT_METHOD_RPC_MODE_PUPPET);
 	register_property<Bolt, bool>("activated_", &Bolt::activated_, false, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -40,7 +40,7 @@ void Bolt::_init()
 {
 	activated_ = false;
 	objectHit_ = false;
-	shooterNodeName_ = String();
+	shooter_ = nullptr;
 	slavePosition_ = Vector2();
 	slaveRotation_ = 0;
 }
@@ -91,8 +91,8 @@ void Bolt::processImpact()
 		if (overlappedNode->is_in_group("Player"))
 		{
 			Player* shotPlayer = static_cast<Player*>(overlapingBodies[i]);
-			if (shotPlayer->get_name() != shooterNodeName_)
-				shotPlayer->inflictDamage(damage_);
+			if (shotPlayer->get_name() != shooter_->get_name())
+				shotPlayer->inflictDamage(damage_, shooter_);
 			rpc("deactivate");
 			return;
 		}
@@ -134,13 +134,13 @@ void Bolt::_on_BoltMaximumLifeTimer_timeout()
 		rpc("deactivate");
 }
 
-void Bolt::activate(String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+void Bolt::activate(Player* shooter, Vector2 initialPosition, Vector2 initialDirection)
 {
 	static_cast<CollisionPolygon2D*>(get_node("BoltArea/CollisionPolygon2D"))->set_disabled(false);
 	set_position(initialPosition);
 	set_rotation(-initialDirection.angle_to(Vector2(1, 0)));
 	set("velocity_", Vector2(initialDirection.x * INITIAL_PROJECTILE_SPEED, initialDirection.y * INITIAL_PROJECTILE_SPEED));
-	set("shooterNodeName_", shooterNodeName);
+	shooter_ = shooter;
 	set("initialDirection_", initialDirection);
 	objectHit_ = false;
 	set_process(true);
@@ -165,6 +165,7 @@ void Bolt::deactivate()
 	set_position(Vector2(0, 0));
 	set_rotation(0);
 	objectHit_ = false;
+	shooter_ = nullptr;
 	if (is_network_master())
 	{
 		get_node("/root/Game")->call("setBoltToDeactivated", this);

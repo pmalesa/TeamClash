@@ -88,6 +88,10 @@ void Lobby::_process(float delta)
 	{
 		_on_SendButton_pressed();
 	}
+	if (lineEdit_->get_text() == "")
+		sendButton_->set_disabled(true);
+	else
+		sendButton_->set_disabled(false);
 }
 
 void Lobby::_player_connected(int64_t connectedPlayerId)
@@ -125,6 +129,7 @@ void Lobby::_on_ChatPanelLineEdit_focus_exited()
 
 void Lobby::_on_BackButton_pressed()
 {
+	get_node("/root/MusicModule")->call("playButtonClickSound");
 	get_node("/root/Network")->call("closeNetwork");
 	get_tree()->change_scene("res://scenes/MainMenu.tscn");
 	queue_free();
@@ -134,6 +139,7 @@ void Lobby::_on_SendButton_pressed()
 {
 	if (lineEdit_->get_text() != "")
 	{
+		get_node("/root/MusicModule")->rpc("playButtonClickSound");
 		rpc("sendMessage", String("[ ") + lobbyNickname_ + String(" ]: ") + lineEdit_->get_text());
 		lineEdit_->set_text("");
 	}
@@ -144,6 +150,7 @@ void Lobby::_on_EnterGameButton_pressed()
 {
 	if (get_tree()->is_network_server())
 	{
+		get_node("/root/MusicModule")->call("playButtonClickSound");
 		get_tree()->set_refuse_new_network_connections(true);
 		rpc("startGame");
 		queue_free();
@@ -186,7 +193,7 @@ void Lobby::updateConnectedPlayersWindow()
 	for (int i = 0; i < connectedPlayersIds.size(); ++i)
 	{
 		connectedPlayersWindowText_->cursor_set_line(connectedPlayersWindowText_->cursor_get_line() + 1);
-		connectedPlayersWindowText_->insert_text_at_cursor(String(connectedPlayers[connectedPlayersIds[i]]) + "	(" + String(connectedPlayersIds[i]) + ")" + "\n");
+		connectedPlayersWindowText_->insert_text_at_cursor(String(connectedPlayers[connectedPlayersIds[i]]) + "\n");
 	}
 }
 

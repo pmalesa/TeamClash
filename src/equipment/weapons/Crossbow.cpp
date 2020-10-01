@@ -69,7 +69,7 @@ void Crossbow::_physics_process(float delta)
 
 void Crossbow::_process(float delta)
 {
-	if (is_network_master())
+	if (is_network_master() && getWeaponState() == WeaponState::SHOOTING)
 	{
 		if (get_tree()->is_network_server())
 			processRangedAttack();
@@ -80,33 +80,32 @@ void Crossbow::_process(float delta)
 
 void Crossbow::processRangedAttack()
 {
-	if (getWeaponState() == WeaponState::SHOOTING)
-	{
-		if (currentAmmoType_ == ProjectileType::BOLT && !boltOnCooldown())
-			shootBolt();
-		else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT && !explosiveBoltOnCooldown())
-			shootExplosiveBolt();
-	}
+	if (currentAmmoType_ == ProjectileType::BOLT && !boltOnCooldown())
+		shootBolt();
+	else if (currentAmmoType_ == ProjectileType::EXPLOSIVE_BOLT && !explosiveBoltOnCooldown())
+		shootExplosiveBolt();
 }
 
-void Crossbow::activateBolt(String boltNodeName, String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+void Crossbow::activateBolt(String boltNodeName, Vector2 initialPosition, Vector2 initialDirection)
 {
 	Variant var = boltNodeName;
 	int64_t id = static_cast<int64_t>(var);
 	Bolt* bolt = static_cast<Bolt*>(get_node("/root/Game")->call("getBolt", id));
 	if (!bolt)
 		return;
-	bolt->activate(shooterNodeName, initialPosition, initialDirection);
+	bolt->activate(getOwner(), initialPosition, initialDirection);
+	static_cast<Timer*>(get_node("BoltCooldown"))->start();
 }
 
-void Crossbow::activateExplosiveBolt(String explosiveBoltNodeName, String shooterNodeName, Vector2 initialPosition, Vector2 initialDirection)
+void Crossbow::activateExplosiveBolt(String explosiveBoltNodeName, Vector2 initialPosition, Vector2 initialDirection)
 {
 	Variant var = explosiveBoltNodeName;
 	int64_t id = static_cast<int64_t>(var);
 	ExplosiveBolt* explosiveBolt = static_cast<ExplosiveBolt*>(get_node("/root/Game")->call("getExplosiveBolt", id));
 	if (!explosiveBolt)
 		return;
-	explosiveBolt->activate(shooterNodeName, initialPosition, initialDirection);
+	explosiveBolt->activate(getOwner(), initialPosition, initialDirection);
+	static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->start();
 }
 
 void Crossbow::shootBolt()
@@ -116,8 +115,7 @@ void Crossbow::shootBolt()
 		return;
 	Vector2 direction = getOwner()->getAimingDirection();
 	Vector2 initialPosition = getOwnerPosition() + 20 * direction;
-	rpc("activateBolt", bolt->get_name(), getOwner()->get_name(), initialPosition, direction);
-	static_cast<Timer*>(get_node("BoltCooldown"))->start();
+	rpc("activateBolt", bolt->get_name(), initialPosition, direction);
 }
 
 void Crossbow::shootExplosiveBolt()
@@ -127,6 +125,5 @@ void Crossbow::shootExplosiveBolt()
 		return;
 	Vector2 direction = getOwner()->getAimingDirection();
 	Vector2 initialPosition = getOwnerPosition() + 20 * direction;
-	rpc("activateExplosiveBolt", explosiveBolt->get_name(), getOwner()->get_name(), initialPosition, direction);
-	static_cast<Timer*>(get_node("ExplosiveBoltCooldown"))->start();
+	rpc("activateExplosiveBolt", explosiveBolt->get_name(), initialPosition, direction);
 }

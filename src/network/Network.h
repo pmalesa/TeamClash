@@ -57,6 +57,6 @@ namespace godot
 		int64_t chosenRole_;
 
 		const int64_t SERVER_PORT = 12345;
-		const int64_t MAX_PLAYERS = 64;
+		const int64_t MAX_PLAYERS = 32;
 	};
 }
