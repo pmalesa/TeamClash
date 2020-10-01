@@ -22,6 +22,7 @@ config/icon="res://icon.png"
 [autoload]
 
 Network="*res://network/Network.gdns"
+MusicModule="*res://scenes/MusicModule.tscn"
 
 [display]
 
@@ -138,5 +139,5 @@ limits/message_queue/max_size_kb=10240
 
 [rendering]
 
-environment/default_clear_color=Color( 0.360784, 0.654902, 1, 1 )
+environment/default_clear_color=Color( 0.360784, 0.317647, 0.87451, 1 )
 environment/default_environment="res://default_env.tres"

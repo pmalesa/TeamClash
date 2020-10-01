@@ -156,6 +156,7 @@
     <ClCompile Include="equipment\weapons\Dagger.cpp" />
     <ClCompile Include="equipment\weapons\Weapon.cpp" />
     <ClCompile Include="GodotLibrary.cpp" />
+    <ClCompile Include="music_module\MusicModule.cpp" />
     <ClCompile Include="network\Network.cpp" />
     <ClCompile Include="network\NetworkOld.cpp" />
     <ClCompile Include="player\Archer.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="equipment\weapons\Crossbow.h" />
     <ClInclude Include="equipment\weapons\Dagger.h" />
     <ClInclude Include="equipment\weapons\Weapon.h" />
+    <ClInclude Include="music_module\MusicModule.h" />
     <ClInclude Include="network\Network.h" />
     <ClInclude Include="network\NetworkOld.h" />
     <ClInclude Include="player\Archer.h" />

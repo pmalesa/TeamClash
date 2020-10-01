@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=22 format=2]
 
 [ext_resource path="res://scenes/Lobby.gdns" type="Script" id=1]
 [ext_resource path="res://scenes/ButtonFont/MainMenu.tres" type="DynamicFont" id=2]
@@ -14,6 +14,23 @@
 [ext_resource path="res://sprites/icons/archer_icon/archer_icon.png" type="Texture" id=12]
 [ext_resource path="res://sprites/icons/archer_icon/archer_icon_highlighted.png" type="Texture" id=13]
 [ext_resource path="res://sprites/icons/archer_icon/archer_icon_hover.png" type="Texture" id=14]
+[ext_resource path="res://scenes/ButtonTheme/ButtonTheme.tres" type="Theme" id=15]
+[ext_resource path="res://scenes/ScoreRecordFont/ScoreRecordFont.tres" type="DynamicFont" id=16]
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.0901961, 0.0901961, 0.0901961, 1 )
+
+[sub_resource type="StyleBoxFlat" id=4]
+bg_color = Color( 0.054902, 0.054902, 0.054902, 1 )
+
+[sub_resource type="StyleBoxFlat" id=5]
+bg_color = Color( 0.0313726, 0.0313726, 0.0313726, 1 )
+
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.054902, 0.054902, 0.054902, 1 )
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.054902, 0.054902, 0.054902, 1 )
 
 [node name="Lobby" type="Node2D"]
 script = ExtResource( 1 )
@@ -24,11 +41,9 @@ margin_bottom = 1080.0
 rect_pivot_offset = Vector2( 380, 402.051 )
 
 [node name="ColorRect" type="ColorRect" parent="LobbyPanel"]
-margin_left = 102.354
-margin_top = 96.0552
-margin_right = 1782.35
-margin_bottom = 976.055
-color = Color( 0.490196, 0.490196, 0.490196, 1 )
+margin_right = 1920.0
+margin_bottom = 1080.0
+color = Color( 0, 0, 0, 1 )
 
 [node name="ConfigWindow" type="Node2D" parent="LobbyPanel"]
 position = Vector2( 1094.99, 140 )
@@ -41,7 +56,7 @@ margin_left = 155.0
 margin_top = 8.56805
 margin_right = 655.0
 margin_bottom = 408.568
-color = Color( 0.180392, 0.180392, 0.180392, 1 )
+color = Color( 0.054902, 0.054902, 0.054902, 1 )
 
 [node name="Label_1" type="Label" parent="LobbyPanel/ConfigWindow"]
 margin_left = 320.0
@@ -102,16 +117,18 @@ texture_pressed = ExtResource( 13 )
 texture_hover = ExtResource( 14 )
 
 [node name="BackButton" type="Button" parent="LobbyPanel"]
-editor/display_folded = true
 margin_left = 1350.0
 margin_top = 820.0
 margin_right = 1650.0
 margin_bottom = 900.0
+theme = ExtResource( 15 )
+custom_fonts/font = ExtResource( 2 )
 
 [node name="BackButtonLabel" type="Label" parent="LobbyPanel/BackButton"]
 margin_right = 300.0
 margin_bottom = 80.0
 size_flags_stretch_ratio = 0.0
+custom_fonts/font = ExtResource( 2 )
 text = "Back"
 align = 1
 valign = 1
@@ -121,11 +138,13 @@ margin_left = 1350.0
 margin_top = 700.0
 margin_right = 1650.0
 margin_bottom = 780.0
+theme = ExtResource( 15 )
 
 [node name="EnterGameButtonLabel" type="Label" parent="LobbyPanel/EnterGameButton"]
 margin_right = 300.0
 margin_bottom = 80.0
 size_flags_stretch_ratio = 0.0
+custom_fonts/font = ExtResource( 2 )
 text = "Start game"
 align = 1
 valign = 1
@@ -140,31 +159,40 @@ margin_bottom = 838.96
 margin_top = 405.0
 margin_right = 700.0
 margin_bottom = 450.0
+custom_styles/focus = SubResource( 3 )
+custom_styles/normal = SubResource( 4 )
+custom_fonts/font = ExtResource( 16 )
 
 [node name="SendButton" type="Button" parent="LobbyPanel/ChatPanel"]
 margin_left = 700.0
 margin_top = 405.0
 margin_right = 850.0
 margin_bottom = 450.0
+theme = ExtResource( 15 )
+custom_styles/disabled = SubResource( 5 )
+custom_fonts/font = ExtResource( 2 )
 
 [node name="SendButtonLabel" type="Label" parent="LobbyPanel/ChatPanel/SendButton"]
 margin_right = 150.0
 margin_bottom = 50.0
 size_flags_stretch_ratio = 0.0
+custom_fonts/font = ExtResource( 2 )
 text = "Send"
 align = 1
 valign = 1
 
 [node name="ChatDisplay" type="TextEdit" parent="LobbyPanel/ChatPanel"]
-margin_top = -1.58667
 margin_right = 850.0
-margin_bottom = 398.413
+margin_bottom = 400.0
+custom_styles/read_only = SubResource( 1 )
+custom_fonts/font = ExtResource( 16 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 readonly = true
 
 [node name="ChatPanelLabel" type="Label" parent="LobbyPanel/ChatPanel"]
 margin_top = -30.0
 margin_right = 850.0
+custom_fonts/font = ExtResource( 2 )
 text = "Chat"
 valign = 1
 
@@ -175,14 +203,16 @@ margin_right = 1100.0
 margin_bottom = 400.0
 
 [node name="ConnectedPlayersDisplay" type="TextEdit" parent="LobbyPanel/ConnectedPlayersPanel"]
-margin_left = 3.0
-margin_right = 849.0
-margin_bottom = 248.0
+margin_right = 850.0
+margin_bottom = 250.0
+custom_styles/read_only = SubResource( 2 )
+custom_fonts/font = ExtResource( 16 )
 readonly = true
 
 [node name="ConnectedPlayersLabel" type="Label" parent="LobbyPanel/ConnectedPlayersPanel"]
 margin_top = -30.0
 margin_right = 850.0
+custom_fonts/font = ExtResource( 2 )
 text = "Connected players"
 valign = 1
 [connection signal="pressed" from="LobbyPanel/ConfigWindow/CeladonTeamButton" to="." method="_on_CeladonTeamButton_pressed"]

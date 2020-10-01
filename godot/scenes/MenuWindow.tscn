@@ -26,7 +26,7 @@ margin_left = 659.0
 margin_top = 241.0
 margin_right = 1294.0
 margin_bottom = 820.0
-color = Color( 0.0431373, 0.0156863, 0.0235294, 1 )
+color = Color( 0.0196078, 0.0196078, 0.0196078, 1 )
 
 [node name="ResumeButton" type="Button" parent="."]
 margin_left = 890.0

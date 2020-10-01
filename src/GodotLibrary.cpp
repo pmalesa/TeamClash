@@ -25,6 +25,7 @@
 #include "world/World.h"
 
 #include "network/Network.h"
+#include "music_module/MusicModule.h"
 
 #include <gdnative_api_struct.gen.h>
 
@@ -55,6 +56,7 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
 	godot::register_class<godot::WarriorUI>();
 	godot::register_class<godot::ArcherUI>();
 	godot::register_class<godot::Network>();
+	godot::register_class<godot::MusicModule>();
 	godot::register_class<godot::Camera>();
 	godot::register_class<godot::Weapon>();
 	godot::register_class<godot::Dagger>();

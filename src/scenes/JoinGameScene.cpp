@@ -25,6 +25,7 @@ void JoinGameScene::_init()
 void JoinGameScene::_on_JoinGameButton_pressed(Variant body)
 {
 	std::cout << "Join game button pressed." << std::endl;
+	get_node("/root/MusicModule")->call("playButtonClickSound");
 	if (playerName_ == "")
 		playerName_ = "Unnamed";
 	if (serverIp_.is_valid_ip_address() && static_cast<bool>(get_node("/root/Network")->call("joinServer", playerName_, serverIp_)))
@@ -34,6 +35,7 @@ void JoinGameScene::_on_JoinGameButton_pressed(Variant body)
 void JoinGameScene::_on_BackButton_pressed(Variant body)
 {
     std::cout << "Back button pressed." << std::endl;
+	get_node("/root/MusicModule")->call("playButtonClickSound");
     get_tree()->change_scene("res://scenes/MainMenu.tscn");
 }
 

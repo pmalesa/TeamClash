@@ -33,6 +33,7 @@ void CreateGameScene::_on_PlayerName_text_entered(String new_text)
 void CreateGameScene::_on_StartGameButton_pressed(Variant body)
 {
 	std::cout << "Start game button pressed." << std::endl;
+	get_node("/root/MusicModule")->call("playButtonClickSound");
 	if (playerName_ == "")
 		playerName_ = "Unnamed";
 	if (bool(get_node("/root/Network")->call("createServer", playerName_)))
@@ -41,5 +42,6 @@ void CreateGameScene::_on_StartGameButton_pressed(Variant body)
 
 void CreateGameScene::_on_BackButton_pressed(Variant body)
 {
+	get_node("/root/MusicModule")->call("playButtonClickSound");
     get_tree()->change_scene("res://scenes/MainMenu.tscn");
 }

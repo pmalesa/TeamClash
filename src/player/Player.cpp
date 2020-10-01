@@ -161,7 +161,7 @@ void Player::_move(int64_t direction)
 		return;
 
 	if (!is_processing())
-		movementState_ = MovementState::NONE;
+		moveDirection_ = MoveDirection::NONE;
 
     MoveDirection moveDirection = static_cast<MoveDirection>(direction);
 	if (applyThrowback_)
@@ -267,6 +267,7 @@ void Player::immobilize(int64_t immobilizeTime)
 {
 	rpc("setImmobilize", true);
 	rpc("setImmobilizeTime", immobilizeTime);
+	rset("applyThrowback_", false);
 	rpc("throwback", Vector2(0, 0), 0);
 	rpc("setVelocity", Vector2(0, 0));
 }
@@ -278,7 +279,8 @@ void Player::playBodyHitSound()
 
 void Player::applyThrowback(Vector2 direction, int64_t throwbackPower)
 {
-	rpc("throwback", direction, throwbackPower);
+	if (!immobilized_)
+		rpc("throwback", direction, throwbackPower);
 }
 
 void Player::processInput()
@@ -324,7 +326,7 @@ void Player::processInput()
 
 	if (currentWeapon_->isRanged())
 	{
-		if (input->is_action_just_pressed("basic_attack"))
+		if (input->is_action_pressed("basic_attack"))
 		{
 			currentWeapon_->setWeaponState(WeaponState::SHOOTING);
 		}

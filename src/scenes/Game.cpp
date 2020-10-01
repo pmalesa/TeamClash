@@ -101,8 +101,8 @@ void Game::_ready()
 {
     get_tree()->connect("network_peer_disconnected", this, "_on_player_disconnected");
     get_tree()->connect("server_disconnected", this, "_on_server_disconnected");
-	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindow"));
-	menuWindow_ = static_cast<Node2D*>(get_node("MenuWindow"));
+	respawnWindow_ = static_cast<Node2D*>(get_node("RespawnWindowLayer/RespawnWindow"));
+	menuWindow_ = static_cast<Node2D*>(get_node("MenuWindowLayer/MenuWindow"));
 	scoreboard_ = static_cast<Scoreboard*>(get_node("ScoreboardLayer/Scoreboard"));
 	hideRespawnWindow();
 	hideMenuWindow();
@@ -174,7 +174,8 @@ void Game::postconfigureGame()
 		rpc_id(1, "createScoreboardRecord", selfPeerId_, get_node("/root/Network")->call("getChosenTeam"), get_node("/root/Network")->call("getChosenRole"));
 	get_tree()->set_pause(false);
 	Godot::print("[GAME] Every player has been preconfigured.\n[GAME] The game has started.");
-	static_cast<AudioStreamPlayer*>(get_node("BackgroundMusic"))->play();
+	get_node("/root/MusicModule")->call("stopPlayingMusic");
+	get_node("/root/MusicModule")->call("playInGameMusic");
 }
 
 void Game::initiatizeCharacter(int64_t peerId, int64_t chosenTeam, int64_t chosenRole)
@@ -186,15 +187,20 @@ void Game::_process(float delta)
 {
 	Input* input = Input::get_singleton();
 	Camera* camera = static_cast<Camera*>(get_node("/root/Game/Camera2D"));
-	menuWindow_->set_position(player_->get_position() - Vector2(960, 540));
 	camera->set_position(player_->get_position());
 
 	if (input->is_action_just_pressed("escape"))
 	{
 		if (menuWindow_->is_visible())
+		{
 			hideMenuWindow();
+		}
 		else
+		{
 			showMenuWindow();
+			if (player_ != nullptr)
+				player_->set_process(false);
+		}
 	}
 
 	if (!menuWindow_->is_visible())
@@ -208,7 +214,7 @@ void Game::_process(float delta)
 	if (respawnWindow_->is_visible())
 	{
 		Variant timeLeft = int(static_cast<Timer*>(player_->get_node("RespawnTimer"))->get_time_left());
-		static_cast<Label*>(get_node("RespawnWindow/RespawnWindowBox/CountdownLabel"))->set_text(String(timeLeft));
+		static_cast<Label*>(respawnWindow_->get_node("RespawnWindowBox/CountdownLabel"))->set_text(String(timeLeft));
 	}
 }
 
@@ -233,8 +239,6 @@ void Game::_on_server_disconnected(int64_t id)
 
 void Game::showRespawnWindow()
 {
-	Camera* camera = static_cast<Camera*>(get_node("Camera2D"));
-	respawnWindow_->set_position(Vector2(camera->get_position().x - 960, camera->get_position().y - 540));
 	respawnWindow_->set_visible(true);
 }
 
@@ -246,7 +250,6 @@ void Game::hideRespawnWindow()
 void Game::showMenuWindow()
 {
 	menuWindow_->set_visible(true);
-	if (player_) player_->set_process(false);
 }
 
 void Game::hideMenuWindow()

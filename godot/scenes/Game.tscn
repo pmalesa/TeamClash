@@ -29,23 +29,25 @@ font_data = ExtResource( 2 )
 [node name="Game" type="Node"]
 script = ExtResource( 1 )
 
-[node name="RespawnWindow" type="Node2D" parent="."]
+[node name="RespawnWindowLayer" type="CanvasLayer" parent="."]
+
+[node name="RespawnWindow" type="Node2D" parent="RespawnWindowLayer"]
 show_behind_parent = true
 z_index = 100
 
-[node name="RespawnWindowBackground" type="ColorRect" parent="RespawnWindow"]
+[node name="RespawnWindowBackground" type="ColorRect" parent="RespawnWindowLayer/RespawnWindow"]
 margin_right = 1920.0
 margin_bottom = 1080.0
 color = Color( 0, 0, 0, 0.878431 )
 
-[node name="RespawnWindowBox" type="ColorRect" parent="RespawnWindow"]
+[node name="RespawnWindowBox" type="ColorRect" parent="RespawnWindowLayer/RespawnWindow"]
 margin_left = 760.0
 margin_top = 340.0
 margin_right = 1160.0
 margin_bottom = 740.0
-color = Color( 0.0666667, 0.0666667, 0.0666667, 1 )
+color = Color( 0.0196078, 0.0196078, 0.0196078, 1 )
 
-[node name="Label_1" type="Label" parent="RespawnWindow/RespawnWindowBox"]
+[node name="Label_1" type="Label" parent="RespawnWindowLayer/RespawnWindow/RespawnWindowBox"]
 margin_left = 22.616
 margin_top = 71.2859
 margin_right = 378.616
@@ -57,7 +59,7 @@ text = "You have died"
 align = 1
 valign = 1
 
-[node name="Label_2" type="Label" parent="RespawnWindow/RespawnWindowBox"]
+[node name="Label_2" type="Label" parent="RespawnWindowLayer/RespawnWindow/RespawnWindowBox"]
 margin_left = 111.198
 margin_top = 171.137
 margin_right = 289.198
@@ -69,7 +71,7 @@ text = "Respawning in"
 align = 1
 valign = 1
 
-[node name="CountdownLabel" type="Label" parent="RespawnWindow/RespawnWindowBox"]
+[node name="CountdownLabel" type="Label" parent="RespawnWindowLayer/RespawnWindow/RespawnWindowBox"]
 margin_left = 150.0
 margin_top = 205.0
 margin_right = 252.0
@@ -93,11 +95,14 @@ drag_margin_top = 0.0
 drag_margin_right = 0.0
 drag_margin_bottom = 0.0
 
-[node name="MenuWindow" parent="." instance=ExtResource( 4 )]
+[node name="MenuWindowLayer" type="CanvasLayer" parent="."]
+
+[node name="MenuWindow" parent="MenuWindowLayer" instance=ExtResource( 4 )]
 visible = false
 z_index = 102
 
 [node name="ScoreboardLayer" type="CanvasLayer" parent="."]
+editor/display_folded = true
 
 [node name="Scoreboard" type="Node2D" parent="ScoreboardLayer"]
 position = Vector2( 360, 140 )

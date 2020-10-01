@@ -73,6 +73,12 @@
     <Filter Include="Source Files\player\ui">
       <UniqueIdentifier>{1c40c401-8ca3-4319-9969-181db0d5772c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\music_module">
+      <UniqueIdentifier>{a7d1c6eb-392f-43fa-b013-f7812d99f336}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\music_module">
+      <UniqueIdentifier>{1c4b5fd3-42d5-445e-8e4d-ea3e228de5cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
@@ -162,6 +168,9 @@
     <ClCompile Include="scenes\Scoreboard.cpp">
       <Filter>Source Files\scenes</Filter>
     </ClCompile>
+    <ClCompile Include="music_module\MusicModule.cpp">
+      <Filter>Source Files\music_module</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -250,6 +259,9 @@
     </ClInclude>
     <ClInclude Include="scenes\Scoreboard.h">
       <Filter>Header Files\scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="music_module\MusicModule.h">
+      <Filter>Header Files\music_module</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

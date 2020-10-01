@@ -21,11 +21,15 @@ void MenuWindow::_init()
 
 void MenuWindow::_on_ResumeButton_pressed()
 {
+	get_node("/root/MusicModule")->call("playButtonClickSound");
 	get_node("/root/Game")->call("hideMenuWindow");
 }
 
 void MenuWindow::_on_MainMenuButton_pressed()
 {
+	get_node("/root/MusicModule")->call("playButtonClickSound");
+	get_node("/root/MusicModule")->call("stopPlayingMusic");
+	get_node("/root/MusicModule")->call("playMainMenuMusic");
 	get_node("/root/Game")->queue_free();
 	get_node("/root/Network")->call("closeNetwork");
 	get_tree()->change_scene("res://scenes/MainMenu.tscn");
@@ -33,6 +37,7 @@ void MenuWindow::_on_MainMenuButton_pressed()
 
 void MenuWindow::_on_ExitGameButton_pressed()
 {
+	get_node("/root/MusicModule")->call("playButtonClickSound");
 	get_node("/root/Game")->queue_free();
 	get_node("/root/Network")->call("closeNetwork");
 	get_tree()->quit();
