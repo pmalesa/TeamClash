@@ -44,7 +44,7 @@ namespace godot
 	protected:
 		void processMeleeAttack();
 
-		Array alreadyAttackedPlayers_;
+		Array alreadyAttackedNodes_;
 
 	private:
 		virtual void _physics_process(float delta) {}

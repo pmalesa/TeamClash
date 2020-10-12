@@ -1,6 +1,7 @@
 #include "Trap.h"
 
 #include "../../player/Player.h"
+#include "../../npc/monsters/Monster.h"
 
 #include <Area2D.hpp>
 #include <CollisionPolygon2D.hpp>
@@ -157,14 +158,14 @@ void Trap::processTrigger()
 	if (!overlappingBodies.empty())
 	{
 		Node* overlappedNode = static_cast<Node*>(overlappingBodies[0]);
+		currentState_ = TrapState::TRIGGERED;
+		rpc("playTriggerAnimation");
+		static_cast<Timer*>(get_node("LifeAfterTriggerTimer"))->start();
 		if (overlappedNode->is_in_group("Player"))
-		{
-			currentState_ = TrapState::TRIGGERED;
-			rpc("playTriggerAnimation");
-			static_cast<Timer*>(get_node("LifeAfterTriggerTimer"))->start();
 			static_cast<Player*>(overlappedNode)->immobilize(IMMOBILIZE_TIME);
-			set_physics_process(false);
-		}
+		else if (overlappedNode->is_in_group("Monster"))
+			static_cast<Monster*>(overlappedNode)->immobilize(IMMOBILIZE_TIME);
+		set_physics_process(false);
 	}
 }
 

@@ -1,0 +1,151 @@
+[gd_scene load_steps=21 format=2]
+
+[ext_resource path="res://monsters/imp/Imp.gdns" type="Script" id=1]
+[ext_resource path="res://sprites/monsters/imp/idle.png" type="Texture" id=2]
+[ext_resource path="res://sprites/monsters/imp/walk_1.png" type="Texture" id=3]
+[ext_resource path="res://sprites/monsters/imp/walk_2.png" type="Texture" id=4]
+[ext_resource path="res://sprites/effects/entanglement.png" type="Texture" id=5]
+[ext_resource path="res://player/HealthBar.tscn" type="PackedScene" id=6]
+[ext_resource path="res://scenes/NicknameFont/NicknameFont.tres" type="DynamicFont" id=7]
+[ext_resource path="res://sprites/monsters/imp/hand_idle.png" type="Texture" id=8]
+[ext_resource path="res://sprites/monsters/imp/hand_attack_1.png" type="Texture" id=9]
+[ext_resource path="res://sprites/monsters/imp/hand_attack_2.png" type="Texture" id=10]
+[ext_resource path="res://sprites/monsters/imp/hand_attack_3.png" type="Texture" id=11]
+[ext_resource path="res://sprites/monsters/imp/hand_attack_4.png" type="Texture" id=12]
+[ext_resource path="res://sprites/monsters/imp/hand_walk_1.png" type="Texture" id=13]
+[ext_resource path="res://sprites/monsters/imp/hand_walk_2.png" type="Texture" id=14]
+[ext_resource path="res://sounds/Body_hit.ogg" type="AudioStream" id=15]
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 10.841, 23 )
+
+[sub_resource type="CapsuleShape2D" id=2]
+radius = 16.5108
+height = 14.715
+
+[sub_resource type="RectangleShape2D" id=3]
+
+[sub_resource type="SpriteFrames" id=4]
+animations = [ {
+"frames": [ ExtResource( 2 ) ],
+"loop": true,
+"name": "idle",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 2 ), ExtResource( 3 ), ExtResource( 2 ), ExtResource( 4 ) ],
+"loop": true,
+"name": "walk",
+"speed": 15.0
+} ]
+
+[sub_resource type="SpriteFrames" id=5]
+animations = [ {
+"frames": [ ExtResource( 8 ) ],
+"loop": true,
+"name": "idle",
+"speed": 5.0
+}, {
+"frames": [ ExtResource( 9 ), ExtResource( 10 ), ExtResource( 11 ), ExtResource( 12 ), ExtResource( 8 ) ],
+"loop": true,
+"name": "melee_attack",
+"speed": 20.0
+}, {
+"frames": [ ExtResource( 8 ), ExtResource( 13 ), ExtResource( 8 ), ExtResource( 14 ) ],
+"loop": true,
+"name": "walk",
+"speed": 15.0
+} ]
+
+[node name="Imp" type="KinematicBody2D" groups=[
+"Monster",
+]]
+script = ExtResource( 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2( 0, 9 )
+shape = SubResource( 1 )
+
+[node name="VisionArea" type="Area2D" parent="."]
+visible = false
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="VisionArea"]
+visible = false
+polygon = PoolVector2Array( -100, 400, -100, -400, 800, -400, 800, 400 )
+
+[node name="AttackArea" type="Area2D" parent="."]
+visible = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
+visible = false
+position = Vector2( 8, 5.5 )
+shape = SubResource( 2 )
+
+[node name="ObstacleArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ObstacleArea"]
+position = Vector2( 30, 25 )
+scale = Vector2( 0.5, 0.5 )
+shape = SubResource( 3 )
+
+[node name="body_sprite" type="AnimatedSprite" parent="."]
+scale = Vector2( 2, 2 )
+z_index = 2
+frames = SubResource( 4 )
+animation = "idle"
+
+[node name="Entanglement" type="Sprite" parent="body_sprite"]
+visible = false
+position = Vector2( 0, 11 )
+texture = ExtResource( 5 )
+
+[node name="HealthBar" type="Node2D" parent="."]
+
+[node name="HealthBar" parent="HealthBar" instance=ExtResource( 6 )]
+margin_left = -15.7621
+margin_top = -25.9408
+margin_right = 24.2379
+margin_bottom = 14.0592
+
+[node name="NameBar" type="Node2D" parent="."]
+
+[node name="Name" type="Label" parent="NameBar"]
+margin_left = -10.888
+margin_top = -45.9015
+margin_right = 29.112
+margin_bottom = -26.9015
+custom_fonts/font = ExtResource( 7 )
+text = "Imp"
+
+[node name="left_hand_sprite" type="AnimatedSprite" parent="."]
+position = Vector2( 8, 8 )
+scale = Vector2( 2, 2 )
+z_index = 1
+frames = SubResource( 5 )
+animation = "idle"
+
+[node name="right_hand_sprite" type="AnimatedSprite" parent="."]
+position = Vector2( -6, 8 )
+scale = Vector2( 2, 2 )
+z_index = 4
+frames = SubResource( 5 )
+animation = "idle"
+
+[node name="SlowTimer" type="Timer" parent="."]
+
+[node name="ImmobilizeTimer" type="Timer" parent="."]
+
+[node name="RespawnTimer" type="Timer" parent="."]
+wait_time = 3.0
+
+[node name="AIProcessingTimer" type="Timer" parent="."]
+wait_time = 2.0
+
+[node name="BodyHitSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 15 )
+volume_db = -15.0
+
+[node name="DeathSound" type="AudioStreamPlayer" parent="."]
+[connection signal="timeout" from="SlowTimer" to="." method="_on_SlowTimer_timeout"]
+[connection signal="timeout" from="ImmobilizeTimer" to="." method="_on_ImmobilizeTimer_timeout"]
+[connection signal="timeout" from="RespawnTimer" to="." method="_on_RespawnTimer_timeout"]
+[connection signal="timeout" from="AIProcessingTimer" to="." method="_on_AIProcessingTimer_timeout"]

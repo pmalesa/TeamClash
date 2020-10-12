@@ -20,6 +20,8 @@
 #include <Input.hpp>
 #include <CanvasLayer.hpp>
 
+#include "../npc/monsters/imp/Imp.h"
+
 #include <OS.hpp>
 
 #include <iostream>
@@ -42,6 +44,8 @@ void Game::_register_methods()
 	register_method("showRespawnWindow", &Game::showRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideRespawnWindow", &Game::hideRespawnWindow, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("hideMenuWindow", &Game::hideMenuWindow, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("initializeImps", &Game::initializeImps, GODOT_METHOD_RPC_MODE_REMOTESYNC);
+
 	register_method("getSelfPlayer", &Game::getSelfPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getPlayer", &Game::getPlayer, GODOT_METHOD_RPC_MODE_DISABLED);
 
@@ -94,6 +98,7 @@ void Game::_init()
 	explosiveBoltScene_ = resourceLoader->load("res://equipment/projectiles/ExplosiveBolt.tscn");
 	entanglingBallsScene_ = resourceLoader->load("res://equipment/utility/EntanglingBalls.tscn");
 	trapScene_ = resourceLoader->load("res://equipment/utility/Trap.tscn");
+	impScene_ = resourceLoader->load("res://monsters/imp/Imp.tscn");
 	Godot::print("[GAME] Game initialized.");
 }
 
@@ -143,10 +148,21 @@ void Game::preconfigureGame()
 	}
 	player_ = static_cast<Player*>(players_[selfPeerId_]);
 	initializeEquipmentNodes();
-	if (!get_tree()->is_network_server())
-		rpc_id(1, "donePreconfiguring", selfPeerId_);
-	else
+	if (get_tree()->is_network_server())
+	{
+		initalizeMonsters();
 		donePreconfiguring(selfPeerId_);
+	}
+	else
+	{
+		rpc_id(1, "donePreconfiguring", selfPeerId_);
+	}
+
+
+	//if (!get_tree()->is_network_server())
+	//	rpc_id(1, "donePreconfiguring", selfPeerId_);
+	//else
+	//	donePreconfiguring(selfPeerId_);
 }
 
 void Game::donePreconfiguring(int64_t peerId)
@@ -234,6 +250,8 @@ void Game::_on_player_disconnected(int64_t id)
 
 void Game::_on_server_disconnected(int64_t id)
 {
+	get_node("/root/MusicModule")->call("stopPlayingMusic");
+	get_node("/root/MusicModule")->call("playMainMenuMusic");
     get_tree()->change_scene("res://scenes/MainMenu.tscn");
 }
 
@@ -361,6 +379,41 @@ void Game::initializeTraps()
 		trapVector_.push_back(trap);
 	}
 	Godot::print("[GAME] Trap nodes initialized.");
+}
+
+void Game::initalizeMonsters()
+{
+	rpc("initializeImps");
+}
+
+void Game::initializeImps()
+{
+	Godot::print("[GAME] Initializing imps...");
+	int64_t nImps = get_node("/root/Network")->call("getMonsterCount");
+
+	//int64_t nImps = 1;
+
+	for (int64_t i = 0; i < nImps; ++i)
+	{
+		Imp* newImp = static_cast<Imp*>(impScene_->instance());
+		//Vector2 spawnPoint = Vector2(get_node("World")->call("getCrimsonTeamSpawnPoint")) - Vector2(get_node("World")->call("getCeladonTeamSpawnPoint"));
+		//spawnPoint.x /= 2;
+		//spawnPoint.y -= 20 * static_cast<int64_t>(get_node("World")->call("getBlockSize"));
+
+		Variant impID = i;
+		newImp->set_name(String(impID));
+		newImp->set_network_master(1);
+		//newImp->setSpawnPoint(Vector2(get_node("World")->call("getCeladonTeamSpawnPoint")));
+		newImp->set_position(Vector2(get_node("World")->call("getCeladonTeamSpawnPoint")) + Vector2(64 * (i + 1), 0));
+		get_node("Monsters")->add_child(newImp);
+
+		//newImp->init(Vector2(get_node("World")->call("getCeladonTeamSpawnPoint")));
+	}
+
+
+
+
+	Godot::print("[GAME] Imps initialized.");
 }
 
 void Game::createScoreboardRecord(int64_t playerNodeName, int64_t team, int64_t role)

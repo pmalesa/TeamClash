@@ -1,6 +1,7 @@
 #include "Weapon.h"
 
 #include "../../player/Player.h"
+#include "../../npc/monsters/Monster.h"
 
 #include <SceneTree.hpp>
 
@@ -30,22 +31,33 @@ void Weapon::processMeleeAttack()
 		for (unsigned int i = 0; i < overlapingBodies.size(); ++i)
 		{
 			Node* overlappedNode = static_cast<Node*>(overlapingBodies[i]);
-			if (!overlappedNode->is_in_group("Player"))
-				continue;
-			else
+			if (overlappedNode->is_in_group("Player"))
 			{
 				Player* attackedPlayer = static_cast<Player*>(overlapingBodies[i]);
-				if (attackedPlayer->get_name() != getOwner()->get_name() && !(alreadyAttackedPlayers_.has(attackedPlayer)))
+				if (attackedPlayer->get_name() != getOwner()->get_name() && !(alreadyAttackedNodes_.has(attackedPlayer)))
 				{
 					attackedPlayer->inflictDamage(getDamage(), owner_);
 					if (attackedPlayer->getHealthPoints() > 0)
 						attackedPlayer->applyThrowback(attackedPlayer->get_position() - getOwnerPosition());
-					alreadyAttackedPlayers_.push_front(attackedPlayer);
+					alreadyAttackedNodes_.push_front(attackedPlayer);
 				}
 			}
+			else if (overlappedNode->is_in_group("Monster"))
+			{
+				Monster* attackedMonster = static_cast<Monster*>(overlapingBodies[i]);
+				if (!(alreadyAttackedNodes_.has(attackedMonster)))
+				{
+					attackedMonster->inflictDamage(getDamage(), owner_);
+					if (attackedMonster->getHealthPoints() > 0/* && !attackedMonster->is_in_group("Elite")*/)
+						attackedMonster->applyThrowback(attackedMonster->get_position() - getOwnerPosition());
+					alreadyAttackedNodes_.push_front(attackedMonster);
+				}
+			}
+			else
+				continue;
 		}
 		set_physics_process(false);
 	}
-	else if (!alreadyAttackedPlayers_.empty())
-		alreadyAttackedPlayers_.clear();
+	else if (!alreadyAttackedNodes_.empty())
+		alreadyAttackedNodes_.clear();
 }

@@ -31,8 +31,9 @@ namespace godot
 		void _init();
 		void _ready();
 
-		Vector2 getCeladonTeamSpawnPoint() { return celadonTeamSpawnPoint_; }
-		Vector2 getCrimsonTeamSpawnPoint() { return crimsonTeamSpawnPoint_; }
+		int64_t getBlockSize() const { return blockSize_; }
+		Vector2 getCeladonTeamSpawnPoint() const { return celadonTeamSpawnPoint_; }
+		Vector2 getCrimsonTeamSpawnPoint() const { return crimsonTeamSpawnPoint_; }
 
 	private:
 		void generateMap();

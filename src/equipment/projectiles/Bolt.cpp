@@ -1,6 +1,7 @@
 #include "Bolt.h"
 
 #include "../../player/Player.h"
+#include "../../npc/monsters/Monster.h"
 
 #include <SceneTree.hpp>
 #include <Area2D.hpp>
@@ -93,6 +94,14 @@ void Bolt::processImpact()
 			Player* shotPlayer = static_cast<Player*>(overlapingBodies[i]);
 			if (shotPlayer->get_name() != shooter_->get_name())
 				shotPlayer->inflictDamage(damage_, shooter_);
+			rpc("deactivate");
+			return;
+		}
+		else if (overlappedNode->is_in_group("Monster"))
+		{
+			Monster* shotMonster = static_cast<Monster*>(overlapingBodies[i]);
+			if (shotMonster->get_name() != shooter_->get_name())
+				shotMonster->inflictDamage(damage_, shooter_);
 			rpc("deactivate");
 			return;
 		}

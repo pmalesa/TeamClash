@@ -382,10 +382,6 @@ void Player::_die(Player* killer)
     }
 	if (is_network_master())
 		get_node("/root/Game")->call("showRespawnWindow");
-	if (get_tree()->is_network_server())
-	{
-		// Update scoreboard's data and serve it across all peers
-	}
 }
 
 void Player::_on_SlowTimer_timeout()

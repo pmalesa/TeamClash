@@ -1,6 +1,7 @@
 #include "ExplosiveBolt.h"
 
 #include "../../player/Player.h"
+#include "../../npc/monsters/Monster.h"
 
 #include <Area2D.hpp>
 #include <Timer.hpp>
@@ -91,6 +92,13 @@ void ExplosiveBolt::processImpact()
 			Player* shotPlayer = static_cast<Player*>(explosionOverlapingBodies[i]);
 			shotPlayer->inflictDamage(damage_, shooter_);
 			shotPlayer->applyThrowback(shotPlayer->get_position() - get_position(), EXPLOSION_THROWBACK);
+		}
+		else if (overlappedNode->is_in_group("Monster"))
+		{
+			Monster* shotMonster = static_cast<Monster*>(explosionOverlapingBodies[i]);
+			shotMonster->inflictDamage(damage_, shooter_);
+			//if (!overlappedNode->is_in_group("Elite"))
+				shotMonster->applyThrowback(shotMonster->get_position() - get_position(), EXPLOSION_THROWBACK);
 		}
 	}
 }

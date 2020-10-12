@@ -154,7 +154,6 @@ namespace godot
 		float damageFactor_;
         int64_t nodeName_;
 
-		Array alreadyAttackedPlayers_;
 		Vector2 throwbackVelocity_;
 		bool applyThrowback_;
 		bool immobilized_;
