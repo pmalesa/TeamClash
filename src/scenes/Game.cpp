@@ -383,16 +383,14 @@ void Game::initializeTraps()
 
 void Game::initalizeMonsters()
 {
-	rpc("initializeImps");
+	uint16_t nImps = get_node("/root/Network")->call("getMonsterCount");
+	if (nImps > 10) nImps = 10;
+	rpc("initializeImps", nImps);
 }
 
-void Game::initializeImps()
+void Game::initializeImps(uint16_t nImps)
 {
 	Godot::print("[GAME] Initializing imps...");
-	int64_t nImps = get_node("/root/Network")->call("getMonsterCount");
-
-	//int64_t nImps = 1;
-
 	for (int64_t i = 0; i < nImps; ++i)
 	{
 		Imp* newImp = static_cast<Imp*>(impScene_->instance());
@@ -409,10 +407,6 @@ void Game::initializeImps()
 
 		//newImp->init(Vector2(get_node("World")->call("getCeladonTeamSpawnPoint")));
 	}
-
-
-
-
 	Godot::print("[GAME] Imps initialized.");
 }
 

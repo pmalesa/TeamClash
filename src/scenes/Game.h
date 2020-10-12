@@ -66,7 +66,7 @@ namespace godot
 		void initializeTraps();
 
 		void initalizeMonsters();
-		void initializeImps();
+		void initializeImps(uint16_t nImps);
 
 		void createScoreboardRecord(int64_t playerNodeName, int64_t team, int64_t role);
 
@@ -124,6 +124,7 @@ namespace godot
 		Ref<PackedScene> trapScene_;
 
 		Ref<PackedScene> impScene_;
+		uint16_t nImps_;
 
 		/* PRECONSTRUCTED OBJECTS */
 		const static uint64_t MAX_BOLTS_COUNT = 100;

@@ -4,10 +4,12 @@
 #include <AudioStreamPlayer.hpp>
 #include <AnimatedSprite.hpp>
 #include <CollisionShape2D.hpp>
+#include <cmath>
 
 #include <iostream>
 
 extern std::default_random_engine generator;
+std::uniform_real_distribution<float> distribution(0.1f, 3.0f);
 
 using namespace godot;
 
@@ -119,7 +121,7 @@ void Imp::_on_AIProcessingTimer_timeout()
 	{
 		if (moveDirection_ == MoveDirection::NONE)
 		{
-			AIProcessingTimer_->set_wait_time(generator() % 3);
+			AIProcessingTimer_->set_wait_time(distribution(generator));
 			if (generator() % 2)
 				moveDirection_ = MoveDirection::RIGHT;
 			else

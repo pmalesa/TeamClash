@@ -217,11 +217,10 @@ void Lobby::_on_NumberOfMonstersLineEdit_text_entered(String new_text)
 {
 	if (new_text.is_valid_integer())
 	{
-		if (new_text[0] == '0')
-		{
-			Variant value = new_text.to_int();
-			new_text = String(value);
-		}
+		int64_t enteredNumber = new_text.to_int();
+		if (enteredNumber > 10) enteredNumber = 10;
+		Variant value = enteredNumber;
+		new_text = String(value);
 	}
 	else
 	{
