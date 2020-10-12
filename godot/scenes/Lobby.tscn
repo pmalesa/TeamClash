@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=2]
+[gd_scene load_steps=24 format=2]
 
 [ext_resource path="res://scenes/Lobby.gdns" type="Script" id=1]
 [ext_resource path="res://scenes/ButtonFont/MainMenu.tres" type="DynamicFont" id=2]
@@ -17,20 +17,26 @@
 [ext_resource path="res://scenes/ButtonTheme/ButtonTheme.tres" type="Theme" id=15]
 [ext_resource path="res://scenes/ScoreRecordFont/ScoreRecordFont.tres" type="DynamicFont" id=16]
 
-[sub_resource type="StyleBoxFlat" id=3]
+[sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.0901961, 0.0901961, 0.0901961, 1 )
+
+[sub_resource type="StyleBoxFlat" id=2]
+bg_color = Color( 0.054902, 0.054902, 0.054902, 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0.0313726, 0.0313726, 0.0313726, 1 )
 
 [sub_resource type="StyleBoxFlat" id=4]
 bg_color = Color( 0.054902, 0.054902, 0.054902, 1 )
 
 [sub_resource type="StyleBoxFlat" id=5]
-bg_color = Color( 0.0313726, 0.0313726, 0.0313726, 1 )
-
-[sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.054902, 0.054902, 0.054902, 1 )
 
-[sub_resource type="StyleBoxFlat" id=2]
+[sub_resource type="StyleBoxFlat" id=6]
 bg_color = Color( 0.054902, 0.054902, 0.054902, 1 )
+
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.0901961, 0.0901961, 0.0901961, 1 )
 
 [node name="Lobby" type="Node2D"]
 script = ExtResource( 1 )
@@ -159,8 +165,8 @@ margin_bottom = 838.96
 margin_top = 405.0
 margin_right = 700.0
 margin_bottom = 450.0
-custom_styles/focus = SubResource( 3 )
-custom_styles/normal = SubResource( 4 )
+custom_styles/focus = SubResource( 1 )
+custom_styles/normal = SubResource( 2 )
 custom_fonts/font = ExtResource( 16 )
 
 [node name="SendButton" type="Button" parent="LobbyPanel/ChatPanel"]
@@ -169,7 +175,7 @@ margin_top = 405.0
 margin_right = 850.0
 margin_bottom = 450.0
 theme = ExtResource( 15 )
-custom_styles/disabled = SubResource( 5 )
+custom_styles/disabled = SubResource( 3 )
 custom_fonts/font = ExtResource( 2 )
 
 [node name="SendButtonLabel" type="Label" parent="LobbyPanel/ChatPanel/SendButton"]
@@ -184,7 +190,7 @@ valign = 1
 [node name="ChatDisplay" type="TextEdit" parent="LobbyPanel/ChatPanel"]
 margin_right = 850.0
 margin_bottom = 400.0
-custom_styles/read_only = SubResource( 1 )
+custom_styles/read_only = SubResource( 4 )
 custom_fonts/font = ExtResource( 16 )
 custom_colors/font_color = Color( 1, 1, 1, 1 )
 readonly = true
@@ -205,7 +211,7 @@ margin_bottom = 400.0
 [node name="ConnectedPlayersDisplay" type="TextEdit" parent="LobbyPanel/ConnectedPlayersPanel"]
 margin_right = 850.0
 margin_bottom = 250.0
-custom_styles/read_only = SubResource( 2 )
+custom_styles/read_only = SubResource( 5 )
 custom_fonts/font = ExtResource( 16 )
 readonly = true
 
@@ -215,6 +221,38 @@ margin_right = 850.0
 custom_fonts/font = ExtResource( 2 )
 text = "Connected players"
 valign = 1
+
+[node name="NumberOfMonstersLineEdit" type="LineEdit" parent="LobbyPanel"]
+margin_left = 1640.0
+margin_top = 590.0
+margin_right = 1712.0
+margin_bottom = 620.0
+custom_styles/focus = SubResource( 6 )
+custom_styles/normal = SubResource( 7 )
+custom_fonts/font = ExtResource( 16 )
+text = "0"
+
+[node name="Label" type="Label" parent="LobbyPanel/NumberOfMonstersLineEdit"]
+margin_left = -315.0
+margin_right = -17.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 2 )
+text = "Number of monsters"
+
+[node name="SpecialEventCheckBox" type="CheckBox" parent="LobbyPanel"]
+margin_left = 1538.0
+margin_top = 635.0
+margin_right = 1562.0
+margin_bottom = 659.0
+pressed = true
+
+[node name="Label" type="Label" parent="LobbyPanel/SpecialEventCheckBox"]
+margin_left = -215.0
+margin_top = -3.0
+margin_right = -15.0
+margin_bottom = 28.0
+custom_fonts/font = ExtResource( 2 )
+text = "Special event"
 [connection signal="pressed" from="LobbyPanel/ConfigWindow/CeladonTeamButton" to="." method="_on_CeladonTeamButton_pressed"]
 [connection signal="pressed" from="LobbyPanel/ConfigWindow/CrimsonTeamButton" to="." method="_on_CrimsonTeamButton_pressed"]
 [connection signal="pressed" from="LobbyPanel/ConfigWindow/WarriorButton" to="." method="_on_WarriorButton_pressed"]
@@ -224,3 +262,6 @@ valign = 1
 [connection signal="focus_entered" from="LobbyPanel/ChatPanel/ChatPanelLineEdit" to="." method="_on_ChatPanelLineEdit_focus_entered"]
 [connection signal="focus_exited" from="LobbyPanel/ChatPanel/ChatPanelLineEdit" to="." method="_on_ChatPanelLineEdit_focus_exited"]
 [connection signal="pressed" from="LobbyPanel/ChatPanel/SendButton" to="." method="_on_SendButton_pressed"]
+[connection signal="text_changed" from="LobbyPanel/NumberOfMonstersLineEdit" to="." method="_on_NumberOfMonstersLineEdit_text_changed"]
+[connection signal="text_entered" from="LobbyPanel/NumberOfMonstersLineEdit" to="." method="_on_NumberOfMonstersLineEdit_text_entered"]
+[connection signal="toggled" from="LobbyPanel/SpecialEventCheckBox" to="." method="_on_SpecialEventCheckBox_toggled"]

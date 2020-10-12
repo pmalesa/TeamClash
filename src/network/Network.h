@@ -35,12 +35,19 @@ namespace godot
 		void setChosenTeam(int64_t chosenTeam) { chosenTeam_ = chosenTeam; }
 		void setChosenRole(int64_t chosenRole) { chosenRole_ = chosenRole; }
 
+		void setMonsterCount(int64_t newMonsterCount) { monsterCount_ = newMonsterCount; }
+		void enableSpecialEvent(bool val) { specialEventEnabled_ = val; }
+
 		String getPlayerNickname() const { return nickname_;  }
 		String getConnectedPlayerNickname(int64_t playerId);
 		int64_t getPlayerNetworkId() const { return networkId_; }
 		Dictionary getConnectedPlayers() const { return connectedPlayers_; }
 		int64_t getChosenTeam() const { return chosenTeam_; }
 		int64_t getChosenRole() const { return chosenRole_; }
+		int64_t getMaxMonsterCount() const { return MAX_MONSTER_COUNT; }
+
+		int64_t getMonsterCount() const { return monsterCount_; }
+		bool specialEventEnabled() const { return specialEventEnabled_; }
 
 		void addPlayer(int64_t id, String nickname);
 		void removePlayer(int64_t id);
@@ -56,7 +63,11 @@ namespace godot
 		int64_t chosenTeam_;
 		int64_t chosenRole_;
 
+		int64_t monsterCount_;
+		bool specialEventEnabled_;
+
 		const int64_t SERVER_PORT = 12345;
 		const int64_t MAX_PLAYERS = 32;
+		const int64_t MAX_MONSTER_COUNT = 20;
 	};
 }

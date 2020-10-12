@@ -102,7 +102,6 @@ visible = false
 z_index = 102
 
 [node name="ScoreboardLayer" type="CanvasLayer" parent="."]
-editor/display_folded = true
 
 [node name="Scoreboard" type="Node2D" parent="ScoreboardLayer"]
 position = Vector2( 360, 140 )
@@ -277,6 +276,8 @@ text = "Scoreboard"
 
 [node name="UI" type="Node2D" parent="."]
 z_index = 80
+
+[node name="Monsters" type="Node2D" parent="."]
 
 [node name="Bolts" type="Node2D" parent="."]
 

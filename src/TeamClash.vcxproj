@@ -159,6 +159,8 @@
     <ClCompile Include="music_module\MusicModule.cpp" />
     <ClCompile Include="network\Network.cpp" />
     <ClCompile Include="network\NetworkOld.cpp" />
+    <ClCompile Include="npc\monsters\imp\Imp.cpp" />
+    <ClCompile Include="npc\monsters\Monster.cpp" />
     <ClCompile Include="player\Archer.cpp" />
     <ClCompile Include="player\Player.cpp" />
     <ClCompile Include="player\ui\ArcherUI.cpp" />
@@ -190,6 +192,8 @@
     <ClInclude Include="music_module\MusicModule.h" />
     <ClInclude Include="network\Network.h" />
     <ClInclude Include="network\NetworkOld.h" />
+    <ClInclude Include="npc\monsters\imp\Imp.h" />
+    <ClInclude Include="npc\monsters\Monster.h" />
     <ClInclude Include="player\Archer.h" />
     <ClInclude Include="player\Player.h" />
     <ClInclude Include="player\Role.h" />

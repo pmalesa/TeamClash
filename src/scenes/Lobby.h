@@ -42,6 +42,9 @@ namespace godot
 		void _on_CrimsonTeamButton_pressed();
 		void _on_WarriorButton_pressed();
 		void _on_ArcherButton_pressed();
+		void _on_NumberOfMonstersLineEdit_text_changed(String new_text);
+		void _on_NumberOfMonstersLineEdit_text_entered(String new_text);
+		void _on_SpecialEventCheckBox_toggled(bool button_pressed);
 
 		void updateConnectedPlayersWindow();
 		void sendMessage(String message);

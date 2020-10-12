@@ -65,6 +65,9 @@ namespace godot
 		void initializeEntanglingBalls();
 		void initializeTraps();
 
+		void initalizeMonsters();
+		void initializeImps();
+
 		void createScoreboardRecord(int64_t playerNodeName, int64_t team, int64_t role);
 
 		void activateEntanglingBalls(String nodeName, int64_t shooterNodeName, Vector2 initialPosition, Vector2 initialDirection);
@@ -120,6 +123,8 @@ namespace godot
 		Ref<PackedScene> entanglingBallsScene_;
 		Ref<PackedScene> trapScene_;
 
+		Ref<PackedScene> impScene_;
+
 		/* PRECONSTRUCTED OBJECTS */
 		const static uint64_t MAX_BOLTS_COUNT = 100;
 		const static uint64_t MAX_EXPLOSIVE_BOLTS_COUNT = 100;
@@ -145,7 +150,6 @@ namespace godot
 		vector<Trap*> trapVector_;
 		unordered_map<Trap*, list<Trap*>::iterator> activatedTrapsMap_;
 		list<Trap*> activatedTrapsList_;
-	
 
 		Node2D* respawnWindow_;
 		Node2D* menuWindow_;

@@ -1,6 +1,7 @@
 #include "EntanglingBalls.h"
 
 #include "../../player/Player.h"
+#include "../../npc/monsters/Monster.h"
 
 #include <Area2D.hpp>
 #include <Timer.hpp>
@@ -86,6 +87,12 @@ void EntanglingBalls::processImpact()
 			Variant shooterNodeName = shooterNodeName_;
 			if (shotPlayer->get_name() != String(shooterNodeName))
 				shotPlayer->inflictSlow(SLOW, SLOW_DURATION);
+			break;
+		}
+		else if (overlappedNode->is_in_group("Monster") && !overlappedNode->is_in_group("Boss"))
+		{
+			Monster* shotMonster = static_cast<Monster*>(overlappedNode);
+			shotMonster->inflictSlow(SLOW, SLOW_DURATION);
 			break;
 		}
 	}

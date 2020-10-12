@@ -22,6 +22,7 @@ void World::_register_methods()
 {
 	register_method("_init", &World::_init, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("_ready", &World::_ready, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getBlockSize", &World::getBlockSize, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getCeladonTeamSpawnPoint", &World::getCeladonTeamSpawnPoint, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getCrimsonTeamSpawnPoint", &World::getCrimsonTeamSpawnPoint, GODOT_METHOD_RPC_MODE_DISABLED);
 }

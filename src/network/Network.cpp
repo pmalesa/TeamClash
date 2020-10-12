@@ -1,5 +1,7 @@
 #include "Network.h"
 #include <iostream>
+#include <random>
+#include <ctime>
 
 #include <SceneTree.hpp>
 
@@ -24,6 +26,11 @@ void Network::_register_methods()
 	register_method("setChosenRole", &Network::setChosenRole, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getChosenTeam", &Network::getChosenTeam, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("getChosenRole", &Network::getChosenRole, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("setMonsterCount", &Network::setMonsterCount, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("enableSpecialEvent", &Network::enableSpecialEvent, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getMonsterCount", &Network::getMonsterCount, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("getMaxMonsterCount", &Network::getMaxMonsterCount, GODOT_METHOD_RPC_MODE_DISABLED);
+	register_method("specialEventEnabled", &Network::specialEventEnabled, GODOT_METHOD_RPC_MODE_DISABLED);
 	register_method("sendConnectedPlayersInfo", &Network::sendConnectedPlayersInfo, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("updateConnectedPlayers", &Network::updateConnectedPlayers, GODOT_METHOD_RPC_MODE_REMOTE);
 	register_method("_player_connected", &Network::_player_connected, GODOT_METHOD_RPC_MODE_DISABLED);
@@ -50,6 +57,9 @@ void Network::_ready()
 	networkId_ = 0;
 	chosenTeam_ = 0;
 	chosenRole_ = 0;
+
+	monsterCount_ = 0;
+	specialEventEnabled_ = false;
 
 	Godot::print("[NETWORK] Network ready.");
 }

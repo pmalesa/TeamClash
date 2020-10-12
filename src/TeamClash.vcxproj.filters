@@ -79,6 +79,24 @@
     <Filter Include="Source Files\music_module">
       <UniqueIdentifier>{1c4b5fd3-42d5-445e-8e4d-ea3e228de5cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\npc">
+      <UniqueIdentifier>{d7baafef-2074-454d-939b-7039450e3f78}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\npc\monsters">
+      <UniqueIdentifier>{870ce09b-94b5-44cc-bf56-d9a964857553}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\npc\monsters\imp">
+      <UniqueIdentifier>{366add23-e3a0-4ecd-95ab-dbbbcecdb98b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\npc">
+      <UniqueIdentifier>{7e8242a2-e277-4291-b69c-0c84c345f7ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\npc\monster">
+      <UniqueIdentifier>{5c39f455-2460-4028-91ad-272db54899cc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\npc\monster\imp">
+      <UniqueIdentifier>{d5362217-789c-4ac5-a7ea-ce496babc969}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scenes\MainMenu.cpp">
@@ -171,6 +189,12 @@
     <ClCompile Include="music_module\MusicModule.cpp">
       <Filter>Source Files\music_module</Filter>
     </ClCompile>
+    <ClCompile Include="npc\monsters\Monster.cpp">
+      <Filter>Source Files\npc\monster</Filter>
+    </ClCompile>
+    <ClCompile Include="npc\monsters\imp\Imp.cpp">
+      <Filter>Source Files\npc\monster\imp</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="scenes\MainMenu.h">
@@ -262,6 +286,12 @@
     </ClInclude>
     <ClInclude Include="music_module\MusicModule.h">
       <Filter>Header Files\music_module</Filter>
+    </ClInclude>
+    <ClInclude Include="npc\monsters\Monster.h">
+      <Filter>Header Files\npc\monsters</Filter>
+    </ClInclude>
+    <ClInclude Include="npc\monsters\imp\Imp.h">
+      <Filter>Header Files\npc\monsters\imp</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

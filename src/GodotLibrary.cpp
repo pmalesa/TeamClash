@@ -20,6 +20,9 @@
 #include "equipment/utility/EntanglingBalls.h"
 #include "equipment/utility/Trap.h"
 
+#include "npc/monsters/Monster.h"
+#include "npc/monsters/imp/Imp.h"
+
 #include "world/Block.h"
 #include "world/Biome.h"
 #include "world/World.h"
@@ -66,6 +69,8 @@ extern "C" void GDN_EXPORT godot_nativescript_init(void* handle)
 	godot::register_class<godot::ExplosiveBolt>();
 	godot::register_class<godot::EntanglingBalls>();
 	godot::register_class<godot::Trap>();
+	godot::register_class<godot::Monster>();
+	godot::register_class<godot::Imp>();
 	godot::register_class<godot::Block>();
 	godot::register_class<godot::World>();
 	godot::register_class<godot::Biome>();
